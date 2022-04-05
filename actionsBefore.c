@@ -17,7 +17,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
 
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
-    if (strcmp(buf5, "REGOK"))
+    if (strcmp(buf5, "REGOK") == 0)
     {
         char espace;
         recvError(recv(socketTCP, &espace, 1, 0));
@@ -25,7 +25,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
         recvError(recv(socketTCP, &m, sizeof(uint8_t), 0));
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
-    else if (strcmp(buf5, "REGNO"))
+    else if (strcmp(buf5, "REGNO") == 0)
     {
         fprintf(stdout, "Action incomprise.\n");
     }
@@ -57,7 +57,7 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
 
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
-    if (strcmp(buf5, "REGOK"))
+    if (strcmp(buf5, "REGOK") == 0)
     {
         char espace;
         recvError(recv(socketTCP, &espace, 1, 0));
@@ -65,7 +65,7 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         recvError(recv(socketTCP, &m, sizeof(uint8_t), 0));
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
-    else if (strcmp(buf5, "REGNO"))
+    else if (strcmp(buf5, "REGNO") == 0)
     {
         fprintf(stdout, "Action incomprise.\n");
     }
@@ -90,7 +90,7 @@ void desinscription(int socketTCP)
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
     printf("char : %s\n", buf5);
-    if (strcmp(buf5, "UNROK"))
+    if (strcmp(buf5, "UNROK") == 0)
     {
         char espace;
         recvError(recv(socketTCP, &espace, 1, 0));
@@ -98,7 +98,7 @@ void desinscription(int socketTCP)
         recvError(recv(socketTCP, &m, sizeof(uint8_t), 0));
         fprintf(stdout, "Vous êtes desinscris de la partie %d.\n", m);
     }
-    else if (strcmp(buf5, "DUNNO"))
+    else if (strcmp(buf5, "DUNNO") == 0)
     {
         fprintf(stdout, "Action incomprise.\n");
     }
@@ -125,7 +125,7 @@ void tailleLaby(int socketTCP, uint8_t num)
     // reception  [SIZE!␣m␣h␣w***] ou  [DUNNO***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
-    if (strcmp(buf5, "SIZE!"))
+    if (strcmp(buf5, "SIZE!") == 0)
     {
         char buf[9];
         recvError(recv(socketTCP, buf, 9, 0));
@@ -134,7 +134,7 @@ void tailleLaby(int socketTCP, uint8_t num)
         uint8_t w = atoi(&buf[5]);
         fprintf(stdout, "Labyrinthe %d : w = %d et h = %d.\n", m, w, h);
     }
-    else if (strcmp(buf5, "DUNNO"))
+    else if (strcmp(buf5, "DUNNO") == 0)
     {
         fprintf(stdout, "Action incomprise.\n");
     }
@@ -173,7 +173,7 @@ void listeJoueurs(int socketTCP, uint8_t num)
     // et reception   [LIST!␣m␣s***] puis s message    ou  [DUNNO***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
-    if (strcmp(buf5, "LIST!"))
+    if (strcmp(buf5, "LIST!") == 0)
     {
         char buf[7];
         recvError(recv(socketTCP, buf, 7, 0));
@@ -182,7 +182,7 @@ void listeJoueurs(int socketTCP, uint8_t num)
         fprintf(stdout, "%d joueurs dans la partie %d :\n", s, m);
         recupereJoueur(s, socketTCP);
     }
-    else if (strcmp(buf5, "DUNNO"))
+    else if (strcmp(buf5, "DUNNO") == 0)
     {
         fprintf(stdout, "Action incomprise.\n");
     }
@@ -219,7 +219,7 @@ void listeParties(int socketTCP)
     // et reception [GAMES␣n***] puis n message [OGAME␣m␣s***] ou  [DUNNO***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
-    if (strcmp(buf5, "GAMES"))
+    if (strcmp(buf5, "GAMES") == 0)
     {
         char buf[5];
         recvError(recv(socketTCP, buf, 5, 0));
@@ -227,7 +227,7 @@ void listeParties(int socketTCP)
         fprintf(stdout, "Games : %d\n", n);
         recupereGames(n, socketTCP);
     }
-    else if (strcmp(buf5, "DUNNO"))
+    else if (strcmp(buf5, "DUNNO") == 0)
     {
         fprintf(stdout, "Action incomprise.\n");
     }

@@ -121,7 +121,8 @@ int main()
     {
         // lecture du choix du joueur
         fprintf(stdout, "Que voulez-vous faire ?\n");
-        fprintf(stdout, "c (create), r (rejoindre), d (desinscrire), t (taille), j (liste joueurs), p (liste parties), s (start).\n");
+        fprintf(stdout, "c (create), r (rejoindre) x, d (desinscrire), t (taille) x, j (liste joueurs) x, p (liste parties), s (start).\n");
+        fprintf(stdout, "avec x = num partie si necessaire.\n");
         // action
 
         char *line = NULL;
