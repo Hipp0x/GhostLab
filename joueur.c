@@ -11,24 +11,33 @@
 
 char port[4];
 char identifiant[8];
+bool inscrit;
 
 /*
 -----------FONCTIONS-----------
 */
 
 // les actions que peut faire le joueur avant le debut d'une partie
-bool actionAvantPartie(int socketTCP, char *choix)
+bool actionAvantPartie(int socketTCP, char *ch)
 {
-    char a = choix[0];
-    switch (a)
+    char *sep = " ";
+    char *choix = strtok(ch, sep);
+    printf("char : %s\n", choix);
+    uint8_t num;
+    switch (choix[0])
     {
     case 'c':; // creer une partie
         creerPartie(socketTCP, identifiant, port);
+        inscrit = true;
         return false;
         break;
 
     case 'r':; // rejoindre une partie
-        rejoindrePartie(socketTCP, identifiant, port);
+        choix = strtok(NULL, sep);
+        printf("num : %s\n", choix);
+        num = atoi(choix);
+        rejoindrePartie(socketTCP, identifiant, port, num);
+        inscrit = true;
         return false;
         break;
 
@@ -38,12 +47,18 @@ bool actionAvantPartie(int socketTCP, char *choix)
         break;
 
     case 't':; // taille labyrinthe de la partie m
-        tailleLaby(socketTCP);
+        choix = strtok(NULL, sep);
+        printf("num : %s\n", choix);
+        num = atoi(choix);
+        tailleLaby(socketTCP, num);
         return false;
         break;
 
     case 'j':; // liste joueurs de la partie partie m
-        listeJoueurs(socketTCP);
+        choix = strtok(NULL, sep);
+        printf("num : %s\n", choix);
+        num = atoi(choix);
+        listeJoueurs(socketTCP, num);
         return false;
         break;
 
@@ -53,8 +68,16 @@ bool actionAvantPartie(int socketTCP, char *choix)
         break;
 
     case 's':; // start
-        start(socketTCP);
-        return true;
+        if (inscrit)
+        {
+            start(socketTCP);
+            return true;
+        }
+        else
+        {
+            fprintf(stdout, "Vous ne pouvez faire ca !\n");
+            return false;
+        }
         break;
 
     default:
@@ -93,11 +116,12 @@ int main()
     recupereGames(n, socketTCP);
 
     bool ans = false;
+    inscrit = false;
     while (!ans)
     {
         // lecture du choix du joueur
         fprintf(stdout, "Que voulez-vous faire ?\n");
-        fprintf(stdout, "c (create), r (rejoindre), d (desinscrire), t (taille), \n j (liste joueurs), p (liste parties), s (start).\n");
+        fprintf(stdout, "c (create), r (rejoindre), d (desinscrire), t (taille), j (liste joueurs), p (liste parties), s (start).\n");
         // action
 
         char *line = NULL;

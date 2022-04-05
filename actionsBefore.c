@@ -37,7 +37,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
     }
 }
 
-void rejoindrePartie(int socketTCP, char identifiant[], char port[])
+void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num)
 {
     // envoi format [REGIS␣id␣port␣m***]
     char buf22[22];
@@ -49,6 +49,9 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[])
     taille += 1;
     memmove(buf22 + taille, port, strlen(port));
     taille += strlen(port);
+    uint8_t m = num;
+    memmove(buf22 + taille, &m, sizeof(uint8_t));
+    taille += sizeof(uint8_t);
     memmove(buf22 + taille, "***", 3);
     sendError(send(socketTCP, buf22, strlen(buf22), 0));
 
@@ -83,7 +86,10 @@ void desinscription(int socketTCP)
 
     // reception  [UNROK␣m***] ou  [DUNNO***]
     char buf5[6];
+
     recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
+    printf("char : %s\n", buf5);
     if (strcmp(buf5, "UNROK"))
     {
         char espace;
@@ -104,13 +110,13 @@ void desinscription(int socketTCP)
     }
 }
 
-void tailleLaby(int socketTCP)
+void tailleLaby(int socketTCP, uint8_t num)
 {
     // envoi format [SIZE?␣m***]
     char buf10[10];
     memcpy(buf10, "SIZE? ", 6);
     size_t taille = 6;
-    uint8_t m = atoi("43");
+    uint8_t m = num;
     memmove(buf10 + taille, &m, sizeof(uint8_t));
     taille += sizeof(uint8_t);
     memmove(buf10 + taille, "***", 3);
@@ -152,13 +158,13 @@ void recupereJoueur(uint8_t s, int socketTCP)
     }
 }
 
-void listeJoueurs(int socketTCP)
+void listeJoueurs(int socketTCP, uint8_t num)
 {
     // envoi format [LIST?␣m***]
     char buf10[10];
     memcpy(buf10, "LIST? ", 6);
     size_t taille = 6;
-    uint8_t m = atoi("43");
+    uint8_t m = num;
     memmove(buf10 + taille, &m, sizeof(uint8_t));
     taille += sizeof(uint8_t);
     memmove(buf10 + taille, "***", 3);
