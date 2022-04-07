@@ -143,12 +143,12 @@ void tailleLaby(int socketTCP, uint8_t num)
     buf5[5] = '\0';
     if (strcmp(buf5, "SIZE!") == 0)
     {
-        size_t t = 6 + 3 * sizeof(uint8_t);
+        size_t t = 6 + sizeof(uint8_t) + 2 * sizeof(uint16_t);
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
-        uint8_t h = atoi(&buf[3]);
-        uint8_t w = atoi(&buf[5]);
+        uint16_t h = atoi(&buf[3]);
+        uint16_t w = atoi(&buf[5]);
         fprintf(stdout, "Labyrinthe %d : w = %d et h = %d.\n", m, w, h);
     }
     else if (strcmp(buf5, "DUNNO") == 0)

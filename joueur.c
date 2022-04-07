@@ -9,8 +9,8 @@
 -----------VARIABLES-----------
 */
 
-char port[4];
-char identifiant[8];
+char port[4] = "5467";
+char identifiant[8] = "pseudo00";
 bool inscrit;
 
 /*
