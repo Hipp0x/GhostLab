@@ -6,7 +6,7 @@ public class Serveur {
 
     public static void main(String[] args){
         try{
-            ServerSocket server=new ServerSocket(4252);
+            ServerSocket server=new ServerSocket(5555);
             while(true){
                 Socket socket=server.accept();
                 ServiceJoueur serv = new ServiceJoueur(socket);
