@@ -1,32 +1,36 @@
 #include "fonctions.h"
 #include "actionsBefore.h"
 
+// demande de la creation d'une partie
 void creerPartie(int socketTCP, char identifiant[], char port[])
 {
     char buf22[22];
     memcpy(buf22, "NEWPL ", 6);
     size_t taille = 6;
-    memmove(buf22 + taille, identifiant, strlen(identifiant));
-    taille += strlen(identifiant);
+    memmove(buf22 + taille, identifiant, 8);
+    taille += 8;
     memmove(buf22 + taille, " ", 1);
     taille += 1;
-    memmove(buf22 + taille, port, strlen(port));
-    taille += strlen(port);
+    memmove(buf22 + taille, port, 4);
+    taille += 4;
     memmove(buf22 + taille, "***", 3);
-    sendError(send(socketTCP, buf22, strlen(buf22), 0));
+    sendError(send(socketTCP, buf22, 22, 0));
 
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
     if (strcmp(buf5, "REGOK") == 0)
     {
-        char espace;
-        recvError(recv(socketTCP, &espace, 1, 0));
-        uint8_t m;
-        recvError(recv(socketTCP, &m, sizeof(uint8_t), 0));
+        size_t t = 4 + sizeof(uint8_t);
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
+        uint8_t m = atoi(&buf[1]);
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
     else
@@ -37,36 +41,43 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
     }
 }
 
+// demande pour rejoindre la partie num
 void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num)
 {
     // envoi format [REGIS␣id␣port␣m***]
-    char buf22[22];
+    size_t t = 23 + sizeof(uint8_t);
+    char buf22[t];
     memcpy(buf22, "REGIS ", 6);
     size_t taille = 6;
-    memmove(buf22 + taille, identifiant, strlen(identifiant));
-    taille += strlen(identifiant);
+    memmove(buf22 + taille, identifiant, 8);
+    taille += 8;
     memmove(buf22 + taille, " ", 1);
     taille += 1;
-    memmove(buf22 + taille, port, strlen(port));
-    taille += strlen(port);
+    memmove(buf22 + taille, port, 4);
+    taille += 4;
+    memmove(buf22 + taille, " ", 1);
+    taille += 1;
     uint8_t m = num;
     memmove(buf22 + taille, &m, sizeof(uint8_t));
     taille += sizeof(uint8_t);
     memmove(buf22 + taille, "***", 3);
-    sendError(send(socketTCP, buf22, strlen(buf22), 0));
+    sendError(send(socketTCP, buf22, t, 0));
 
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
     if (strcmp(buf5, "REGOK") == 0)
     {
-        char espace;
-        recvError(recv(socketTCP, &espace, 1, 0));
-        uint8_t m;
-        recvError(recv(socketTCP, &m, sizeof(uint8_t), 0));
+        size_t t = 4 + sizeof(uint8_t);
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
+        uint8_t m = atoi(&buf[1]);
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
     else
@@ -77,6 +88,7 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
     }
 }
 
+// demande de desinscription
 void desinscription(int socketTCP)
 {
     // envoi format [UNREG***]
@@ -86,20 +98,21 @@ void desinscription(int socketTCP)
 
     // reception  [UNROK␣m***] ou  [DUNNO***]
     char buf5[6];
-
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
     printf("char : %s\n", buf5);
     if (strcmp(buf5, "UNROK") == 0)
     {
-        char espace;
-        recvError(recv(socketTCP, &espace, 1, 0));
-        uint8_t m;
-        recvError(recv(socketTCP, &m, sizeof(uint8_t), 0));
+        size_t t = 4 + sizeof(uint8_t);
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
+        uint8_t m = atoi(&buf[1]);
         fprintf(stdout, "Vous êtes desinscris de la partie %d.\n", m);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
     else
@@ -110,25 +123,29 @@ void desinscription(int socketTCP)
     }
 }
 
+// demande de la taille du labyrinthe de la partie num
 void tailleLaby(int socketTCP, uint8_t num)
 {
     // envoi format [SIZE?␣m***]
-    char buf10[10];
+    size_t t = 9 + sizeof(uint8_t);
+    char buf10[t];
     memcpy(buf10, "SIZE? ", 6);
     size_t taille = 6;
     uint8_t m = num;
     memmove(buf10 + taille, &m, sizeof(uint8_t));
     taille += sizeof(uint8_t);
     memmove(buf10 + taille, "***", 3);
-    sendError(send(socketTCP, buf10, strlen(buf10), 0));
+    sendError(send(socketTCP, buf10, t, 0));
 
     // reception  [SIZE!␣m␣h␣w***] ou  [DUNNO***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
     if (strcmp(buf5, "SIZE!") == 0)
     {
-        char buf[9];
-        recvError(recv(socketTCP, buf, 9, 0));
+        size_t t = 6 + 3 * sizeof(uint8_t);
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
         uint8_t h = atoi(&buf[3]);
         uint8_t w = atoi(&buf[5]);
@@ -136,6 +153,8 @@ void tailleLaby(int socketTCP, uint8_t num)
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
     else
@@ -146,36 +165,41 @@ void tailleLaby(int socketTCP, uint8_t num)
     }
 }
 
+// receptions des s joueurs d'une partie
 void recupereJoueur(uint8_t s, int socketTCP)
 {
     for (uint8_t i = 0; i < s; i++)
     {
         // reception du message [PLAYR␣id***]
-        char buf[11];
-        recvError(recv(socketTCP, buf, 11, 0));
+        char buf[18];
+        recvError(recv(socketTCP, buf, 17, 0));
+        buf[17] = '\0';
         // affichage dans le terminal
         fprintf(stdout, "Joueur %s\n", &buf[6]);
     }
 }
 
+// demande de la liste de joueurs de la partie num
 void listeJoueurs(int socketTCP, uint8_t num)
 {
     // envoi format [LIST?␣m***]
-    char buf10[10];
+    size_t t = 9 + sizeof(uint8_t);
+    char buf10[t];
     memcpy(buf10, "LIST? ", 6);
     size_t taille = 6;
     uint8_t m = num;
     memmove(buf10 + taille, &m, sizeof(uint8_t));
     taille += sizeof(uint8_t);
     memmove(buf10 + taille, "***", 3);
-    sendError(send(socketTCP, buf10, strlen(buf10), 0));
+    sendError(send(socketTCP, buf10, t, 0));
 
     // et reception   [LIST!␣m␣s***] puis s message    ou  [DUNNO***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
     if (strcmp(buf5, "LIST!") == 0)
     {
-        char buf[7];
+        char buf[5 + 2 * (sizeof(uint8_t))];
         recvError(recv(socketTCP, buf, 7, 0));
         uint8_t m = atoi(&buf[1]);
         uint8_t s = atoi(&buf[3]);
@@ -184,6 +208,8 @@ void listeJoueurs(int socketTCP, uint8_t num)
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
     else
@@ -200,8 +226,9 @@ void recupereGames(uint8_t n, int socketTCP)
     for (uint8_t i = 0; i < n; i++)
     {
         // reception du message [OGAME␣m␣s***]
-        char buf[12];
-        recvError(recv(socketTCP, buf, 12, 0));
+        size_t t = 10 + 2 * sizeof(uint8_t);
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
         // affichage dans le terminal
         uint8_t m = atoi(&buf[6]);
         uint8_t s = atoi(&buf[8]);
@@ -209,26 +236,31 @@ void recupereGames(uint8_t n, int socketTCP)
     }
 }
 
+// demande de la liste des parties
 void listeParties(int socketTCP)
 {
     //  [GAME?***]
     char buf8[8];
     memcpy(buf8, "GAME?***", 8);
-    sendError(send(socketTCP, buf8, strlen(buf8), 0));
+    sendError(send(socketTCP, buf8, 8, 0));
 
     // et reception [GAMES␣n***] puis n message [OGAME␣m␣s***] ou  [DUNNO***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
     if (strcmp(buf5, "GAMES") == 0)
     {
-        char buf[5];
-        recvError(recv(socketTCP, buf, 5, 0));
+        size_t t = 4 + sizeof(uint8_t);
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
         uint8_t n = atoi(&buf[1]);
         fprintf(stdout, "Games : %d\n", n);
         recupereGames(n, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
     else
@@ -239,10 +271,11 @@ void listeParties(int socketTCP)
     }
 }
 
+// demande de start
 void start(int socketTCP)
 {
     //[START***]
     char buf8[8];
     memcpy(buf8, "START***", 8);
-    sendError(send(socketTCP, buf8, strlen(buf8), 0));
+    sendError(send(socketTCP, buf8, 8, 0));
 }

@@ -107,8 +107,9 @@ int main()
     connectError(sock_client);
 
     // reception de [GAMES␣n***]
-    char buf[10];
-    recvError(recv(socketTCP, buf, 10, 0));
+    size_t t = 9 + sizeof(uint8_t);
+    char buf[t];
+    recvError(recv(socketTCP, buf, t, 0));
     uint8_t n = atoi(&buf[6]);
     fprintf(stdout, "GAMES %d \n", n);
 
@@ -122,7 +123,7 @@ int main()
         // lecture du choix du joueur
         fprintf(stdout, "Que voulez-vous faire ?\n");
         fprintf(stdout, "c (create), r (rejoindre) x, d (desinscrire), t (taille) x, j (liste joueurs) x, p (liste parties), s (start).\n");
-        fprintf(stdout, "avec x = num partie si necessaire.\n");
+        fprintf(stdout, "avec x = num partie, si necessaire.\n");
         // action
 
         char *line = NULL;
