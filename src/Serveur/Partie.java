@@ -10,7 +10,7 @@ public class Partie {
 
     public Partie(){
         id = idCompt++;
-        nbJoueurs = 1;
+        nbJoueurs = 0;
     }
 
     public int getId() {
@@ -21,11 +21,8 @@ public class Partie {
         return nbJoueurs;
     }
 
-    public synchronized void incrNbJoueurs() {
-        this.nbJoueurs++;
-    }
-
     public synchronized void addJoueur(Joueur joueur){
         joueurs.add(joueur);
+        ++nbJoueurs;
     }
 }
