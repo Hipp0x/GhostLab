@@ -25,4 +25,13 @@ public class Partie {
         joueurs.add(joueur);
         ++nbJoueurs;
     }
+
+    public synchronized void removeJoueur(Joueur joueur){
+        joueurs.removeIf(j -> j.getId().equals(joueur.getId()));
+        --nbJoueurs;
+    }
+
+    public ArrayList<Joueur> getJoueurs() {
+        return joueurs;
+    }
 }
