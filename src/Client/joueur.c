@@ -107,7 +107,7 @@ int main()
     connectError(sock_client);
 
     // reception de [GAMES␣n***]
-    size_t t = 10;
+    size_t t = 9 + sizeof(uint8_t);
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
     printf("%s\n", buf);

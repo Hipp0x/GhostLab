@@ -21,7 +21,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
     buf5[5] = '\0';
     if (strcmp(buf5, "REGOK") == 0)
     {
-        size_t t = 4 + sizeof(uint8_t);
+        size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
@@ -45,7 +45,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
 void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num)
 {
     // envoi format [REGIS␣id␣port␣m***]
-    size_t t = 23 + sizeof(uint8_t);
+    size_t t = 23 + 1;
     char buf22[t];
     memcpy(buf22, "REGIS ", 6);
     size_t taille = 6;
@@ -58,8 +58,8 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
     memmove(buf22 + taille, " ", 1);
     taille += 1;
     uint8_t m = num;
-    memmove(buf22 + taille, &m, sizeof(uint8_t));
-    taille += sizeof(uint8_t);
+    memmove(buf22 + taille, &m, 1);
+    taille += 1;
     memmove(buf22 + taille, "***", 3);
     sendError(send(socketTCP, buf22, t, 0));
 
@@ -68,7 +68,7 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
     buf5[5] = '\0';
     if (strcmp(buf5, "REGOK") == 0)
     {
-        size_t t = 4 + sizeof(uint8_t);
+        size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
@@ -94,7 +94,7 @@ void desinscription(int socketTCP)
     // envoi format [UNREG***]
     char buf8[8];
     memcpy(buf8, "UNREG***", 8);
-    sendError(send(socketTCP, buf8, sizeof(buf8), 0));
+    sendError(send(socketTCP, buf8, 8, 0));
 
     // reception  [UNROK␣m***] ou  [DUNNO***]
     char buf5[6];
@@ -103,7 +103,7 @@ void desinscription(int socketTCP)
     printf("char : %s\n", buf5);
     if (strcmp(buf5, "UNROK") == 0)
     {
-        size_t t = 4 + sizeof(uint8_t);
+        size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
@@ -127,13 +127,13 @@ void desinscription(int socketTCP)
 void tailleLaby(int socketTCP, uint8_t num)
 {
     // envoi format [SIZE?␣m***]
-    size_t t = 9 + sizeof(uint8_t);
+    size_t t = 9 + 1;
     char buf10[t];
     memcpy(buf10, "SIZE? ", 6);
     size_t taille = 6;
     uint8_t m = num;
-    memmove(buf10 + taille, &m, sizeof(uint8_t));
-    taille += sizeof(uint8_t);
+    memmove(buf10 + taille, &m, 1);
+    taille += 1;
     memmove(buf10 + taille, "***", 3);
     sendError(send(socketTCP, buf10, t, 0));
 
@@ -143,7 +143,7 @@ void tailleLaby(int socketTCP, uint8_t num)
     buf5[5] = '\0';
     if (strcmp(buf5, "SIZE!") == 0)
     {
-        size_t t = 6 + sizeof(uint8_t) + 2 * sizeof(uint16_t);
+        size_t t = 6 + 1 + 2 * 2;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
@@ -183,13 +183,13 @@ void recupereJoueur(uint8_t s, int socketTCP)
 void listeJoueurs(int socketTCP, uint8_t num)
 {
     // envoi format [LIST?␣m***]
-    size_t t = 9 + sizeof(uint8_t);
+    size_t t = 9 + 1;
     char buf10[t];
     memcpy(buf10, "LIST? ", 6);
     size_t taille = 6;
     uint8_t m = num;
-    memmove(buf10 + taille, &m, sizeof(uint8_t));
-    taille += sizeof(uint8_t);
+    memmove(buf10 + taille, &m, 1);
+    taille += 1;
     memmove(buf10 + taille, "***", 3);
     sendError(send(socketTCP, buf10, t, 0));
 
@@ -199,7 +199,7 @@ void listeJoueurs(int socketTCP, uint8_t num)
     buf5[5] = '\0';
     if (strcmp(buf5, "LIST!") == 0)
     {
-        char buf[5 + 2 * (sizeof(uint8_t))];
+        char buf[5 + 2 * 1];
         recvError(recv(socketTCP, buf, 7, 0));
         uint8_t m = atoi(&buf[1]);
         uint8_t s = atoi(&buf[3]);
@@ -226,7 +226,7 @@ void recupereGames(uint8_t n, int socketTCP)
     for (uint8_t i = 0; i < n; i++)
     {
         // reception du message [OGAME␣m␣s***]
-        size_t t = 10 + 2 * sizeof(uint8_t);
+        size_t t = 10 + 2 * 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         // affichage dans le terminal
@@ -250,7 +250,7 @@ void listeParties(int socketTCP)
     buf5[5] = '\0';
     if (strcmp(buf5, "GAMES") == 0)
     {
-        size_t t = 4 + sizeof(uint8_t);
+        size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t n = atoi(&buf[1]);
