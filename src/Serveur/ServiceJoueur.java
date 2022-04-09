@@ -1,22 +1,23 @@
 package Serveur;
+
 import java.net.*;
 import java.io.*;
 import java.lang.*;
 import java.util.ArrayList;
 
-public class ServiceJoueur implements Runnable{
+public class ServiceJoueur implements Runnable {
 
     private final Socket socket;
     private Partie game;
     private Joueur player;
-    private static  ArrayList<Partie> parties = new ArrayList<Partie>();
+    private static ArrayList<Partie> parties = new ArrayList<Partie>();
 
-    public ServiceJoueur(Socket s){
-        this.socket=s;
+    public ServiceJoueur(Socket s) {
+        this.socket = s;
     }
 
-    public void run(){
-        try{
+    public void run() {
+        try {
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             boolean good = false;
@@ -25,14 +26,14 @@ public class ServiceJoueur implements Runnable{
             int gameId = -1;
             String[] infos;
 
-            //Loop for the player to register into a game or create one.
+            // Loop for the player to register into a game or create one.
             do {
 
                 printAvailableGames(pw);
                 String action = getAction(br, pw);
 
                 switch (action) {
-                    case "NEWPL" -> {
+                    case "NEWPL": {
                         infos = getInfos(0, br);
                         if (!verifyInfos(infos)) {
                             pw.print("REGNO***");
@@ -52,7 +53,7 @@ public class ServiceJoueur implements Runnable{
                         good = true;
                     }
 
-                    case "REGIS" -> {
+                    case "REGIS": {
                         infos = getInfos(1, br);
                         if (!verifyInfos(infos)) {
                             pw.print("REGNO***");
@@ -78,33 +79,34 @@ public class ServiceJoueur implements Runnable{
                             pw.flush();
                         }
                     }
-                    default -> dunno(pw);
+                    default:
+                        dunno(pw);
                 }
 
-            }while(!good);
+            } while (!good);
 
-            while(true){
-                String action = getAction(br,pw);
+            while (true) {
+                String action = getAction(br, pw);
 
                 switch (action) {
-                    case "UNREG" -> {
+                    case "UNREG": {
                         gameId = game.getId();
                         trashAsterisks(br);
                         game.removeJoueur(player);
                         pw.print("UNROK " + gameId + "***");
                         pw.flush();
                     }
-                    case "SIZE?" -> {
+                    case "SIZE?": {
 
                     }
-                    case "LIST?" ->{
-                        infos = getInfos(2,br);
+                    case "LIST?": {
+                        infos = getInfos(2, br);
                         gameId = Integer.parseInt(infos[0]);
                         for (Partie p : parties) {
                             if (p.getId() == gameId) {
                                 pw.print("LIST! " + gameId + " " + p.getNbJoueurs() + "***");
                                 pw.flush();
-                                for (Joueur j : p.getJoueurs()){
+                                for (Joueur j : p.getJoueurs()) {
                                     pw.print("PLAYR " + j.getId() + "***");
                                     pw.flush();
                                 }
@@ -112,11 +114,12 @@ public class ServiceJoueur implements Runnable{
                             }
                         }
                     }
-                    case "GAME?" ->{
+                    case "GAME?": {
                         trashAsterisks(br);
                         printAvailableGames(pw);
                     }
-                    default -> dunno(pw);
+                    default:
+                        dunno(pw);
 
                 }
                 break;
@@ -125,8 +128,7 @@ public class ServiceJoueur implements Runnable{
             br.close();
             pw.close();
             socket.close();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
         }
@@ -134,33 +136,33 @@ public class ServiceJoueur implements Runnable{
 
     public void trashAsterisks(BufferedReader br) throws IOException {
         char[] trash = new char[3];
-        readError(br.read(trash,0,3), socket);
+        readError(br.read(trash, 0, 3), socket);
     }
 
-    public void printAvailableGames(PrintWriter pw){
-        pw.print("GAMES "+parties.size()+"***");
+    public void printAvailableGames(PrintWriter pw) {
+        pw.print("GAMES " + parties.size() + "***");
         pw.flush();
-        //Envoi de toutes les parties créées à l'utilisateur
-        for(Partie p : parties){
+        // Envoi de toutes les parties créées à l'utilisateur
+        for (Partie p : parties) {
             pw.print("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***");
             pw.flush();
         }
     }
 
-    public boolean verifyInfos(String[] infos){
+    public boolean verifyInfos(String[] infos) {
         System.out.println(infos);
-        //Vérifie le port
-        if( !(infos[1].length() == 4 && infos[1].matches("[0-9]+")) ){
+        // Vérifie le port
+        if (!(infos[1].length() == 4 && infos[1].matches("[0-9]+"))) {
             return false;
         }
-        System.out.println("Past Port :" );
-        //Vérifie l'identifiant
-        if( !(infos[0].length() == 8 && infos[0].matches("[a-zA-Z0-9]+")) ){
+        System.out.println("Past Port :");
+        // Vérifie l'identifiant
+        if (!(infos[0].length() == 8 && infos[0].matches("[a-zA-Z0-9]+"))) {
             return false;
         }
         System.out.println(infos.length);
-        //Vérifie le numéro de la partie si il y en a un
-        if( infos.length == 3 && !infos[1].matches("[0-9]+") ){
+        // Vérifie le numéro de la partie si il y en a un
+        if (infos.length == 3 && !infos[1].matches("[0-9]+")) {
             return false;
         }
         return true;
@@ -168,8 +170,8 @@ public class ServiceJoueur implements Runnable{
 
     public String getAction(BufferedReader br, PrintWriter pw) throws IOException {
         char[] buf = new char[5];
-        int r = br.read(buf,0,5);
-        if(!(r > 0)){
+        int r = br.read(buf, 0, 5);
+        if (!(r > 0)) {
             pw.close();
             br.close();
             socket.close();
@@ -177,15 +179,15 @@ public class ServiceJoueur implements Runnable{
         return new String(buf);
     }
 
-    public String[] getInfos(int which, BufferedReader br)throws IOException{
+    public String[] getInfos(int which, BufferedReader br) throws IOException {
         switch (which) {
-            case 0 -> {
+            case 0: {
                 char[] create = new char[17];
                 readError(br.read(create, 0, 17), socket);
                 System.out.println(new String(create));
                 return ((new String(create)).substring(1, 14)).split(" ");
             }
-            case 1 -> {
+            case 1: {
                 String[] info = new String[3];
                 char[] join = new char[15];
                 readError(br.read(join, 0, 15), socket);
@@ -196,15 +198,15 @@ public class ServiceJoueur implements Runnable{
                 info[2] = getGameId(br);
                 return info;
             }
-            case 2 -> {
+            case 2: {
                 char[] trash = new char[1];
-                readError(br.read(trash,0,1), socket);
+                readError(br.read(trash, 0, 1), socket);
                 String gameId = getGameId(br);
                 trashAsterisks(br);
-                return new String[]{gameId};
+                return new String[] { gameId };
             }
         }
-        return new String[]{""};
+        return new String[] { "" };
     }
 
     public String getGameId(BufferedReader br) throws IOException {
@@ -222,20 +224,18 @@ public class ServiceJoueur implements Runnable{
         return new String(gameID);
     }
 
-
     public void readError(int readRet, Socket sock) throws IOException {
-        if(!(readRet > 0)){
+        if (!(readRet > 0)) {
             sock.close();
         }
     }
 
-    public void dunno(PrintWriter pw){
+    public void dunno(PrintWriter pw) {
         pw.print("DUNNO***");
         pw.flush();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
     }
 
 }
-
