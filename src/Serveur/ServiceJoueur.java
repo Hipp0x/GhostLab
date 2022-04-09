@@ -1,21 +1,19 @@
 package Serveur;
+
 import java.net.*;
 import java.io.*;
 import java.lang.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
-public class ServiceJoueur implements Runnable{
+public class ServiceJoueur implements Runnable {
 
     private final Socket socket;
     private Partie game;
     private Joueur player;
-    private static  ArrayList<Partie> parties = new ArrayList<Partie>();
+    private static ArrayList<Partie> parties = new ArrayList<Partie>();
 
-    public ServiceJoueur(Socket s){
-        this.socket=s;
+    public ServiceJoueur(Socket s) {
+        this.socket = s;
     }
 
     public void run(){
@@ -25,10 +23,10 @@ public class ServiceJoueur implements Runnable{
             boolean good = false;
             String id;
             int port;
-            Integer gameId = -1;
+            int gameId = -1;
             String[] infos;
 
-            //Loop for the player to register into a game or create one.
+            // Loop for the player to register into a game or create one.
             do {
 
                 printAvailableGames(os);
@@ -72,7 +70,7 @@ public class ServiceJoueur implements Runnable{
                                 p.addJoueur(player);
                                 game = p;
                                 good = true;
-                                os.write(("REGOK " + gameId.byteValue() + "***").getBytes());
+                                os.write(("REGOK " + gameId + "***").getBytes());
                                 os.flush();
                                 break;
                             }
@@ -85,20 +83,20 @@ public class ServiceJoueur implements Runnable{
                     default -> dunno(os);
                 }
 
-            }while(!good);
+            } while (!good);
 
             while(true){
                 String action = getAction(iso,os);
 
                 switch (action) {
-                    case "UNREG" -> {
+                    case "UNREG"-> {
                         gameId = game.getId();
-                        iso.readAllBytes();
+                        clearIS(iso);
                         game.removeJoueur(player);
                         os.write(("UNROK " + gameId + "***").getBytes());
                         os.flush();
                     }
-                    case "SIZE?" -> {
+                    case "SIZE?"-> {
 
                     }
                     case "LIST?" ->{
@@ -129,8 +127,7 @@ public class ServiceJoueur implements Runnable{
             iso.close();
             os.close();
             socket.close();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
         }
@@ -138,7 +135,7 @@ public class ServiceJoueur implements Runnable{
 
     public void trashAsterisks(BufferedReader br) throws IOException {
         char[] trash = new char[3];
-        readError(br.read(trash,0,3), socket);
+        readError(br.read(trash, 0, 3), socket);
     }
 
     public void printAvailableGames(OutputStream os) throws IOException {
@@ -212,7 +209,7 @@ public class ServiceJoueur implements Runnable{
                 return new String[]{new String(gameID)};
             }
         }
-        return new String[]{""};
+        return new String[] { "" };
     }
 
     public String getGameId(BufferedReader br) throws IOException {
@@ -239,7 +236,7 @@ public class ServiceJoueur implements Runnable{
 
 
     public void readError(int readRet, Socket sock) throws IOException {
-        if(!(readRet > 0)){
+        if (!(readRet > 0)) {
             sock.close();
         }
     }
@@ -249,8 +246,7 @@ public class ServiceJoueur implements Runnable{
         os.flush();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
     }
 
 }
-

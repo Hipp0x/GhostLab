@@ -1,5 +1,5 @@
-#include "fonctions.h"
-#include "actionsBefore.h"
+#include "headers/fonctions.h"
+#include "headers/actionsBefore.h"
 
 // demande de la creation d'une partie
 void creerPartie(int socketTCP, char identifiant[], char port[])
