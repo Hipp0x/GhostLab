@@ -71,6 +71,7 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
+        printf("%s\n", buf);
         uint8_t m = atoi(&buf[1]);
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
@@ -171,7 +172,7 @@ void recupereJoueur(uint8_t s, int socketTCP)
     for (uint8_t i = 0; i < s; i++)
     {
         // reception du message [PLAYR␣id***]
-        char buf[18];
+        char buf[17];
         recvError(recv(socketTCP, buf, 17, 0));
         buf[17] = '\0';
         // affichage dans le terminal
@@ -229,6 +230,7 @@ void recupereGames(uint8_t n, int socketTCP)
         size_t t = 10 + 2 * 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
+        printf("%s\n", buf);
         // affichage dans le terminal
         uint8_t m = atoi(&buf[6]);
         uint8_t s = atoi(&buf[8]);
