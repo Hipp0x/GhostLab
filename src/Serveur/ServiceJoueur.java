@@ -33,7 +33,7 @@ public class ServiceJoueur implements Runnable {
                 String action = getAction(iso, os);
 
                 switch (action) {
-                    case "NEWPL" -> {
+                    case "NEWPL":
                         infos = getInfos(0, iso);
                         if (!verifyInfos(infos)) {
                             os.write(("REGNO***").getBytes());
@@ -51,9 +51,8 @@ public class ServiceJoueur implements Runnable {
                         os.write(("REGOK " + game.getId() + "***").getBytes());
                         os.flush();
                         good = true;
-                    }
-
-                    case "REGIS" -> {
+                        break;
+                    case "REGIS":
                         infos = getInfos(1, iso);
                         if (!verifyInfos(infos)) {
                             os.write(("REGNO***").getBytes());
@@ -79,8 +78,10 @@ public class ServiceJoueur implements Runnable {
                             os.write(("REGNO***").getBytes());
                             os.flush();
                         }
-                    }
-                    default -> dunno(os);
+                        break;
+                    default:
+                        dunno(os);
+                        break;
                 }
 
             } while (!good);
@@ -89,37 +90,37 @@ public class ServiceJoueur implements Runnable {
                 String action = getAction(iso,os);
 
                 switch (action) {
-                    case "UNREG"-> {
+                    case "UNREG":
                         gameId = game.getId();
                         clearIS(iso);
                         game.removeJoueur(player);
                         os.write(("UNROK " + gameId + "***").getBytes());
                         os.flush();
-                    }
-                    case "SIZE?"-> {
-
-                    }
-                    case "LIST?" ->{
-                        infos = getInfos(2,iso);
+                        break;
+                    case "SIZE?":
+                        break;
+                    case "LIST?":
+                        infos = getInfos(2, iso);
                         gameId = Integer.parseInt(infos[0]);
                         for (Partie p : parties) {
                             if (p.getId() == gameId) {
                                 os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes());
                                 os.flush();
-                                for (Joueur j : p.getJoueurs()){
+                                for (Joueur j : p.getJoueurs()) {
                                     os.write(("PLAYR " + j.getId() + "***").getBytes());
                                     os.flush();
                                 }
                                 break;
                             }
                         }
-                    }
-                    case "GAME?" ->{
+                        break;
+                    case "GAME?":
                         iso.readAllBytes();
                         printAvailableGames(os);
-                    }
-                    default -> dunno(os);
-
+                        break;
+                    default:
+                        dunno(os);
+                        break;
                 }
                 break;
             }
@@ -147,6 +148,10 @@ public class ServiceJoueur implements Runnable {
             os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes());
             os.flush();
         }
+    }
+
+    public byte[] getGameBytes(Partie p){
+        return new byte[]{};
     }
 
     public boolean verifyInfos(String[] infos){
@@ -178,13 +183,12 @@ public class ServiceJoueur implements Runnable {
 
     public String[] getInfos(int which, InputStream iso)throws IOException{
         switch (which) {
-            case 0 -> {
+            case 0:
                 byte[] create = new byte[17];
                 readError(iso.read(create, 0, 17), socket);
                 clearIS(iso);
                 return ((new String(create)).substring(1, 14)).split(" ");
-            }
-            case 1 -> {
+            case 1:
                 String[] info = new String[3];
                 byte[] join = new byte[14];
                 readError(iso.read(join, 0, 14), socket);
@@ -192,22 +196,20 @@ public class ServiceJoueur implements Runnable {
                 String[] tmp = (infos.substring(1)).split(" ");
                 int trash = iso.read();
                 int gameId = iso.read();
-                System.out.println("Valeur originale : "+gameId);
-                System.out.println("Valeur après conversion : "+(gameId & 0xFF));
+                System.out.println("Valeur originale : " + gameId);
+                System.out.println("Valeur après conversion : " + (gameId & 0xFF));
                 clearIS(iso);
                 info[0] = tmp[0];
                 info[1] = tmp[1];
                 info[2] = Integer.toString(gameId);
                 return info;
-            }
-            case 2 -> {
-                byte[] trash = new byte[1];
+            case 2:
+                byte[] trashh = new byte[1];
                 byte[] gameID = new byte[1];
-                readError(iso.read(trash,0,1), socket);
-                readError(iso.read(gameID,0,1), socket);
+                readError(iso.read(trashh, 0, 1), socket);
+                readError(iso.read(gameID, 0, 1), socket);
                 iso.readAllBytes();
                 return new String[]{new String(gameID)};
-            }
         }
         return new String[] { "" };
     }
