@@ -93,7 +93,7 @@ int main()
     //
     struct sockaddr_in address_sock;
     address_sock.sin_family = AF_INET;
-    address_sock.sin_port = htons(5555);
+    address_sock.sin_port = htons(5621);
     address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 
     // socket tcp serveur
@@ -107,9 +107,10 @@ int main()
     connectError(sock_client);
 
     // reception de [GAMES␣n***]
-    size_t t = 9 + sizeof(uint8_t);
+    size_t t = 10;
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
+    printf("%s\n", buf);
     uint8_t n = atoi(&buf[6]);
     fprintf(stdout, "GAMES %d \n", n);
 

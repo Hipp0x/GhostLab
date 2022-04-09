@@ -3,6 +3,7 @@ package Serveur;
 import java.net.*;
 import java.io.*;
 import java.lang.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class ServiceJoueur implements Runnable {
@@ -94,7 +95,7 @@ public class ServiceJoueur implements Runnable {
                         gameId = game.getId();
                         clearIS(iso);
                         game.removeJoueur(player);
-                        os.write(("UNROK " + gameId + "***").getBytes());
+                        os.write(("UNROK " + gameId + "***").getBytes(), 0, 10);
                         os.flush();
                         break;
                     case "SIZE?":
@@ -104,10 +105,10 @@ public class ServiceJoueur implements Runnable {
                         gameId = Integer.parseInt(infos[0]);
                         for (Partie p : parties) {
                             if (p.getId() == gameId) {
-                                os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes());
+                                os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
                                 os.flush();
                                 for (Joueur j : p.getJoueurs()) {
-                                    os.write(("PLAYR " + j.getId() + "***").getBytes());
+                                    os.write(("PLAYR " + j.getId() + "***").getBytes(),0,17);
                                     os.flush();
                                 }
                                 break;
@@ -115,7 +116,7 @@ public class ServiceJoueur implements Runnable {
                         }
                         break;
                     case "GAME?":
-                        iso.readAllBytes();
+                        clearIS(iso);
                         printAvailableGames(os);
                         break;
                     default:
@@ -140,18 +141,15 @@ public class ServiceJoueur implements Runnable {
     }
 
     public void printAvailableGames(OutputStream os) throws IOException {
-        os.write(("GAMES "+parties.size()+"***").getBytes());
+
+        os.write(("GAMES "+parties.size()+"***").getBytes(),0,10);
         os.flush();
         byte[] game = new byte[12];
         //Envoi de toutes les parties créées à l'utilisateur
         for(Partie p : parties){
-            os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes());
+            os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes(),0,12);
             os.flush();
         }
-    }
-
-    public byte[] getGameBytes(Partie p){
-        return new byte[]{};
     }
 
     public boolean verifyInfos(String[] infos){
@@ -198,18 +196,16 @@ public class ServiceJoueur implements Runnable {
                 int gameId = iso.read();
                 System.out.println("Valeur originale : " + gameId);
                 System.out.println("Valeur après conversion : " + (gameId & 0xFF));
-                clearIS(iso);
                 info[0] = tmp[0];
                 info[1] = tmp[1];
                 info[2] = Integer.toString(gameId);
+                clearIS(iso);
                 return info;
             case 2:
-                byte[] trashh = new byte[1];
-                byte[] gameID = new byte[1];
-                readError(iso.read(trashh, 0, 1), socket);
-                readError(iso.read(gameID, 0, 1), socket);
-                iso.readAllBytes();
-                return new String[]{new String(gameID)};
+                int trashh = iso.read();
+                int gameID = iso.read();
+                clearIS(iso);
+                return new String[]{Integer.toString(gameID)};
         }
         return new String[] { "" };
     }
@@ -244,7 +240,7 @@ public class ServiceJoueur implements Runnable {
     }
 
     public void dunno(OutputStream os) throws IOException {
-        os.write(("DUNNO***").getBytes());
+        os.write(("DUNNO***").getBytes(),0,8);
         os.flush();
     }
 
