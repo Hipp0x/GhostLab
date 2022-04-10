@@ -7,8 +7,12 @@ public class Partie {
     private static int idCompt = 0;
     private int nbJoueurs;
     private ArrayList<Joueur> joueurs = new ArrayList<>();
+    private Labyrinthe labyrinthe;
+    // adresse ip
+    // port multi diffusion
+    // nb fantome
 
-    public Partie(){
+    public Partie() {
         id = idCompt++;
         nbJoueurs = 0;
     }
@@ -21,12 +25,12 @@ public class Partie {
         return nbJoueurs;
     }
 
-    public synchronized void addJoueur(Joueur joueur){
+    public synchronized void addJoueur(Joueur joueur) {
         joueurs.add(joueur);
         ++nbJoueurs;
     }
 
-    public synchronized void removeJoueur(Joueur joueur){
+    public synchronized void removeJoueur(Joueur joueur) {
         joueurs.removeIf(j -> j.getId().equals(joueur.getId()));
         --nbJoueurs;
     }
