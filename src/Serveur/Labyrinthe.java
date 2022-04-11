@@ -1,5 +1,8 @@
 package Serveur;
 
+import java.util.*;
+import java.net.*;
+
 public class Labyrinthe {
 
     private int h;
