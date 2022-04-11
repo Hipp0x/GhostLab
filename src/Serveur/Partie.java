@@ -1,6 +1,7 @@
 package Serveur;
 
-import java.util.ArrayList;
+import java.net.*;
+import java.util.*;
 
 public class Partie {
     private final int id;
@@ -9,7 +10,7 @@ public class Partie {
     private ArrayList<Joueur> joueurs = new ArrayList<>();
     private Labyrinthe labyrinthe;
     // adresse ip
-    private String adresse;
+    private String ip;
     // port multi diffusion
     private int portMulti;
     // nb fantome
@@ -22,6 +23,14 @@ public class Partie {
 
     public int getId() {
         return id;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public int getPortMulti() {
+        return portMulti;
     }
 
     public int getNbJoueurs() {
@@ -40,5 +49,9 @@ public class Partie {
 
     public ArrayList<Joueur> getJoueurs() {
         return joueurs;
+    }
+
+    public boolean peutDemarer() {
+        return true;
     }
 }

@@ -6,7 +6,6 @@
 #
 # Don't touch anything else, the variables are here to do the work for you
 
-JFLAGS = -g
 JC = javac
 
 CC ?= gcc
@@ -17,16 +16,22 @@ CLFAGS ?= -Wall
 
 
 .java.class:
-	$(JC) $(JFLAGS) $*.java
+	$(JC) $*.java
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 CLASSES = \
+	Serveur/Case.java \
+	Serveur/Fantome.java \
 	Serveur/Joueur.java \
+	Serveur/Labyrinthe.java \
 	Serveur/Partie.java \
 	Serveur/Serveur.java \
-	Serveur/ServiceJoueur.java
+	Serveur/ServiceConnexion.java \
+	Serveur/ServiceJoueur.java \
+	Serveur/ServiceLancementPartie.java \
+	Serveur/ServicePartie.java
 
 	# all the object files cassini needs
 OBJFILES = Client/joueur.o Client/fonctions.o Client/actionsBefore.o

@@ -2,8 +2,8 @@ package Serveur;
 
 import java.net.*;
 import java.io.*;
-import java.lang.*;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class ServiceJoueur implements Runnable {
 
@@ -12,12 +12,13 @@ public class ServiceJoueur implements Runnable {
     private Joueur player;
     private static ArrayList<Partie> parties = new ArrayList<Partie>();
 
-    public ServiceJoueur(Socket s) {
+    public ServiceJoueur(Socket s, ArrayList<Partie> p) {
         this.socket = s;
+        parties = p;
     }
 
-    public void run(){
-        try{
+    public void run() {
+        try {
             InputStream iso = socket.getInputStream();
             OutputStream os = socket.getOutputStream();
             boolean good = false;
@@ -36,19 +37,19 @@ public class ServiceJoueur implements Runnable {
                     case "NEWPL":
                         infos = getInfos(0, iso);
                         if (!verifyInfos(infos)) {
-                            os.write(("REGNO***").getBytes(),0,8);
+                            os.write(("REGNO***").getBytes(), 0, 8);
                             os.flush();
                             continue;
                         }
                         id = infos[0];
                         port = Integer.parseInt(infos[1]);
-                        player = new Joueur(id, port);
+                        player = new Joueur(id, port, socket);
                         game = new Partie();
                         game.addJoueur(player);
                         synchronized ((Object) parties) {
                             parties.add(game);
                         }
-                        os.write(("REGOK " + game.getId() + "***").getBytes(),0,17);
+                        os.write(("REGOK " + game.getId() + "***").getBytes(), 0, 17);
                         os.flush();
                         good = true;
                         break;
@@ -63,19 +64,19 @@ public class ServiceJoueur implements Runnable {
                         port = Integer.parseInt(infos[1]);
                         System.out.println(infos[2]);
                         gameId = Integer.parseInt(infos[2]);
-                        player = new Joueur(id, port);
+                        player = new Joueur(id, port, socket);
                         for (Partie p : parties) {
                             if (p.getId() == gameId) {
                                 p.addJoueur(player);
                                 game = p;
                                 good = true;
-                                os.write(("REGOK " + gameId + "***").getBytes(),0,10);
+                                os.write(("REGOK " + gameId + "***").getBytes(), 0, 10);
                                 os.flush();
                                 break;
                             }
                         }
                         if (!good) {
-                            os.write(("REGNO***").getBytes(),0,8);
+                            os.write(("REGNO***").getBytes(), 0, 8);
                             os.flush();
                         }
                         break;
@@ -93,7 +94,7 @@ public class ServiceJoueur implements Runnable {
                                 os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
                                 os.flush();
                                 for (Joueur j : p.getJoueurs()) {
-                                    os.write(("PLAYR " + j.getId() + "***").getBytes(),0,17);
+                                    os.write(("PLAYR " + j.getId() + "***").getBytes(), 0, 17);
                                     os.flush();
                                 }
                                 break;
@@ -107,8 +108,8 @@ public class ServiceJoueur implements Runnable {
 
             } while (!good);
 
-            while(true){
-                String action = getAction(iso,os);
+            while (true) {
+                String action = getAction(iso, os);
 
                 switch (action) {
                     case "UNREG":
@@ -128,7 +129,7 @@ public class ServiceJoueur implements Runnable {
                                 os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
                                 os.flush();
                                 for (Joueur j : p.getJoueurs()) {
-                                    os.write(("PLAYR " + j.getId() + "***").getBytes(),0,17);
+                                    os.write(("PLAYR " + j.getId() + "***").getBytes(), 0, 17);
                                     os.flush();
                                 }
                                 break;
@@ -141,8 +142,8 @@ public class ServiceJoueur implements Runnable {
                         break;
                     case "START":
                         boolean start = false;
-                        while(!start){
-                            synchronized ((Object)parties) {
+                        while (!start) {
+                            synchronized ((Object) parties) {
                                 for (Partie p : parties) {
                                     if (p.getId() == gameId) {
                                         start = true;
@@ -180,27 +181,27 @@ public class ServiceJoueur implements Runnable {
 
     public void printAvailableGames(OutputStream os) throws IOException {
 
-        os.write(("GAMES "+parties.size()+"***").getBytes(),0,10);
+        os.write(("GAMES " + parties.size() + "***").getBytes(), 0, 10);
         os.flush();
         byte[] game = new byte[12];
-        //Envoi de toutes les parties créées à l'utilisateur
-        for(Partie p : parties){
-            os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes(),0,12);
+        // Envoi de toutes les parties créées à l'utilisateur
+        for (Partie p : parties) {
+            os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
             os.flush();
         }
     }
 
-    public boolean verifyInfos(String[] infos){
-        //Vérifie le port
-        if( !(infos[1].length() == 4 && infos[1].matches("[0-9]+")) ){
+    public boolean verifyInfos(String[] infos) {
+        // Vérifie le port
+        if (!(infos[1].length() == 4 && infos[1].matches("[0-9]+"))) {
             return false;
         }
-        //Vérifie l'identifiant
-        if( !(infos[0].length() == 8 && infos[0].matches("[a-zA-Z0-9]+")) ){
+        // Vérifie l'identifiant
+        if (!(infos[0].length() == 8 && infos[0].matches("[a-zA-Z0-9]+"))) {
             return false;
         }
-        //Vérifie le numéro de la partie si il y en a un
-        if( infos.length == 3 && !infos[2].matches("[0-9]+") ){
+        // Vérifie le numéro de la partie si il y en a un
+        if (infos.length == 3 && !infos[2].matches("[0-9]+")) {
             return false;
         }
         return true;
@@ -208,8 +209,8 @@ public class ServiceJoueur implements Runnable {
 
     public String getAction(InputStream iso, OutputStream os) throws IOException {
         byte[] buf = new byte[5];
-        int r = iso.read(buf,0,5);
-        if(!(r > 0)){
+        int r = iso.read(buf, 0, 5);
+        if (!(r > 0)) {
             os.close();
             iso.close();
             socket.close();
@@ -217,7 +218,7 @@ public class ServiceJoueur implements Runnable {
         return new String(buf);
     }
 
-    public String[] getInfos(int which, InputStream iso)throws IOException{
+    public String[] getInfos(int which, InputStream iso) throws IOException {
         switch (which) {
             case 0:
                 byte[] create = new byte[17];
@@ -243,7 +244,7 @@ public class ServiceJoueur implements Runnable {
                 int trashh = iso.read();
                 int gameID = iso.read();
                 clearIS(iso);
-                return new String[]{Integer.toString(gameID)};
+                return new String[] { Integer.toString(gameID) };
         }
         return new String[] { "" };
     }
@@ -265,11 +266,10 @@ public class ServiceJoueur implements Runnable {
 
     public void clearIS(InputStream iso) throws IOException {
         int ret = 0;
-        while(iso.available() > 0){
+        while (iso.available() > 0) {
             ret = iso.read();
         }
     }
-
 
     public void readError(int readRet, Socket sock) throws IOException {
         if (!(readRet > 0)) {
@@ -278,7 +278,7 @@ public class ServiceJoueur implements Runnable {
     }
 
     public void dunno(OutputStream os) throws IOException {
-        os.write(("DUNNO***").getBytes(),0,8);
+        os.write(("DUNNO***").getBytes(), 0, 8);
         os.flush();
     }
 
@@ -286,3 +286,6 @@ public class ServiceJoueur implements Runnable {
     }
 
 }
+
+
+    
