@@ -9,8 +9,11 @@ public class Partie {
     private ArrayList<Joueur> joueurs = new ArrayList<>();
     private Labyrinthe labyrinthe;
     // adresse ip
+    private String adresse;
     // port multi diffusion
+    private int portMulti;
     // nb fantome
+    private int nbFant;
 
     public Partie() {
         id = idCompt++;
