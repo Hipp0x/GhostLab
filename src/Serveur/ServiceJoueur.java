@@ -80,6 +80,27 @@ public class ServiceJoueur implements Runnable {
                             os.flush();
                         }
                         break;
+                    case "GAME?":
+                        clearIS(iso);
+                        printAvailableGames(os);
+                        break;
+                    case "SIZE?":
+                        break;
+                    case "LIST?":
+                        infos = getInfos(2, iso);
+                        gameId = Integer.parseInt(infos[0]);
+                        for (Partie p : parties) {
+                            if (p.getId() == gameId) {
+                                os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
+                                os.flush();
+                                for (Joueur j : p.getJoueurs()) {
+                                    os.write(("PLAYR " + j.getId() + "***").getBytes(),0,17);
+                                    os.flush();
+                                }
+                                break;
+                            }
+                        }
+                        break;
                     default:
                         dunno(os);
                         break;
@@ -118,6 +139,24 @@ public class ServiceJoueur implements Runnable {
                     case "GAME?":
                         clearIS(iso);
                         printAvailableGames(os);
+                        break;
+                    case "START":
+                        boolean start = false;
+                        while(!start){
+                            synchronized ((Object)parties) {
+                                for (Partie p : parties) {
+                                    if (p.getId() == gameId) {
+                                        start = true;
+                                        for (Joueur j : p.getJoueurs()) {
+                                            if (!j.isReady()) {
+                                                start = false;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                         break;
                     default:
                         dunno(os);
