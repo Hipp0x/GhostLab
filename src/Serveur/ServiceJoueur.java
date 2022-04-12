@@ -3,7 +3,6 @@ package Serveur;
 import java.net.*;
 import java.io.*;
 import java.lang.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class ServiceJoueur implements Runnable {
@@ -37,7 +36,7 @@ public class ServiceJoueur implements Runnable {
                     case "NEWPL":
                         infos = getInfos(0, iso);
                         if (!verifyInfos(infos)) {
-                            os.write(("REGNO***").getBytes());
+                            os.write(("REGNO***").getBytes(),0,8);
                             os.flush();
                             continue;
                         }
@@ -49,7 +48,7 @@ public class ServiceJoueur implements Runnable {
                         synchronized ((Object) parties) {
                             parties.add(game);
                         }
-                        os.write(("REGOK " + game.getId() + "***").getBytes());
+                        os.write(("REGOK " + game.getId() + "***").getBytes(),0,17);
                         os.flush();
                         good = true;
                         break;
@@ -70,13 +69,13 @@ public class ServiceJoueur implements Runnable {
                                 p.addJoueur(player);
                                 game = p;
                                 good = true;
-                                os.write(("REGOK " + gameId + "***").getBytes());
+                                os.write(("REGOK " + gameId + "***").getBytes(),0,10);
                                 os.flush();
                                 break;
                             }
                         }
                         if (!good) {
-                            os.write(("REGNO***").getBytes());
+                            os.write(("REGNO***").getBytes(),0,8);
                             os.flush();
                         }
                         break;
