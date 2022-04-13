@@ -37,6 +37,14 @@ public class Partie {
         return nbJoueurs;
     }
 
+    public Labyrinthe getLabyrinthe() {
+        return labyrinthe;
+    }
+
+    public int getNbFantome() {
+        return nbFant;
+    }
+
     public synchronized void addJoueur(Joueur joueur) {
         joueurs.add(joueur);
         ++nbJoueurs;
@@ -53,5 +61,9 @@ public class Partie {
 
     public boolean peutDemarer() {
         return true;
+    }
+
+    public void placerFantome() {
+
     }
 }

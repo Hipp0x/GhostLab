@@ -10,6 +10,8 @@ public class Joueur {
     private Socket socket;
     int x;
     int y;
+    String pX;
+    String pY;
     int point = 0;
 
     public Joueur(String id, int port, Socket s) {
@@ -45,5 +47,29 @@ public class Joueur {
 
     public int getY() {
         return y;
+    }
+
+    public void setPosToString(int v, String res) {
+        StringBuilder s = new StringBuilder();
+        if (v < 10) {
+            s.append("00");
+            s.append(Integer.toString(v));
+        } else if (v < 100) {
+            s.append("0");
+            s.append(Integer.toString(v));
+        } else {
+            s.append(Integer.toString(v));
+        }
+        res = s.toString();
+    }
+
+    public void setX(int x2) {
+        x = x2;
+        setPosToString(x2, pX);
+    }
+
+    public void setY(int y2) {
+        y = y2;
+        setPosToString(y2, pY);
     }
 }

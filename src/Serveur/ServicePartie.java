@@ -30,7 +30,7 @@ public class ServicePartie implements Runnable {
                 // envoie du message [WELCO␣m␣h␣w␣f␣ip␣port***] a chacun des joueurs
                 sendWelcome(os);
                 // envoie du message [POSIT␣id␣x␣y***] a chacun des joueurs
-                sendPosition(os);
+                sendPosition(os, joueur);
             }
 
         } catch (IOException e) {
@@ -44,15 +44,21 @@ public class ServicePartie implements Runnable {
         String ip = partie.getIp();
         int portMulti = partie.getPortMulti();
 
-        os.write(("REGOK***").getBytes());
+        os.write(
+                ("WELCO " + partie.getId() + " " + partie.getLabyrinthe().getH() + " " + partie.getLabyrinthe().getW()
+                        + " " + partie.getNbFantome() + " " + ip + " " + portMulti + "***").getBytes(),
+                0, (13 + 1 + 2 + 2 + 1 + 8 + 4));
         os.flush();
     }
 
-    public void sendPosition(OutputStream os) throws IOException {
-        String ip = partie.getIp();
-        int portMulti = partie.getPortMulti();
+    public void sendPosition(OutputStream os, Joueur j) throws IOException {
+        String id = j.getId();
+        int x = j.getX();
+        int y = j.getY();
 
-        os.write(("REGOK***").getBytes());
+        os.write(
+                ("POSIT " + id + " " + x + " " + y + "***").getBytes(),
+                0, (11 + 8 + 3 + 3));
         os.flush();
     }
 
