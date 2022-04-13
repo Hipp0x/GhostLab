@@ -2,7 +2,11 @@ package Serveur;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
+import java.nio.*;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.util.*;
 
 public class ServicePartie implements Runnable {
 
@@ -23,7 +27,12 @@ public class ServicePartie implements Runnable {
         OutputStream os;
         try {
 
+            Selector selector = Selector.open();
+
+            ServerSocketChannel[] tabSSC = new ServerSocketChannel[joueurs.size()];
+            int compt = 0;
             for (Joueur joueur : joueurs) {
+
                 iso = joueur.getSocket().getInputStream();
                 os = joueur.getSocket().getOutputStream();
 
@@ -31,6 +40,32 @@ public class ServicePartie implements Runnable {
                 sendWelcome(os);
                 // envoie du message [POSIT␣id␣x␣y***] a chacun des joueurs
                 sendPosition(os, joueur);
+
+                // ajout d'une socket du joueur
+                ServerSocketChannel acceptor = ServerSocketChannel.open();
+                acceptor.configureBlocking(false);
+                acceptor.socket().setReuseAddress(true);
+                // acceptor.socket().bind(new InetSocketAddress(addr, port));
+                acceptor.register(selector, SelectionKey.OP_READ);
+                tabSSC[compt] = acceptor;
+
+                compt = compt + 1;
+            }
+
+            while (true) {
+
+                selector.select();
+                Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+                while (iterator.hasNext()) {
+                    SelectionKey sk = iterator.next();
+                    iterator.remove();
+                    for (ServerSocketChannel s : tabSSC) {
+                        if (sk.isReadable() && sk.channel() == s) {
+                            readAction(s);
+                        }
+                    }
+                }
+
             }
 
         } catch (IOException e) {
@@ -40,6 +75,7 @@ public class ServicePartie implements Runnable {
 
     }
 
+    // envoi du welcome
     public void sendWelcome(OutputStream os) throws IOException {
         String ip = partie.getIp();
         int portMulti = partie.getPortMulti();
@@ -51,6 +87,7 @@ public class ServicePartie implements Runnable {
         os.flush();
     }
 
+    // envoi de la position du joueur
     public void sendPosition(OutputStream os, Joueur j) throws IOException {
         String id = j.getId();
         String x = j.getPosX();
@@ -60,6 +97,11 @@ public class ServicePartie implements Runnable {
                 ("POSIT " + id + " " + x + " " + y + "***").getBytes(),
                 0, (11 + 8 + 3 + 3));
         os.flush();
+    }
+
+    // lecture de l'action d'un joueur
+    public void readAction(ServerSocketChannel s) {
+
     }
 
 }

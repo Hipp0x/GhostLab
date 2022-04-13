@@ -38,7 +38,12 @@ public class Partie {
     }
 
     public boolean peutDemarer() {
-        return true;
+        for (Joueur j : joueurs) {
+            if (!j.isReady()) {
+                return false;
+            }
+        }
+        return false;
     }
 
     public void placerFantome() {
