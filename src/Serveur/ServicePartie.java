@@ -53,8 +53,8 @@ public class ServicePartie implements Runnable {
 
     public void sendPosition(OutputStream os, Joueur j) throws IOException {
         String id = j.getId();
-        int x = j.getX();
-        int y = j.getY();
+        String x = j.getPosX();
+        String y = j.getPosY();
 
         os.write(
                 ("POSIT " + id + " " + x + " " + y + "***").getBytes(),

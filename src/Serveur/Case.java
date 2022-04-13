@@ -10,6 +10,12 @@ public class Case {
         mur = val;
     }
 
+    /*
+     * -----
+     * Getters et Setters
+     * -----
+     */
+
     public boolean isMur() {
         return mur;
     }

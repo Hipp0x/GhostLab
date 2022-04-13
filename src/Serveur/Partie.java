@@ -21,6 +21,36 @@ public class Partie {
         nbJoueurs = 0;
     }
 
+    /*
+     * -----
+     * Fonctions
+     * -----
+     */
+
+    public synchronized void addJoueur(Joueur joueur) {
+        joueurs.add(joueur);
+        ++nbJoueurs;
+    }
+
+    public synchronized void removeJoueur(Joueur joueur) {
+        joueurs.removeIf(j -> j.getId().equals(joueur.getId()));
+        --nbJoueurs;
+    }
+
+    public boolean peutDemarer() {
+        return true;
+    }
+
+    public void placerFantome() {
+
+    }
+
+    /*
+     * -----
+     * Getters et Setters
+     * -----
+     */
+
     public int getId() {
         return id;
     }
@@ -45,25 +75,8 @@ public class Partie {
         return nbFant;
     }
 
-    public synchronized void addJoueur(Joueur joueur) {
-        joueurs.add(joueur);
-        ++nbJoueurs;
-    }
-
-    public synchronized void removeJoueur(Joueur joueur) {
-        joueurs.removeIf(j -> j.getId().equals(joueur.getId()));
-        --nbJoueurs;
-    }
-
     public ArrayList<Joueur> getJoueurs() {
         return joueurs;
     }
 
-    public boolean peutDemarer() {
-        return true;
-    }
-
-    public void placerFantome() {
-
-    }
 }

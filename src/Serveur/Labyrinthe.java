@@ -13,6 +13,12 @@ public class Labyrinthe {
 
     }
 
+    /*
+     * -----
+     * Getters et Setters
+     * -----
+     */
+
     public int getH() {
         return h;
     }

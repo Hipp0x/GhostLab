@@ -12,6 +12,12 @@ public class Fantome {
         point = 2;
     }
 
+    /*
+     * -----
+     * Getters et Setters
+     * -----
+     */
+
     public int getPoint() {
         return point;
     }

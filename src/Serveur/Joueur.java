@@ -8,11 +8,11 @@ public class Joueur {
     private final int port;
     private boolean ready;
     private Socket socket;
-    int x;
-    int y;
-    String pX;
-    String pY;
-    int point = 0;
+    private int x;
+    private int y;
+    private String pX;
+    private String pY;
+    private int point = 0;
 
     public Joueur(String id, int port, Socket s) {
         this.id = id;
@@ -20,6 +20,12 @@ public class Joueur {
         ready = false;
         socket = s;
     }
+
+    /*
+     * -----
+     * Getters et Setters
+     * -----
+     */
 
     public String getId() {
         return id;
@@ -47,6 +53,14 @@ public class Joueur {
 
     public int getY() {
         return y;
+    }
+
+    public String getPosX() {
+        return pX;
+    }
+
+    public String getPosY() {
+        return pY;
     }
 
     public void setPosToString(int v, String res) {
