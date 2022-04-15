@@ -8,8 +8,8 @@ public class Joueur {
     private final int port;
     private boolean ready;
     private Socket socket;
-    private int x;
-    private int y;
+    private int x; // num de ligne ~= i dans for
+    private int y; // num de colonne ~= j dans for
     private String pX;
     private String pY;
     private int point = 0;

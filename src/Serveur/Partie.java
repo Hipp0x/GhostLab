@@ -16,6 +16,8 @@ public class Partie {
     // nb fantome
     private int nbFant;
 
+    private boolean isFinish = false;
+
     public Partie() {
         id = idCompt++;
         nbJoueurs = 0;
@@ -82,6 +84,10 @@ public class Partie {
 
     public ArrayList<Joueur> getJoueurs() {
         return joueurs;
+    }
+
+    public boolean isFinish() {
+        return isFinish;
     }
 
 }

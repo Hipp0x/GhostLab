@@ -6,6 +6,7 @@ import java.nio.*;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 
 public class ServicePartie implements Runnable {
@@ -61,7 +62,7 @@ public class ServicePartie implements Runnable {
                     iterator.remove();
                     for (ServerSocketChannel s : tabSSC) {
                         if (sk.isReadable() && sk.channel() == s) {
-                            readAction(s);
+                            // readAction(s);
                         }
                     }
                 }
@@ -99,8 +100,48 @@ public class ServicePartie implements Runnable {
         os.flush();
     }
 
+    public void sendBye() {
+
+    }
+
     // lecture de l'action d'un joueur
-    public void readAction(ServerSocketChannel s) {
+    public void readAction(SocketChannel s) throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(5);
+        s.read(buf);
+        String action = new String(buf.array());
+
+        if (partie.isFinish()) {
+            sendBye();
+        }
+
+        switch (action) {
+            case "UPMOV":
+                buf = ByteBuffer.allocate(1);
+                s.read(buf);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                int d = buf.getInt();
+                // int dep = partie.getLabyrinthe().moveU(d);
+
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                break;
+            case "DOMOV":
+                break;
+            case "LEMOV":
+                break;
+            case "RIMOV":
+                break;
+            case "IQUIT":
+                sendBye();
+                break;
+            case "GLIS?":
+                break;
+            case "MALL?":
+                break;
+            case "SEND?":
+                break;
+        }
 
     }
 
