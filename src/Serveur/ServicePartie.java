@@ -15,6 +15,7 @@ public class ServicePartie implements Runnable {
     Partie partie;
     ArrayList<Joueur> joueurs;
     ArrayList<ServerSocketChannel> ssc;
+    DatagramSocket dso;
 
     public ServicePartie(Partie p, ServerSocket s) {
         serveur = s;
@@ -28,9 +29,11 @@ public class ServicePartie implements Runnable {
 
         InputStream iso;
         OutputStream os;
+
         try {
 
             Selector selector = Selector.open();
+            dso = new DatagramSocket(partie.getPortMulti());
 
             for (Joueur joueur : joueurs) {
 
@@ -46,7 +49,7 @@ public class ServicePartie implements Runnable {
                 ServerSocketChannel acceptor = ServerSocketChannel.open();
                 acceptor.configureBlocking(false);
                 acceptor.socket().setReuseAddress(true);
-                // acceptor.socket().bind(new InetSocketAddress(addr, port));
+                acceptor.socket().bind(new InetSocketAddress(joueur.getSocket().getInetAddress(), joueur.getPort()));
                 acceptor.register(selector, SelectionKey.OP_READ);
                 ssc.add(acceptor);
 
@@ -57,11 +60,12 @@ public class ServicePartie implements Runnable {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
-                    SelectionKey sk = iterator.next();
+                    SelectionKey key = iterator.next();
                     iterator.remove();
                     for (ServerSocketChannel s : ssc) {
-                        if (sk.isReadable() && sk.channel() == s) {
-                            // readAction(s, ssc.indexOf(s));
+                        if (key.isReadable()) {
+                            SocketChannel sc = (SocketChannel) key.channel();
+                            readAction(sc, ssc.indexOf(s));
                         }
                     }
                 }
