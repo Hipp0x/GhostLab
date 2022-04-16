@@ -13,6 +13,7 @@ public class Joueur {
     private String pX;
     private String pY;
     private int point = 0;
+    private String pPoint;;
 
     public Joueur(String id, int port, Socket s) {
         this.id = id;
@@ -55,12 +56,20 @@ public class Joueur {
         return y;
     }
 
+    public int getPoint() {
+        return point;
+    }
+
     public String getPosX() {
         return pX;
     }
 
     public String getPosY() {
         return pY;
+    }
+
+    public String getPPoint() {
+        return pPoint;
     }
 
     public void setPosToString(int v, String res) {
@@ -77,6 +86,23 @@ public class Joueur {
         res = s.toString();
     }
 
+    public void setPointToString(int v, String res) {
+        StringBuilder s = new StringBuilder();
+        if (v < 10) {
+            s.append("000");
+            s.append(Integer.toString(v));
+        } else if (v < 100) {
+            s.append("00");
+            s.append(Integer.toString(v));
+        } else if (v < 1000) {
+            s.append("0");
+            s.append(Integer.toString(v));
+        } else {
+            s.append(Integer.toString(v));
+        }
+        res = s.toString();
+    }
+
     public void setX(int x2) {
         x = x2;
         setPosToString(x2, pX);
@@ -85,5 +111,10 @@ public class Joueur {
     public void setY(int y2) {
         y = y2;
         setPosToString(y2, pY);
+    }
+
+    public void setPoint(int p2) {
+        point = p2;
+        setPointToString(point, pPoint);
     }
 }

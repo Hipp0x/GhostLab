@@ -52,6 +52,88 @@ public class Partie {
 
     }
 
+    public synchronized int moveU(int d, Joueur j) {
+        Case[][] laby = labyrinthe.getLaby();
+        int x = j.getX();
+        int y = j.getY();
+        int compt = 0;
+        for (int i = 1; i <= d; i++) {
+            if (x - i >= 0) {
+                if (!laby[x - i][y].isMur()) {
+                    compt++;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        j.setX(x + compt);
+        return compt;
+    }
+
+    public synchronized int moveD(int d, Joueur j) {
+        Case[][] laby = labyrinthe.getLaby();
+        int h = labyrinthe.getH();
+        int x = j.getX();
+        int y = j.getY();
+        int compt = 0;
+        for (int i = 1; i <= d; i++) {
+            if (x + i < h) {
+                if (!laby[x + i][y].isMur()) {
+                    compt++;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        j.setX(x + compt);
+        return compt;
+    }
+
+    public synchronized int moveR(int d, Joueur j) {
+        Case[][] laby = labyrinthe.getLaby();
+        int w = labyrinthe.getW();
+        int x = j.getX();
+        int y = j.getY();
+        int compt = 0;
+        for (int i = 1; i <= d; i++) {
+            if (y + i < w) {
+                if (!laby[x][y + i].isMur()) {
+                    compt++;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        j.setY(y + compt);
+        return compt;
+    }
+
+    public synchronized int moveL(int d, Joueur j) {
+        Case[][] laby = labyrinthe.getLaby();
+        int x = j.getX();
+        int y = j.getY();
+        int compt = 0;
+        for (int i = 1; i <= d; i++) {
+            if (y - i >= 0) {
+                if (!laby[x][y - i].isMur()) {
+                    compt++;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        j.setY(y - compt);
+        return compt;
+    }
+
     /*
      * -----
      * Getters et Setters

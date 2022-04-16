@@ -14,11 +14,13 @@ public class ServicePartie implements Runnable {
     ServerSocket serveur;
     Partie partie;
     ArrayList<Joueur> joueurs;
+    ArrayList<ServerSocketChannel> ssc;
 
     public ServicePartie(Partie p, ServerSocket s) {
         serveur = s;
         partie = p;
         joueurs = partie.getJoueurs();
+        ssc = new ArrayList<>();
     }
 
     @Override
@@ -30,8 +32,6 @@ public class ServicePartie implements Runnable {
 
             Selector selector = Selector.open();
 
-            ServerSocketChannel[] tabSSC = new ServerSocketChannel[joueurs.size()];
-            int compt = 0;
             for (Joueur joueur : joueurs) {
 
                 iso = joueur.getSocket().getInputStream();
@@ -48,9 +48,8 @@ public class ServicePartie implements Runnable {
                 acceptor.socket().setReuseAddress(true);
                 // acceptor.socket().bind(new InetSocketAddress(addr, port));
                 acceptor.register(selector, SelectionKey.OP_READ);
-                tabSSC[compt] = acceptor;
+                ssc.add(acceptor);
 
-                compt = compt + 1;
             }
 
             while (true) {
@@ -60,9 +59,9 @@ public class ServicePartie implements Runnable {
                 while (iterator.hasNext()) {
                     SelectionKey sk = iterator.next();
                     iterator.remove();
-                    for (ServerSocketChannel s : tabSSC) {
+                    for (ServerSocketChannel s : ssc) {
                         if (sk.isReadable() && sk.channel() == s) {
-                            // readAction(s);
+                            // readAction(s, ssc.indexOf(s));
                         }
                     }
                 }
@@ -100,19 +99,39 @@ public class ServicePartie implements Runnable {
         os.flush();
     }
 
-    public void sendBye() {
+    // envoi du move
+    public void sendMove(OutputStream os, String x, String y) throws IOException {
+        os.write(
+                ("MOVE! " + x + " " + y + "***").getBytes(), 0, (10 + 3 + 3));
+        os.flush();
+    }
 
+    // envoi du move avec point
+    public void sendMoveFant(OutputStream os, String x, String y, String p) throws IOException {
+        os.write(
+                ("MOVEF " + x + " " + y + " " + p + "***").getBytes(), 0, (11 + 3 + 3 + 4));
+        os.flush();
+    }
+
+    public void sendBye(OutputStream os) throws IOException {
+        os.write(
+                ("GOBYE***").getBytes(), 0, (8));
+        os.flush();
     }
 
     // lecture de l'action d'un joueur
-    public void readAction(SocketChannel s) throws IOException {
+    public void readAction(SocketChannel s, int pos) throws IOException {
+        Joueur joueur = joueurs.get(pos);
+
         ByteBuffer buf = ByteBuffer.allocate(5);
         s.read(buf);
         String action = new String(buf.array());
 
         if (partie.isFinish()) {
-            sendBye();
+            sendBye(joueur.getSocket().getOutputStream());
         }
+
+        int d, fant;
 
         switch (action) {
             case "UPMOV":
@@ -120,25 +139,83 @@ public class ServicePartie implements Runnable {
                 s.read(buf);
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
-                int d = buf.getInt();
-                // int dep = partie.getLabyrinthe().moveU(d);
-
+                d = buf.getInt();
+                fant = partie.moveU(d, joueur);
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
+
+                if (fant > 0) {
+                    sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
+                            joueur.getPPoint());
+                } else {
+                    sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
+                }
                 break;
+
             case "DOMOV":
+                buf = ByteBuffer.allocate(1);
+                s.read(buf);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                d = buf.getInt();
+                fant = partie.moveU(d, joueur);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+
+                if (fant > 0) {
+                    sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
+                            joueur.getPPoint());
+                } else {
+                    sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
+                }
                 break;
+
             case "LEMOV":
+                buf = ByteBuffer.allocate(1);
+                s.read(buf);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                d = buf.getInt();
+                fant = partie.moveL(d, joueur);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+
+                if (fant > 0) {
+                    sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
+                            joueur.getPPoint());
+                } else {
+                    sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
+                }
                 break;
+
             case "RIMOV":
+                buf = ByteBuffer.allocate(1);
+                s.read(buf);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                d = buf.getInt();
+                fant = partie.moveR(d, joueur);
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+
+                if (fant > 0) {
+                    sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
+                            joueur.getPPoint());
+                } else {
+                    sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
+                }
                 break;
+
             case "IQUIT":
-                sendBye();
+                sendBye(joueur.getSocket().getOutputStream());
                 break;
+
             case "GLIS?":
                 break;
+
             case "MALL?":
                 break;
+
             case "SEND?":
                 break;
         }
