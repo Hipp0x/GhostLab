@@ -113,6 +113,23 @@ public class ServicePartie implements Runnable {
         os.flush();
     }
 
+    // envoi de la liste des joueurs
+    public void sendListJoueur(OutputStream os, ArrayList<Joueur> liste) throws IOException {
+        int l = liste.size();
+        os.write(
+                ("GLIS! " + l + "***").getBytes(), 0, (10));
+        os.flush();
+
+        for (int i = 0; i < l; i++) {
+            Joueur j = liste.get(i);
+            os.write(
+                    ("GPLYR " + j.getId() + " " + j.getPosX() + " " + j.getPosY() + " " + j.getPPoint() + "***")
+                            .getBytes(),
+                    0, (12 + 8 + 3 + 3 + 4));
+            os.flush();
+        }
+    }
+
     public void sendBye(OutputStream os) throws IOException {
         os.write(
                 ("GOBYE***").getBytes(), 0, (8));
@@ -211,6 +228,11 @@ public class ServicePartie implements Runnable {
                 break;
 
             case "GLIS?":
+                ArrayList<Joueur> sub;
+                synchronized (joueurs) {
+                    sub = joueurs;
+                }
+                sendListJoueur(joueur.getSocket().getOutputStream(), sub);
                 break;
 
             case "MALL?":
