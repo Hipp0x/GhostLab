@@ -18,159 +18,181 @@ public class ServiceJoueur implements Runnable {
 
     public void run(){
         try{
-            InputStream iso = socket.getInputStream();
+            InputStream is = socket.getInputStream();
             OutputStream os = socket.getOutputStream();
-            boolean good = false;
-            String id;
-            int port;
-            int gameId = -1;
-            String[] infos;
+            boolean exit = false;
+
+            do{
+                optionsNotInGame(os,is);
+                exit = optionsInGame(os,is,exit);
+            }while(exit);
 
             // Loop for the player to register into a game or create one.
-            do {
 
-                printAvailableGames(os);
-                String action = getAction(iso, os);
 
-                switch (action) {
-                    case "NEWPL":
-                        infos = getInfos(0, iso);
-                        if (!verifyInfos(infos)) {
-                            os.write(("REGNO***").getBytes(),0,8);
-                            os.flush();
-                            continue;
-                        }
-                        id = infos[0];
-                        port = Integer.parseInt(infos[1]);
-                        player = new Joueur(id, port);
-                        game = new Partie();
-                        game.addJoueur(player);
-                        synchronized ((Object) parties) {
-                            parties.add(game);
-                        }
-                        os.write(("REGOK " + game.getId() + "***").getBytes(),0,17);
-                        os.flush();
-                        good = true;
-                        break;
-                    case "REGIS":
-                        infos = getInfos(1, iso);
-                        if (!verifyInfos(infos)) {
-                            os.write(("REGNO***").getBytes());
-                            os.flush();
-                            continue;
-                        }
-                        id = infos[0];
-                        port = Integer.parseInt(infos[1]);
-                        System.out.println(infos[2]);
-                        gameId = Integer.parseInt(infos[2]);
-                        player = new Joueur(id, port);
-                        for (Partie p : parties) {
-                            if (p.getId() == gameId) {
-                                p.addJoueur(player);
-                                game = p;
-                                good = true;
-                                os.write(("REGOK " + gameId + "***").getBytes(),0,10);
-                                os.flush();
-                                break;
-                            }
-                        }
-                        if (!good) {
-                            os.write(("REGNO***").getBytes(),0,8);
-                            os.flush();
-                        }
-                        break;
-                    case "GAME?":
-                        clearIS(iso);
-                        printAvailableGames(os);
-                        break;
-                    case "SIZE?":
-                        break;
-                    case "LIST?":
-                        infos = getInfos(2, iso);
-                        gameId = Integer.parseInt(infos[0]);
-                        for (Partie p : parties) {
-                            if (p.getId() == gameId) {
-                                os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
-                                os.flush();
-                                for (Joueur j : p.getJoueurs()) {
-                                    os.write(("PLAYR " + j.getId() + "***").getBytes(),0,17);
-                                    os.flush();
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    default:
-                        dunno(os);
-                        break;
-                }
 
-            } while (!good);
-
-            while(true){
-                String action = getAction(iso,os);
-
-                switch (action) {
-                    case "UNREG":
-                        gameId = game.getId();
-                        clearIS(iso);
-                        game.removeJoueur(player);
-                        os.write(("UNROK " + gameId + "***").getBytes(), 0, 10);
-                        os.flush();
-                        break;
-                    case "SIZE?":
-                        break;
-                    case "LIST?":
-                        infos = getInfos(2, iso);
-                        gameId = Integer.parseInt(infos[0]);
-                        for (Partie p : parties) {
-                            if (p.getId() == gameId) {
-                                os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
-                                os.flush();
-                                for (Joueur j : p.getJoueurs()) {
-                                    os.write(("PLAYR " + j.getId() + "***").getBytes(),0,17);
-                                    os.flush();
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    case "GAME?":
-                        clearIS(iso);
-                        printAvailableGames(os);
-                        break;
-                    case "START":
-                        boolean start = false;
-                        while(!start){
-                            synchronized ((Object)parties) {
-                                for (Partie p : parties) {
-                                    if (p.getId() == gameId) {
-                                        start = true;
-                                        for (Joueur j : p.getJoueurs()) {
-                                            if (!j.isReady()) {
-                                                start = false;
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        dunno(os);
-                        break;
-                }
-                break;
-            }
-
-            iso.close();
-            os.close();
-            socket.close();
         } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
         }
+    }
+
+    public boolean optionsInGame(OutputStream os, InputStream is, boolean exit ) throws IOException {
+        String[] infos;
+        int gameId;
+        Partie p;
+        while(true){
+            String action = getAction(is,os);
+
+            switch (action) {
+                case "UNREG":
+                    gameId = game.getId();
+                    game.removeJoueur(player);
+                    os.write(("UNROK " + gameId + "***").getBytes(), 0, 10);
+                    os.flush();
+                    clearIS(is);
+                    return false;
+                case "SIZE?":
+                    infos = getInfos(2,is);
+                    gameId = Integer.parseInt(infos[0]);
+                    p = findGame(gameId);
+                    if(p != null){
+                        os.write(("SIZE! "+ gameId + " " + game.getLaby().getH() + " " + game.getLaby().getW() + "***").getBytes(),0,16);
+                        os.flush();
+                    }else{
+                        dunno(os);
+                    }
+                    clearIS(is);
+                    break;
+                case "LIST?":
+                    infos = getInfos(2, is);
+                    gameId = Integer.parseInt(infos[0]);
+                    p = findGame(gameId);
+                    if (p != null) {
+                        os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
+                        os.flush();
+                        for (Joueur j : p.getJoueurs()) {
+                            os.write(("PLAYR " + j.getId() + "***").getBytes(), 0, 17);
+                            os.flush();
+                        }
+                    }else{
+                        dunno(os);
+                    }
+                    clearIS(is);
+                    break;
+                case "GAME?":
+                    printAvailableGames(os);
+                    clearIS(is);
+                    break;
+                case "START":
+                    clearIS(is);
+                    return true;
+                default:
+                    clearIS(is);
+                    dunno(os);
+                    break;
+            }
+        }
+    }
+
+    public void optionsNotInGame(OutputStream os, InputStream is) throws IOException {
+        boolean good = false;
+        int port;
+        int gameId;
+        String id;
+        String[] infos;
+        do {
+
+            printAvailableGames(os);
+            String action = getAction(is, os);
+            Partie p;
+            switch (action) {
+                case "NEWPL":
+                    infos = getInfos(0, is);
+                    if (!verifyInfos(infos)) {
+                        os.write(("REGNO***").getBytes(),0,8);
+                        os.flush();
+                        break;
+                    }
+                    id = infos[0];
+                    port = Integer.parseInt(infos[1]);
+                    player = new Joueur(id, port);
+                    game = new Partie();
+                    game.addJoueur(player);
+                    synchronized ((Object) parties) {
+                        parties.add(game);
+                    }
+                    os.write(("REGOK " + game.getId() + "***").getBytes(),0,10);
+                    os.flush();
+                    good = true;
+                    clearIS(is);
+                    break;
+                case "REGIS":
+                    infos = getInfos(1, is);
+                    if (!verifyInfos(infos)) {
+                        os.write(("REGNO***").getBytes());
+                        os.flush();
+                        continue;
+                    }
+                    id = infos[0];
+                    port = Integer.parseInt(infos[1]);
+                    System.out.println(infos[2]);
+                    gameId = Integer.parseInt(infos[2]);
+                    player = new Joueur(id, port);
+                    for (Partie partie : parties) {
+                        if (partie.getId() == gameId) {
+                            partie.addJoueur(player);
+                            game = partie;
+                            good = true;
+                            os.write(("REGOK " + gameId + "***").getBytes(),0,10);
+                            os.flush();
+                            break;
+                        }
+                    }
+                    if (!good) {
+                        os.write(("REGNO***").getBytes(),0,8);
+                        os.flush();
+                    }
+                    clearIS(is);
+                    break;
+                case "GAME?":
+                    printAvailableGames(os);
+                    clearIS(is);
+                    break;
+                case "SIZE?":
+                    infos = getInfos(2, is);
+                    gameId = Integer.parseInt(infos[0]);
+                    p = findGame(gameId);
+                    if (p != null) {
+                        os.write(("SIZE! " + gameId + " " + p.getLaby().getH() + " " + p.getLaby().getW() + "***").getBytes(), 0, 16);
+                    }else{
+                        dunno(os);
+                    }
+                    clearIS(is);
+                    break;
+                case "LIST?":
+                    infos = getInfos(2, is);
+                    gameId = Integer.parseInt(infos[0]);
+                    p = findGame(gameId);
+                    if (p != null) {
+                        os.write(("LIST! " + gameId + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
+                        os.flush();
+                        for (Joueur j : p.getJoueurs()) {
+                            os.write(("PLAYR " + j.getId() + "***").getBytes(), 0, 17);
+                            os.flush();
+                        }
+                    } else {
+                        dunno(os);
+                    }
+                    clearIS(is);
+                    break;
+                default:
+                    clearIS(is);
+                    dunno(os);
+                    break;
+            }
+
+        } while (!good);
     }
 
     public void trashAsterisks(BufferedReader br) throws IOException {
@@ -179,15 +201,22 @@ public class ServiceJoueur implements Runnable {
     }
 
     public void printAvailableGames(OutputStream os) throws IOException {
-
         os.write(("GAMES "+parties.size()+"***").getBytes(),0,10);
         os.flush();
-        byte[] game = new byte[12];
         //Envoi de toutes les parties créées à l'utilisateur
         for(Partie p : parties){
             os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes(),0,12);
             os.flush();
         }
+    }
+
+    public Partie findGame(int gameID){
+        for (Partie p : parties) {
+            if (p.getId() == gameID) {
+                return p;
+            }
+        }
+        return null;
     }
 
     public boolean verifyInfos(String[] infos){
