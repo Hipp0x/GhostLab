@@ -1,6 +1,5 @@
 package Serveur;
 
-import java.net.*;
 import java.util.*;
 
 public class Partie {
@@ -168,7 +167,7 @@ public class Partie {
             }
         }
         j.setY(y - compt);
-        return compt;
+        return fant;
     }
 
     // renvoi true si le joueur avec id existe dans la partie

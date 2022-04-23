@@ -19,6 +19,14 @@ public class Fantome {
      * -----
      */
 
+    public int getI() {
+        return i;
+    }
+
+    public int getJ() {
+        return j;
+    }
+
     public boolean getCapture() {
         return capture;
     }

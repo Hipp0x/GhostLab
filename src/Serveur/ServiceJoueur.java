@@ -2,7 +2,6 @@ package Serveur;
 
 import java.net.*;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ServiceJoueur implements Runnable {
@@ -183,7 +182,6 @@ public class ServiceJoueur implements Runnable {
 
         os.write(("GAMES " + parties.size() + "***").getBytes(), 0, 10);
         os.flush();
-        byte[] game = new byte[12];
         // Envoi de toutes les parties créées à l'utilisateur
         for (Partie p : parties) {
             os.write(("OGAME " + p.getId() + " " + p.getNbJoueurs() + "***").getBytes(), 0, 12);
@@ -265,9 +263,8 @@ public class ServiceJoueur implements Runnable {
     }
 
     public void clearIS(InputStream iso) throws IOException {
-        int ret = 0;
         while (iso.available() > 0) {
-            ret = iso.read();
+            iso.read();
         }
     }
 
@@ -286,6 +283,3 @@ public class ServiceJoueur implements Runnable {
     }
 
 }
-
-
-    
