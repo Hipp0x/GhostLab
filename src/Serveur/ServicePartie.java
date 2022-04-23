@@ -27,7 +27,6 @@ public class ServicePartie implements Runnable {
     @Override
     public void run() {
 
-        InputStream iso;
         OutputStream os;
 
         try {
@@ -37,7 +36,6 @@ public class ServicePartie implements Runnable {
 
             for (Joueur joueur : joueurs) {
 
-                iso = joueur.getSocket().getInputStream();
                 os = joueur.getSocket().getOutputStream();
 
                 // envoie du message [WELCO␣m␣h␣w␣f␣ip␣port***] a chacun des joueurs
@@ -111,10 +109,25 @@ public class ServicePartie implements Runnable {
     }
 
     // envoi du move avec point
-    public void sendMoveFant(OutputStream os, String x, String y, String p) throws IOException {
+    public void sendMoveFant(OutputStream os, String x, String y, String p, String id) throws IOException {
+        // [SCORE␣id␣p␣x␣y+++]
+
         os.write(
                 ("MOVEF " + x + " " + y + " " + p + "***").getBytes(), 0, (11 + 3 + 3 + 4));
         os.flush();
+
+        byte[] data;
+        for (Fantome f : partie.getFantomes()) {
+            if (f.getCapture()) {
+                partie.removeFantome(f);
+                String env = "SCORE " + id + " " + p + " " + x + " " + y + "***";
+                data = env.getBytes();
+                InetSocketAddress ia = new InetSocketAddress(partie.getIp(), partie.getPortMulti());
+                DatagramPacket paquet = new DatagramPacket(data, data.length, ia);
+                dso.send(paquet);
+            }
+        }
+
     }
 
     // envoi de la liste des joueurs
@@ -134,6 +147,37 @@ public class ServicePartie implements Runnable {
         }
     }
 
+    // recupere le message (au + 200 char)
+    public String getMess(SocketChannel s) throws IOException {
+        StringBuilder mess = new StringBuilder();
+        ByteBuffer buf = ByteBuffer.allocate(1);
+        while (!buf.toString().equals("*")) {
+            s.read(buf);
+            mess.append(buf.toString());
+        }
+        s.read(buf);
+        s.read(buf);
+
+        return mess.toString();
+    }
+
+    // recupere l'id du joueur
+    public String getID(SocketChannel s) throws IOException {
+        StringBuilder id = new StringBuilder();
+        ByteBuffer buf = ByteBuffer.allocate(8);
+        s.read(buf);
+
+        return id.toString();
+    }
+
+    // envoi de Mall
+    public void sendMall(OutputStream os) throws IOException {
+        os.write(
+                ("MALL!***").getBytes(), 0, (8));
+        os.flush();
+    }
+
+    // envoi du bye
     public void sendBye(OutputStream os) throws IOException {
         os.write(
                 ("GOBYE***").getBytes(), 0, (8));
@@ -153,6 +197,10 @@ public class ServicePartie implements Runnable {
         }
 
         int d, fant;
+        String mess;
+        String env;
+        byte[] data;
+        DatagramPacket paquet;
 
         switch (action) {
             case "UPMOV":
@@ -167,7 +215,7 @@ public class ServicePartie implements Runnable {
 
                 if (fant > 0) {
                     sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint());
+                            joueur.getPPoint(), joueur.getId());
                 } else {
                     sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
                 }
@@ -185,7 +233,7 @@ public class ServicePartie implements Runnable {
 
                 if (fant > 0) {
                     sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint());
+                            joueur.getPPoint(), joueur.getId());
                 } else {
                     sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
                 }
@@ -203,7 +251,7 @@ public class ServicePartie implements Runnable {
 
                 if (fant > 0) {
                     sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint());
+                            joueur.getPPoint(), joueur.getId());
                 } else {
                     sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
                 }
@@ -221,7 +269,7 @@ public class ServicePartie implements Runnable {
 
                 if (fant > 0) {
                     sendMoveFant(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint());
+                            joueur.getPPoint(), joueur.getId());
                 } else {
                     sendMove(joueur.getSocket().getOutputStream(), joueur.getPosX(), joueur.getPosY());
                 }
@@ -240,9 +288,62 @@ public class ServicePartie implements Runnable {
                 break;
 
             case "MALL?":
+                // lire le message jusqu'aux 3* (max 200 char) et le stocker
+                mess = getMess(s);
+                // multi diffuser sur l'adresse + port de la partie
+                env = "MESSA " + joueur.getId() + " " + mess + "***";
+                data = env.getBytes();
+                InetSocketAddress ia = new InetSocketAddress(partie.getIp(), partie.getPortMulti());
+                paquet = new DatagramPacket(data, data.length, ia);
+                dso.send(paquet);
+
+                sendMall(joueur.getSocket().getOutputStream());
                 break;
 
             case "SEND?":
+                // stocker id 8char
+                String id = getID(s);
+                // stocker mess
+                mess = getMess(s);
+
+                OutputStream os2 = joueur.getSocket().getOutputStream();
+
+                // verifier si id du joueur est ds partie
+                if (partie.exists(id)) {
+
+                    // si oui
+                    Joueur wanted = partie.getPlayer(id);
+
+                    // envoi [MESSP␣id2␣mess+++] sur adresse + port udp du joueur id ou id2 = joueur
+                    // qui fait la demande
+
+                    env = "MESSP " + joueur.getId() + " " + mess + "***";
+                    data = env.getBytes();
+                    paquet = new DatagramPacket(data, data.length,
+                            wanted.getSocket().getInetAddress(),
+                            wanted.getPort());
+                    dso.send(paquet);
+
+                    // envoi [SEND!***] au joueur qui fait la demande
+                    os2.write(
+                            ("SEND!***").getBytes(), 0, (8));
+                    os2.flush();
+
+                } else {
+
+                    // sinon
+                    // [NSEND***]
+                    os2.write(
+                            ("NSEND***").getBytes(), 0, (8));
+                    os2.flush();
+
+                }
+
+                break;
+
+            default:
+                // finir la lecture
+                // envoi dunno
                 break;
         }
 

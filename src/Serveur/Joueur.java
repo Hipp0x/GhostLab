@@ -4,15 +4,15 @@ import java.net.Socket;
 
 public class Joueur {
 
-    private final String id;
-    private final int port;
-    private boolean ready;
-    private Socket socket;
+    private final String id; // identifiant
+    private final int port; // port udp
+    private boolean ready; // determine si joueur dans etat start
+    private Socket socket; // socket de communication TCP
     private int x; // num de ligne ~= i dans for
     private int y; // num de colonne ~= j dans for
     private String pX;
     private String pY;
-    private int point = 0;
+    private int point = 0; // nombre de point gagne pendant la partie
     private String pPoint;;
 
     public Joueur(String id, int port, Socket s) {
