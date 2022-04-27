@@ -1,5 +1,6 @@
 #include "headers/fonctions.h"
 #include "headers/actionsBefore.h"
+#include "headers/actionsInGame.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11,7 +12,10 @@
 
 char port[4] = "5467";
 char identifiant[8] = "pseudo00";
+char portMC[4];
+char addrMC[15];
 bool inscrit;
+bool enPartie;
 
 /*
 -----------FONCTIONS-----------
@@ -87,6 +91,104 @@ bool actionAvantPartie(int socketTCP, char *ch)
     }
 }
 
+void actionEnPartie(int socketTCP, char *ch)
+{
+    enPartie = true;
+    char *sep = " ";
+    char *choix = strtok(ch, sep);
+    printf("char : %s\n", choix);
+    uint8_t num;
+    switch (choix[0])
+    {
+        case 'l':; // Aller a gauche
+        case 'r':; // Aller à droite
+        case 'd':; // Aller en bas
+        case 'u':; // Aller en haut
+            char dir = choix[0];
+            choix = strtok(NULL, sep);
+            enPartie = seDeplacer(socketTCP, choix[0], dir);
+            break;
+        case 'q':; // Quitter la partie
+            enPartie = quitterPartie(socketTCP);
+            break;
+
+        case 'p':; // Liste des joueurs dans la partie
+            enPartie = listeJoueursIG(socketTCP);
+            break;
+        case 'm':; // Message à tous les joueurs de la partie
+            choix = strtok(NULL,sep);
+            envoiMessATous(socketTCP, choix[0]);
+            break;
+        case 'w':; // Message à un joueur
+            choix = strtok(NULL, sep);
+            char *id = choix[0];
+            choix = strtok(NULL, sep);
+            envoiMessAJoueur(socketTCP, choix[0], id);
+            break;
+        default:;
+            fprintf(stdout, "Ce n'est pas correct.\n");
+            break;
+    }
+}
+
+void receptUDP(int socketMultiDiff){
+    char buf5[6];
+    recvError(recv(socketMultiDiff, buf5, 5, 0));
+    buf5[5] = '\0';
+    if(strcmp(buf5, "GHOST") == 0){
+
+    }
+    else if (strcmp(buf5, "SCORE") == 0){
+
+    }
+    else if (strcmp(buf5, "MESSA") == 0){
+
+    }else if (strcmp(buf5, "MESSP") == 0){
+    }
+    else if (strcmp(buf5, "ENDGA") == 0){
+    }
+}
+
+void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
+{ 
+    size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6;
+    char buf[t];
+    recvError(recv(socketTCP, buf, t, 0));
+    uint8_t gameID = atoi(buf[6]);
+    uint16_t hauteur = atoi(buf[8]);
+    uint16_t largeur = atoi(buf[11]);
+    uint8_t nbFantomes = atoi(buf[14]);
+    char *multi = strtok(buf[16]," ");
+    memmove(addrMC, multi[0], 15);
+    multi = strtok(NULL, " ");
+    memmove(portMC, multi[0], 4);
+
+    struct sockaddr_in address_sock;
+    address_sock.sin_family = AF_INET;
+    address_sock.sin_port = htons(portMC);
+    address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int ok = 1;
+    int r = setsockopt(socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
+    r = bind(socketMultiDiff, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
+
+    char *addr = strtok(addrMC, "#");
+    struct ip_mreq mreq;
+    mreq.imr_multiaddr.s_addr = inet_addr(addr);
+    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+    int r = setsockopt(socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+
+    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %u et une largeur de %u.\nIl y a %u fantomes à attraper. Bonne chance!", gameID, hauteur, largeur, nbFantomes);
+
+    t = 5 + 8 + 3 + 3 + 3 + 3;
+    char buf25[t];
+    recvError(recv(socketTCP, buf, t, 0));
+    int x = atoi(buf[14]);
+    int y = atoi(buf[18]);
+
+    fprintf(stdout, "Vous êtes à la position (%d,%d).", x, y);
+}
+
 int main()
 {
 
@@ -101,6 +203,14 @@ int main()
 
     // socket udp client
     int socketUDP = socket(PF_INET, SOCK_DGRAM, 0);
+    int r = bind(socketUDP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
+    if(r != 0){
+        perror("Erreur de bind");
+        exit(-1);
+    }
+
+    // socket multi diffusion serveur
+    int socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
 
     // connexion au serveur
     int sock_client = connect(socketTCP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
@@ -133,5 +243,48 @@ int main()
         lineSize = getline(&line, &len, stdin);
         ans = actionAvantPartie(socketTCP, line);
         free(line);
+    }
+
+    receptWelcPos(socketTCP, socketUDP);
+    fcntl(socketTCP, F_SETFL, O_NONBLOCK);
+    fcntl(socketUDP, F_SETFL, O_NONBLOCK);
+    fcntl(socketMultiDiff, F_SETFL, O_NONBLOCK);
+    struct pollfd p[3];
+
+    p[0].fd = socketTCP;
+    p[0].events = POLLOUT;
+    p[1].fd = socketUDP;
+    p[1].events = POLLIN;
+    p[2].fd = socketMultiDiff;
+    p[2].events = POLLIN;
+
+    while(enPartie){
+
+        int ret = poll(p, 3, -1);
+        if(ret > 0){
+            if (p[0].revents == POLLOUT){
+                // lecture du choix du joueur
+                fprintf(stdout, "Que voulez-vous faire ?\n");
+                fprintf(stdout, "l (aller à droite) x, r (aller à gauche) x, d (aller en bas) x, u (aller en haut) x, q (quitter partie), p (liste joueurs), m (message à tous) q, w (message a joueur) y  q.\n");
+                fprintf(stdout, "avec x = distance souhaitée, y = id du joueur, q = message si necessaire.\n");
+                // action
+
+                char *line = NULL;
+                ssize_t len = 0;
+                ssize_t lineSize = 0;
+                lineSize = getline(&line, &len, stdin);
+                actionEnPartie(p[0].fd, line);
+                free(line);
+            }
+
+            if (p[1].revents == POLLIN){
+                
+            }
+
+            if(p[2].revents == POLLIN){
+
+            }
+        }
+
     }
 }
