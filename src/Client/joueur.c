@@ -117,13 +117,13 @@ void actionEnPartie(int socketTCP, char *ch)
             break;
         case 'm':; // Message à tous les joueurs de la partie
             choix = strtok(NULL,sep);
-            envoiMessATous(socketTCP, choix[0]);
+            envoiMessATous(socketTCP, choix);
             break;
         case 'w':; // Message à un joueur
             choix = strtok(NULL, sep);
-            char *id = choix[0];
+            char *id = choix;
             choix = strtok(NULL, sep);
-            envoiMessAJoueur(socketTCP, choix[0], id);
+            envoiMessAJoueur(socketTCP, choix, id);
             break;
         default:;
             fprintf(stdout, "Ce n'est pas correct.\n");
@@ -131,21 +131,58 @@ void actionEnPartie(int socketTCP, char *ch)
     }
 }
 
-void receptUDP(int socketMultiDiff){
+void receptMultiDiff(int socketMultiDiff){
     char buf5[6];
     recvError(recv(socketMultiDiff, buf5, 5, 0));
     buf5[5] = '\0';
     if(strcmp(buf5, "GHOST") == 0){
+        size_t t = 3 + 3 + 3 + 2;
+        char buf[t];
+        recvError(recv(socketMultiDiff, buf, t, 0));
+        int x = atoi(&buf[1]);
+        int y = atoi(&buf[5]);
 
+        fprintf(stdout, "Un fantome s'est déplacé en (%d,%d).", x, y);
     }
     else if (strcmp(buf5, "SCORE") == 0){
+        size_t t = 8 + 4 + 3 + 3 + 3 + 4;
+        char buf[t];
+        recvError(recv(socketMultiDiff, buf, t, 0));
+        char *infos = strtok(&buf[1], " ");
 
+        char *id = infos;
+        uint16_t points = buf[10];
+        int x = buf[15];
+        int y = buf[19];
+
+        fprintf(stdout, "%s a attrapé un fantome en (%d,%d) et a maintenant %u points", id, x, y, points);
     }
-    else if (strcmp(buf5, "MESSA") == 0){
+    else if (strcmp(buf5, "MESSA") == 0){   
+        size_t t = 8 + 200 + 3 + 2;
+        char buf[t];
+        recvError(recv(socketMultiDiff, buf, t, 0));
 
-    }else if (strcmp(buf5, "MESSP") == 0){
+        char *infos = strtok(&buf[1], " ");
+        char *id = infos;
+
+        infos = strtok(NULL, " ");
+        char *rest = infos;
+
+        char *s = strtok(rest, "*");
+        char *mess = s;
+
+        fprintf(stdout, "%s: %s\n", id, mess);
     }
     else if (strcmp(buf5, "ENDGA") == 0){
+        size_t t = 8 + 4 + 3 + 2;
+        char buf[t];
+        recvError(recv(socketMultiDiff, buf, t, 0));
+
+        char *infos = strtok(&buf[1], " ");
+        char *id = infos;
+        uint16_t points = atoi(&buf[10]);
+
+        fprintf(stdout, "La partie est terminée!\n%s a gagné avec %u points!", id, points);
     }
 }
 
@@ -154,18 +191,18 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6;
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
-    uint8_t gameID = atoi(buf[6]);
-    uint16_t hauteur = atoi(buf[8]);
-    uint16_t largeur = atoi(buf[11]);
-    uint8_t nbFantomes = atoi(buf[14]);
-    char *multi = strtok(buf[16]," ");
-    memmove(addrMC, multi[0], 15);
+    uint8_t gameID = atoi(&buf[6]);
+    uint16_t hauteur = atoi(&buf[8]);
+    uint16_t largeur = atoi(&buf[11]);
+    uint8_t nbFantomes = atoi(&buf[14]);
+    char *multi = strtok(&buf[16]," ");
+    memmove(addrMC, multi, 15);
     multi = strtok(NULL, " ");
-    memmove(portMC, multi[0], 4);
+    memmove(portMC, multi, 4);
 
     struct sockaddr_in address_sock;
     address_sock.sin_family = AF_INET;
-    address_sock.sin_port = htons(portMC);
+    address_sock.sin_port = htons(atoi(portMC));
     address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 
     int ok = 1;
@@ -176,15 +213,15 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     struct ip_mreq mreq;
     mreq.imr_multiaddr.s_addr = inet_addr(addr);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-    int r = setsockopt(socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+    r = setsockopt(socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
     fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %u et une largeur de %u.\nIl y a %u fantomes à attraper. Bonne chance!", gameID, hauteur, largeur, nbFantomes);
 
     t = 5 + 8 + 3 + 3 + 3 + 3;
     char buf25[t];
     recvError(recv(socketTCP, buf, t, 0));
-    int x = atoi(buf[14]);
-    int y = atoi(buf[18]);
+    int x = atoi(&buf[14]);
+    int y = atoi(&buf[18]);
 
     fprintf(stdout, "Vous êtes à la position (%d,%d).", x, y);
 }
@@ -278,11 +315,24 @@ int main()
             }
 
             if (p[1].revents == POLLIN){
-                
+                size_t t = 5 + 8 + 200 + 3 + 2;
+                char buf[t];
+                recvError(recv(socketTCP, buf, t, 0));
+
+                char *infos = strtok(buf, " ");
+                infos = strtok(NULL, " ");
+
+                char *id = infos;
+                infos = strtok(NULL, " ");
+
+                char *s = infos;
+                char *mess = strtok(s, "*");
+
+                fprintf(stdout, "%s vous a envoyé : %s\n", id, mess);
             }
 
             if(p[2].revents == POLLIN){
-
+                receptMultiDiff(socketMultiDiff);
             }
         }
 

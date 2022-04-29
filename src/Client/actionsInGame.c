@@ -23,7 +23,8 @@ bool seDeplacer(int socketTCP, int distance, char direction){
     }
     
     size_t curr = 6;
-    char *dist = itoa(distance);
+    char *dist;
+    sprintf(dist, "%d", distance);
     char sentDist[3];
     int distLength = strlen(dist);
     // Ajout des "0" au début du string si nécessaire
@@ -92,9 +93,9 @@ bool seDeplacer(int socketTCP, int distance, char direction){
 
 bool quitterPartie(int socketTCP){
     size_t t = 5 + 3;
-    char buf8[t];
-    memcpy(buf8, "IQUIT***", 8);
-    sendError(send(socketTCP, buf8, 8, 0));
+    char buf[t];
+    memcpy(buf, "IQUIT***", 8);
+    sendError(send(socketTCP, buf, 8, 0));
 
     char buf8[8];
     recvError(recv(socketTCP, buf8, 8, 0));
@@ -112,14 +113,14 @@ bool printJoueurs(uint8_t j, int socketTCP)
         recvError(recv(socketTCP, buf30, 5, 0));
         char *infos = strtok(buf30, " ");
         infos = strtok(NULL, " ");
-        char id[9] = infos[0];
+        char *id = infos;
         id[8] = '\0';
         infos = strtok(NULL, " ");
-        int x = atoi(infos[0]);
+        int x = atoi(infos);
         infos = strtok(NULL, " ");
-        int y = atoi(infos[0]);
+        int y = atoi(infos);
         infos = strtok(NULL, " ");
-        uint32_t points = atoi(infos[0]);
+        uint32_t points = atoi(infos);
 
         // affichage dans le terminal
         fprintf(stdout, "Le Joueur %s en (%d,%d) a %u points.\n", id, x, y, points);
