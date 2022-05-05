@@ -13,7 +13,7 @@ public class Joueur {
     private String pX;
     private String pY;
     private int point = 0; // nombre de point gagne pendant la partie
-    private String pPoint;;
+    private String pPoint;
 
     public Joueur(String id, int port, Socket s) {
         this.id = id;
@@ -72,18 +72,18 @@ public class Joueur {
         return pPoint;
     }
 
-    public void setPosToString(int v, String res) {
+    public String setPosToString(int v) {
         StringBuilder s = new StringBuilder();
         if (v < 10) {
             s.append("00");
-            s.append(Integer.toString(v));
+            s.append(v);
         } else if (v < 100) {
             s.append("0");
-            s.append(Integer.toString(v));
+            s.append(v);
         } else {
-            s.append(Integer.toString(v));
+            s.append(v);
         }
-        res = s.toString();
+        return s.toString();
     }
 
     public void setPointToString(int v, String res) {
@@ -103,14 +103,21 @@ public class Joueur {
         res = s.toString();
     }
 
+    public void setPos(int x2, int y2){
+        x = x2;
+        pX = setPosToString(x2);
+        y = y2;
+        pY = setPosToString(y2);
+    }
+
     public void setX(int x2) {
         x = x2;
-        setPosToString(x2, pX);
+        pX = setPosToString(x2);
     }
 
     public void setY(int y2) {
         y = y2;
-        setPosToString(y2, pY);
+        pY = setPosToString(y2);
     }
 
     public void setPoint(int p2) {

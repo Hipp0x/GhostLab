@@ -188,7 +188,7 @@ void receptMultiDiff(int socketMultiDiff){
 
 void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
 { 
-    size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6;
+    size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6; //39
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
     uint8_t gameID = atoi(&buf[6]);
@@ -215,15 +215,15 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     r = setsockopt(socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
-    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %u et une largeur de %u.\nIl y a %u fantomes à attraper. Bonne chance!", gameID, hauteur, largeur, nbFantomes);
+    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %u et une largeur de %u.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, nbFantomes);
 
     t = 5 + 8 + 3 + 3 + 3 + 3;
     char buf25[t];
     recvError(recv(socketTCP, buf, t, 0));
-    int x = atoi(&buf[14]);
-    int y = atoi(&buf[18]);
+    int x = atoi(&buf[15]);
+    int y = atoi(&buf[19]);
 
-    fprintf(stdout, "Vous êtes à la position (%d,%d).", x, y);
+    fprintf(stdout, "Vous êtes à la position (%d,%d).\n", x, y);
 }
 
 int main()

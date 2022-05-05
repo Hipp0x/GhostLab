@@ -34,7 +34,7 @@ CLASSES = \
 	Serveur/ServicePartie.java
 
 	# all the object files cassini needs
-OBJFILES = Client/joueur.o Client/fonctions.o Client/actionsBefore.o
+OBJFILES = Client/joueur.o Client/fonctions.o Client/actionsBefore.o Client/actionsInGame.o
 
 all: codejava codec
 

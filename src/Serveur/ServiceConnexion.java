@@ -7,11 +7,11 @@ import java.util.*;
 public class ServiceConnexion implements Runnable {
 
     ServerSocket serveur;
-    private static ArrayList<Partie> parties = new ArrayList<Partie>();
+    private ArrayList<Partie> parties;
 
-    public ServiceConnexion(ServerSocket s, ArrayList<Partie> p) {
+    public ServiceConnexion(ServerSocket s, ArrayList<Partie> parties) {
         serveur = s;
-        parties = p;
+        this.parties = parties;
     }
 
     @Override

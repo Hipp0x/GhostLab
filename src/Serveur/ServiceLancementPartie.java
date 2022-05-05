@@ -5,40 +5,52 @@ import java.util.*;
 
 public class ServiceLancementPartie implements Runnable {
 
-    ServerSocket server;
-    private static ArrayList<Partie> parties = new ArrayList<Partie>();
+    private ArrayList<Partie> parties;
 
-    public ServiceLancementPartie(ArrayList<Partie> p, ServerSocket serv) {
+    public ServiceLancementPartie(ArrayList<Partie> p) {
         parties = p;
-        server = serv;
     }
 
     @Override
     public void run() {
-
-        while (true) {
-
-            synchronized ((Object) parties) {
+        for (Partie p : parties) {
+            for (Joueur j : p.getJoueurs()) {
+                System.out.println(j.isReady());
             }
-
-            for (Partie p : parties) {
-
-                if (p.peutDemarer()) {
-
-                    synchronized ((Object) parties) {
-                        parties.remove(p);
-                    }
-
-                }
+            if (p.peutDemarer()) {
 
                 // lancer le thread de la partie
-                ServicePartie partie = new ServicePartie(p, server);
+                ServicePartie partie = new ServicePartie(p);
                 Thread t2 = new Thread(partie);
                 t2.start();
+                synchronized ((Object) parties) {
+                    parties.remove(p);
+                    System.out.println("La partie " + p.getId() + " a commencé.");
+                }
+
             }
-
         }
-
     }
 
+
+    public ArrayList<Partie> getParties() {
+        return parties;
+    }
+
+    public void updateParties(ArrayList<Partie> parties){
+        this.parties = parties;
+    }
+
+    public void addPartie(Partie p){
+        parties.add(p);
+    }
+
+    public void addJoueur(int idPartie, Joueur j){
+        for(Partie p : parties){
+            if(p.getId() == idPartie){
+                p.addJoueur(j);
+                return;
+            }
+        }
+    }
 }

@@ -17,10 +17,6 @@ public class Serveur {
             Thread t = new Thread(connexion);
             t.start();
 
-            ServiceLancementPartie partie = new ServiceLancementPartie(parties, server);
-            Thread t2 = new Thread(partie);
-            t2.start();
-
         } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();

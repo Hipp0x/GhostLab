@@ -9,16 +9,14 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class ServicePartie implements Runnable {
+public class  ServicePartie implements Runnable {
 
-    ServerSocket serveur;
     Partie partie;
     ArrayList<Joueur> joueurs;
     ArrayList<ServerSocketChannel> ssc;
     DatagramSocket dso;
 
-    public ServicePartie(Partie p, ServerSocket s) {
-        serveur = s;
+    public ServicePartie(Partie p) {
         partie = p;
         joueurs = partie.getJoueurs();
         ssc = new ArrayList<>();
@@ -38,9 +36,24 @@ public class ServicePartie implements Runnable {
 
                 os = joueur.getSocket().getOutputStream();
 
-                // envoie du message [WELCO␣m␣h␣w␣f␣ip␣port***] a chacun des joueurs
+                // envoi du message [WELCO␣m␣h␣w␣f␣ip␣port***] a chacun des joueurs
                 sendWelcome(os);
-                // envoie du message [POSIT␣id␣x␣y***] a chacun des joueurs
+
+                Case[][] laby = partie.getLabyrinthe().getLaby();
+                int h = laby.length;
+                int w = laby[0].length;
+                int x;
+                int y;
+                Case cas;
+                do {
+                    x = (new Random()).nextInt(w);
+                    y = (new Random()).nextInt(h);
+                    cas = laby[x][y];
+
+                }while(cas.isMur());
+                joueur.setPos(x,y);
+                System.out.println("Joueur " + joueur.getId() + ": Position (" + x + "," + y + ").");
+                // envoi du message [POSIT␣id␣x␣y***] a chacun des joueurs
                 sendPosition(os, joueur);
 
                 // ajout d'une socket du joueur
@@ -48,7 +61,7 @@ public class ServicePartie implements Runnable {
                 acceptor.configureBlocking(false);
                 acceptor.socket().setReuseAddress(true);
                 acceptor.socket().bind(new InetSocketAddress(joueur.getSocket().getInetAddress(), joueur.getPort()));
-                acceptor.register(selector, SelectionKey.OP_READ);
+                acceptor.register(selector, SelectionKey.OP_ACCEPT);
                 ssc.add(acceptor);
 
             }
@@ -94,6 +107,7 @@ public class ServicePartie implements Runnable {
         String id = j.getId();
         String x = j.getPosX();
         String y = j.getPosY();
+        System.out.println(x + "   " + y);
 
         os.write(
                 ("POSIT " + id + " " + x + " " + y + "***").getBytes(),
@@ -227,7 +241,7 @@ public class ServicePartie implements Runnable {
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 d = buf.getInt();
-                fant = partie.moveU(d, joueur);
+                fant = partie.moveD(d, joueur);
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
 

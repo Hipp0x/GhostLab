@@ -7,22 +7,30 @@ public class Partie {
     private static int idCompt = 0;
 
     private int nbJoueurs;
-    private ArrayList<Joueur> joueurs = new ArrayList<>();
+    private ArrayList<Joueur> joueurs;
 
     private Labyrinthe labyrinthe;
     // adresse ip
-    private String ip;
+    private  String ip = "229.100.100.";
+    private static int ipLastNum = 0;
     // port multi diffusion
     private int portMulti;
     // nb fantome
     private int nbFant;
-    private ArrayList<Fantome> fantomes = new ArrayList<>();
+    private ArrayList<Fantome> fantomes;
 
-    private boolean isFinish = false;
+    private boolean isFinish;
 
     public Partie() {
         id = idCompt++;
         nbJoueurs = 0;
+        isFinish = false;
+        fantomes = new ArrayList<>();
+        joueurs = new ArrayList<>();
+        labyrinthe = new Labyrinthe();
+        nbFant = 0;
+        portMulti = 8885;
+        ip += Integer.toString(ipLastNum++);
     }
 
     /*
@@ -47,7 +55,7 @@ public class Partie {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     public void placerFantome() {
