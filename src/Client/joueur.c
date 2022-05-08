@@ -272,21 +272,22 @@ void getID()
 int main(int argc, char *argv[])
 {
 
-    if (argc != 3)
+    if (argc != 4)
     {
         fprintf(stderr, "Mauvais nombre de parametres au lancement.\n");
         exit(EXIT_FAILURE);
     }
 
     // recuperation du port voulu
-    uint16_t port = atoi(argv[2]);
+    uint16_t portTCP = atoi(argv[2]);
+    uint16_t portUDP = atoi(argv[3]);
 
     //
     struct sockaddr_in address_sock;
     address_sock.sin_family = AF_INET;
     // address_sock.sin_port = htons(5621);
     // address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
-    address_sock.sin_port = htons(port);
+    address_sock.sin_port = htons(portUDP);
     inet_aton(argv[1], &address_sock.sin_addr);
 
     getID();
@@ -307,6 +308,7 @@ int main(int argc, char *argv[])
     int socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
 
     // connexion au serveur
+    address_sock.sin_port = htons(portTCP);
     int sock_client = connect(socketTCP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
     connectError(sock_client);
 
