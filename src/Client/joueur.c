@@ -224,6 +224,7 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     int y = atoi(&buf[19]);
 
     fprintf(stdout, "Vous êtes à la position (%d,%d).\n", x, y);
+    enPartie = true;
 }
 
 int main()
@@ -269,7 +270,7 @@ int main()
     while (!ans)
     {
         // lecture du choix du joueur
-        fprintf(stdout, "Que voulez-vous faire ?\n");
+        fprintf(stdout, "\nQue voulez-vous faire ?\n");
         fprintf(stdout, "c (create), r (rejoindre) x, d (desinscrire), t (taille) x, j (liste joueurs) x, p (liste parties), s (start).\n");
         fprintf(stdout, "avec x = num partie, si necessaire.\n");
         // action
