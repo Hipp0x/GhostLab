@@ -23,9 +23,9 @@ public class Labyrinthe {
         for (int i = 0; i < 20; i++){
             for (int j = 0; j < 20; j++){
                 if (laby[i][j].isMur()){
-                    System.out.print("X");
+                    System.out.print("XX");
                 }else {
-                    System.out.print(" ");
+                    System.out.print("  ");
                 }
             }
             System.out.println();
@@ -35,7 +35,7 @@ public class Labyrinthe {
     public void createLine(int i , boolean b0, boolean b1, boolean b2, boolean b3, boolean b4, boolean b5, boolean b6, boolean b7, boolean b8, boolean b9, 
     boolean b10, boolean b11, boolean b12, boolean b13, boolean b14, boolean b15, boolean b16, boolean b17, boolean b18, boolean b19){
 
-        laby[i][0] = new Case(b0); laby[i][1] = new Case(b1); laby[i][2] = new Case(b2); laby[i][3] = new Case(b13); 
+        laby[i][0] = new Case(b0); laby[i][1] = new Case(b1); laby[i][2] = new Case(b2); laby[i][3] = new Case(b3); 
         laby[i][4] = new Case(b4); laby[i][5] = new Case(b5); laby[i][6] = new Case(b6); laby[i][7] = new Case(b7); 
         laby[i][8] = new Case(b8); laby[i][9] = new Case(b9); laby[i][10] = new Case(b10);laby[i][11] = new Case(b11); 
         laby[i][12] = new Case(b12);laby[i][13] = new Case(b13);laby[i][14] = new Case(b14); laby[i][15] = new Case(b15);
@@ -55,7 +55,7 @@ public class Labyrinthe {
         createLine(2, true, false, true, false, true, true, true, false, true, true, 
         true, true, true, false, true, true, true, false, true, true);
         //3
-        createLine(3, true, false, false, false, false, false, true, true, false, false, 
+        createLine(3, true, false, false, false, false, false, true, false, false, false, 
         false, false, false, false, false, false, true, false, false, false);
         //4
         createLine(4, true, true, true, true, true, false, true, true, true, false, 
