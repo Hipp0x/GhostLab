@@ -1,20 +1,22 @@
 # GhostLab
-GhostLab game : server + clients
+GhostLab game : serveur + client
 
 --------------------------
 
 Fonctionnement :
 
-make
-pour lancer un client : ./joueur  
-pour lancer un serveur : move to src + java Serveur
+make  
+pour lancer un serveur : java Serveur.Serveur  
+pour lancer un client : ./joueur ("adresse serveur") (port tcp en numerique)  
+
+make clean  
 
 --------------------------
 
 Code :
 
-En C : joueur (client)
-En Java : serveur (+ services), partie, labyrinthe (+ case), fantome, joueur (object)
+En C : joueur (client)  
+En Java : serveur (+ services), partie, labyrinthe (+ case), fantome, joueur (objet)  
 
 --------------------------
 
@@ -31,9 +33,9 @@ Pauline : joueur
 Ugo : serveur (+ tout ce qui est lié)
 
 Début d'une partie :  
-Pauline : serveur
+Pauline : serveur + partie  
 Ugo : client + création des parties (positionnement joueur + fantome ...)
 
 Déroulement d'une partie :  
-Pauline : serveur + partie
+Pauline : serveur + partie  
 Ugo : client

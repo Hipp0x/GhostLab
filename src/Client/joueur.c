@@ -5,13 +5,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 /*
 -----------VARIABLES-----------
 */
 
 char port[4] = "5467";
-char identifiant[8] = "pseudo00";
+char *identifiant;
 char portMC[4];
 char addrMC[15];
 bool inscrit;
@@ -100,42 +101,44 @@ void actionEnPartie(int socketTCP, char *ch)
     uint8_t num;
     switch (choix[0])
     {
-        case 'l':; // Aller a gauche
-        case 'r':; // Aller à droite
-        case 'd':; // Aller en bas
-        case 'u':; // Aller en haut
-            char dir = choix[0];
-            choix = strtok(NULL, sep);
-            enPartie = seDeplacer(socketTCP, choix[0], dir);
-            break;
-        case 'q':; // Quitter la partie
-            enPartie = quitterPartie(socketTCP);
-            break;
+    case 'l':; // Aller a gauche
+    case 'r':; // Aller à droite
+    case 'd':; // Aller en bas
+    case 'u':; // Aller en haut
+        char dir = choix[0];
+        choix = strtok(NULL, sep);
+        enPartie = seDeplacer(socketTCP, choix[0], dir);
+        break;
+    case 'q':; // Quitter la partie
+        enPartie = quitterPartie(socketTCP);
+        break;
 
-        case 'p':; // Liste des joueurs dans la partie
-            enPartie = listeJoueursIG(socketTCP);
-            break;
-        case 'm':; // Message à tous les joueurs de la partie
-            choix = strtok(NULL,sep);
-            envoiMessATous(socketTCP, choix);
-            break;
-        case 'w':; // Message à un joueur
-            choix = strtok(NULL, sep);
-            char *id = choix;
-            choix = strtok(NULL, sep);
-            envoiMessAJoueur(socketTCP, choix, id);
-            break;
-        default:;
-            fprintf(stdout, "Ce n'est pas correct.\n");
-            break;
+    case 'p':; // Liste des joueurs dans la partie
+        enPartie = listeJoueursIG(socketTCP);
+        break;
+    case 'm':; // Message à tous les joueurs de la partie
+        choix = strtok(NULL, sep);
+        envoiMessATous(socketTCP, choix);
+        break;
+    case 'w':; // Message à un joueur
+        choix = strtok(NULL, sep);
+        char *id = choix;
+        choix = strtok(NULL, sep);
+        envoiMessAJoueur(socketTCP, choix, id);
+        break;
+    default:;
+        fprintf(stdout, "Ce n'est pas correct.\n");
+        break;
     }
 }
 
-void receptMultiDiff(int socketMultiDiff){
+void receptMultiDiff(int socketMultiDiff)
+{
     char buf5[6];
     recvError(recv(socketMultiDiff, buf5, 5, 0));
     buf5[5] = '\0';
-    if(strcmp(buf5, "GHOST") == 0){
+    if (strcmp(buf5, "GHOST") == 0)
+    {
         size_t t = 3 + 3 + 3 + 2;
         char buf[t];
         recvError(recv(socketMultiDiff, buf, t, 0));
@@ -144,7 +147,8 @@ void receptMultiDiff(int socketMultiDiff){
 
         fprintf(stdout, "Un fantome s'est déplacé en (%d,%d).", x, y);
     }
-    else if (strcmp(buf5, "SCORE") == 0){
+    else if (strcmp(buf5, "SCORE") == 0)
+    {
         size_t t = 8 + 4 + 3 + 3 + 3 + 4;
         char buf[t];
         recvError(recv(socketMultiDiff, buf, t, 0));
@@ -157,7 +161,8 @@ void receptMultiDiff(int socketMultiDiff){
 
         fprintf(stdout, "%s a attrapé un fantome en (%d,%d) et a maintenant %u points", id, x, y, points);
     }
-    else if (strcmp(buf5, "MESSA") == 0){   
+    else if (strcmp(buf5, "MESSA") == 0)
+    {
         size_t t = 8 + 200 + 3 + 2;
         char buf[t];
         recvError(recv(socketMultiDiff, buf, t, 0));
@@ -173,7 +178,8 @@ void receptMultiDiff(int socketMultiDiff){
 
         fprintf(stdout, "%s: %s\n", id, mess);
     }
-    else if (strcmp(buf5, "ENDGA") == 0){
+    else if (strcmp(buf5, "ENDGA") == 0)
+    {
         size_t t = 8 + 4 + 3 + 2;
         char buf[t];
         recvError(recv(socketMultiDiff, buf, t, 0));
@@ -187,15 +193,15 @@ void receptMultiDiff(int socketMultiDiff){
 }
 
 void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
-{ 
-    size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6; //39
+{
+    size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6; // 39
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
     uint8_t gameID = atoi(&buf[6]);
     uint16_t hauteur = atoi(&buf[8]);
     uint16_t largeur = atoi(&buf[11]);
     uint8_t nbFantomes = atoi(&buf[14]);
-    char *multi = strtok(&buf[16]," ");
+    char *multi = strtok(&buf[16], " ");
     memmove(addrMC, multi, 15);
     multi = strtok(NULL, " ");
     memmove(portMC, multi, 4);
@@ -227,14 +233,64 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     enPartie = true;
 }
 
-int main()
+void getID()
 {
+    bool isok = false;
+    while (!isok)
+    {
+        bool test = true;
+        fprintf(stdout, "Choisissez un identifiant : 8 char, lettres et/ou chiffres.\n");
+        char *line = NULL;
+        ssize_t len = 0;
+        ssize_t lineSize = 0;
+        lineSize = getline(&line, &len, stdin);
+        if (lineSize != 9)
+        {
+            fprintf(stdout, "Incorrect. SVP pas %ld mais 8 char\n", lineSize);
+        }
+        else
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                if (!isalnum(line[i]))
+                {
+                    test = false;
+                    fprintf(stdout, "Incorrect. SVP le %d n'est pas alphanumerique\n", (i + 1));
+                }
+            }
+            if (test)
+            {
+                identifiant = malloc(8);
+                strcpy(identifiant, line);
+                fprintf(stdout, "Pseudo %s ok\n", identifiant);
+                isok = true;
+            }
+        }
+        free(line);
+    }
+}
+
+int main(int argc, char *argv[])
+{
+
+    if (argc != 3)
+    {
+        fprintf(stderr, "Mauvais nombre de parametres au lancement.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // recuperation du port voulu
+    uint16_t port = atoi(argv[2]);
 
     //
     struct sockaddr_in address_sock;
     address_sock.sin_family = AF_INET;
-    address_sock.sin_port = htons(5621);
-    address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
+    // address_sock.sin_port = htons(5621);
+    // address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
+    address_sock.sin_port = htons(port);
+    inet_aton(argv[1], &address_sock.sin_addr);
+
+    getID();
 
     // socket tcp serveur
     int socketTCP = socket(PF_INET, SOCK_STREAM, 0);
@@ -242,7 +298,8 @@ int main()
     // socket udp client
     int socketUDP = socket(PF_INET, SOCK_DGRAM, 0);
     int r = bind(socketUDP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
-    if(r != 0){
+    if (r != 0)
+    {
         perror("Erreur de bind");
         exit(-1);
     }
@@ -296,11 +353,14 @@ int main()
     p[2].fd = socketMultiDiff;
     p[2].events = POLLIN;
 
-    while(enPartie){
+    while (enPartie)
+    {
 
         int ret = poll(p, 3, -1);
-        if(ret > 0){
-            if (p[0].revents == POLLOUT){
+        if (ret > 0)
+        {
+            if (p[0].revents == POLLOUT)
+            {
                 // lecture du choix du joueur
                 fprintf(stdout, "Que voulez-vous faire ?\n");
                 fprintf(stdout, "l (aller à droite) x, r (aller à gauche) x, d (aller en bas) x, u (aller en haut) x, q (quitter partie), p (liste joueurs), m (message à tous) q, w (message a joueur) y  q.\n");
@@ -315,7 +375,8 @@ int main()
                 free(line);
             }
 
-            if (p[1].revents == POLLIN){
+            if (p[1].revents == POLLIN)
+            {
                 size_t t = 5 + 8 + 200 + 3 + 2;
                 char buf[t];
                 recvError(recv(socketTCP, buf, t, 0));
@@ -332,10 +393,10 @@ int main()
                 fprintf(stdout, "%s vous a envoyé : %s\n", id, mess);
             }
 
-            if(p[2].revents == POLLIN){
+            if (p[2].revents == POLLIN)
+            {
                 receptMultiDiff(socketMultiDiff);
             }
         }
-
     }
 }
