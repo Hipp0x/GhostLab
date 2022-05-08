@@ -22,6 +22,18 @@ bool enPartie;
 -----------FONCTIONS-----------
 */
 
+bool isDigit(char *a){
+    int l = strlen(a);
+    for (int i = 0; i < l; i++){
+        if (isalpha(a[i])){
+            return false;
+        } else if (a[i] = '\n'){
+            return true;
+        }
+    }
+    return true;
+}
+
 // les actions que peut faire le joueur avant le debut d'une partie
 bool actionAvantPartie(int socketTCP, char *ch)
 {
@@ -40,32 +52,57 @@ bool actionAvantPartie(int socketTCP, char *ch)
     case 'r':; // rejoindre une partie
         choix = strtok(NULL, sep);
         printf("numero : %s\n", choix);
-        num = atoi(choix);
-        rejoindrePartie(socketTCP, identifiant, port, num);
-        inscrit = true;
-        return false;
+        if (!isDigit(choix))
+        {
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
+            return false;
+        }
+        else
+        {
+            num = atoi(choix);
+            rejoindrePartie(socketTCP, identifiant, port, num);
+            inscrit = true;
+            return false;
+        }
         break;
 
     case 'd':; // desinscription d'une partie
         desinscription(socketTCP);
+        inscrit = false;
         return false;
         break;
 
     case 't':; // taille labyrinthe de la partie m
         choix = strtok(NULL, sep);
         printf("numero : %s\n", choix);
-        num = atoi(choix);
-        tailleLaby(socketTCP, num);
+        if (!isDigit(choix))
+        {
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
+        }
+        else
+        {
+            num = atoi(choix);
+            tailleLaby(socketTCP, num);
+        }
         return false;
         break;
 
     case 'j':; // liste joueurs de la partie partie m
         choix = strtok(NULL, sep);
         printf("numero : %s\n", choix);
-        num = atoi(choix);
-        listeJoueurs(socketTCP, num);
-        return false;
-        break;
+        if (!isDigit(choix))
+        {
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
+            return false;
+            break;
+        }
+        else
+        {
+            num = atoi(choix);
+            listeJoueurs(socketTCP, num);
+            return false;
+            break;
+        }
 
     case 'p':; // liste parties qui n'ont pas encore commencé
         listeParties(socketTCP);
@@ -272,7 +309,8 @@ void getID()
 
 void verifport(char *a)
 {
-    if (strlen(a) != 4) {
+    if (strlen(a) != 4)
+    {
         fprintf(stdout, "Incorrect. SVP le port %s doit faire 4 characteres numeriques.\n", a);
         exit(EXIT_FAILURE);
     }
