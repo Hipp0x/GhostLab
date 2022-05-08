@@ -270,6 +270,22 @@ void getID()
     }
 }
 
+void verifport(char *a)
+{
+    if (strlen(a) != 5) {
+        fprintf(stdout, "Incorrect. SVP le port %s doit faire 4 characteres numeriques.\n", a);
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        if (!isdigit(a[i]))
+        {
+            fprintf(stdout, "Incorrect. SVP le port %s doit etre en numerique.\n", a);
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -278,6 +294,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Mauvais nombre de parametres au lancement.\n");
         exit(EXIT_FAILURE);
     }
+
+    verifport(argv[2]);
+    verifport(argv[3]);
 
     // recuperation du port voulu
     uint16_t portTCP = atoi(argv[2]);
