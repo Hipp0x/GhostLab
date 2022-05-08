@@ -11,6 +11,8 @@ public class Serveur {
 
         try {
 
+            Labyrinthe l = new Labyrinthe();
+
             ServerSocket server = new ServerSocket(5621);
 
             ServiceConnexion connexion = new ServiceConnexion(server, parties);
