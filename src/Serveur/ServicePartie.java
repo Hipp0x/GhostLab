@@ -13,7 +13,7 @@ public class  ServicePartie implements Runnable {
 
     Partie partie;
     ArrayList<Joueur> joueurs;
-    ArrayList<ServerSocketChannel> ssc;
+    ArrayList<SocketChannel> ssc;
     DatagramSocket dso;
 
     public ServicePartie(Partie p) {
@@ -57,24 +57,28 @@ public class  ServicePartie implements Runnable {
                 sendPosition(os, joueur);
 
                 // ajout d'une socket du joueur
-                ServerSocketChannel acceptor = ServerSocketChannel.open();
+                SocketChannel acceptor = SocketChannel.open();
                 acceptor.configureBlocking(false);
-                acceptor.socket().setReuseAddress(true);
+                acceptor.connect(new InetSocketAddress(joueur.getSocket().getInetAddress(), joueur.getPort()));
                 acceptor.socket().bind(new InetSocketAddress(joueur.getSocket().getInetAddress(), joueur.getPort()));
-                acceptor.register(selector, SelectionKey.OP_ACCEPT);
+                System.out.println("La socket est connectée ? : " + acceptor.isConnected());
+                acceptor.socket().setReuseAddress(true);
+                acceptor.register(selector, SelectionKey.OP_READ);
                 ssc.add(acceptor);
 
             }
 
             while (true) {
-
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
+
+                    System.out.println("wawawwaa");
                     SelectionKey key = iterator.next();
                     iterator.remove();
-                    for (ServerSocketChannel s : ssc) {
+                    for (SocketChannel s : ssc) {
                         if (key.isReadable()) {
+
                             SocketChannel sc = (SocketChannel) key.channel();
                             readAction(sc, ssc.indexOf(s));
                         }
