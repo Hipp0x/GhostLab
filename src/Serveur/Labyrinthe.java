@@ -10,7 +10,6 @@ public class Labyrinthe {
         createLaby1();
         h = 20;
         w = 20;
-        printLaby();
     }
 
     /*

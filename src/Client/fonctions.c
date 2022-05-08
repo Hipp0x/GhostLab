@@ -11,7 +11,7 @@ void connectError(int ret)
     }
     else
     {
-        fprintf(stdout, "Connexion établie avec le serveur.\n");
+        fprintf(stdout, "///Connexion établie avec le serveur.\n");
     }
 }
 
@@ -25,7 +25,7 @@ void sendError(int ret)
     }
     else
     {
-        fprintf(stdout, "Envoi de %d data.\n", ret);
+        fprintf(stdout, "///Envoi de %d data.\n", ret);
     }
 }
 
@@ -39,6 +39,6 @@ void recvError(int ret)
     }
     else
     {
-        fprintf(stdout, "Reception de %d data.\n", ret);
+        fprintf(stdout, "///Reception de %d data.\n", ret);
     }
 }

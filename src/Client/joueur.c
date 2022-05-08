@@ -27,7 +27,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
 {
     char *sep = " ";
     char *choix = strtok(ch, sep);
-    printf("char : %s\n", choix);
+    printf("choix : %s\n", choix);
     uint8_t num;
     switch (choix[0])
     {
@@ -39,7 +39,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
 
     case 'r':; // rejoindre une partie
         choix = strtok(NULL, sep);
-        printf("num : %s\n", choix);
+        printf("numero : %s\n", choix);
         num = atoi(choix);
         rejoindrePartie(socketTCP, identifiant, port, num);
         inscrit = true;
@@ -53,7 +53,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
 
     case 't':; // taille labyrinthe de la partie m
         choix = strtok(NULL, sep);
-        printf("num : %s\n", choix);
+        printf("numero : %s\n", choix);
         num = atoi(choix);
         tailleLaby(socketTCP, num);
         return false;
@@ -61,7 +61,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
 
     case 'j':; // liste joueurs de la partie partie m
         choix = strtok(NULL, sep);
-        printf("num : %s\n", choix);
+        printf("numero : %s\n", choix);
         num = atoi(choix);
         listeJoueurs(socketTCP, num);
         return false;
@@ -272,7 +272,7 @@ void getID()
 
 void verifport(char *a)
 {
-    if (strlen(a) != 5) {
+    if (strlen(a) != 4) {
         fprintf(stdout, "Incorrect. SVP le port %s doit faire 4 characteres numeriques.\n", a);
         exit(EXIT_FAILURE);
     }
@@ -336,7 +336,6 @@ int main(int argc, char *argv[])
     size_t t = 9 + sizeof(uint8_t);
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
-    printf("%s\n", buf);
     uint8_t n = atoi(&buf[6]);
     fprintf(stdout, "GAMES %d \n", n);
 

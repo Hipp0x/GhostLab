@@ -35,7 +35,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
     }
     else
     {
-        fprintf(stderr, "Fail.\n");
+        fprintf(stderr, "Fail : reception de %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -71,7 +71,6 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        printf("%s\n", buf);
         uint8_t m = atoi(&buf[1]);
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
@@ -83,7 +82,7 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
     }
     else
     {
-        fprintf(stderr, "Fail.\n");
+        fprintf(stderr, "Fail : reception de %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -101,7 +100,6 @@ void desinscription(int socketTCP)
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
-    printf("char : %s\n", buf5);
     if (strcmp(buf5, "UNROK") == 0)
     {
         size_t t = 4 + 1;
@@ -118,7 +116,7 @@ void desinscription(int socketTCP)
     }
     else
     {
-        fprintf(stderr, "Fail.\n");
+        fprintf(stderr, "Fail : reception de %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -148,8 +146,8 @@ void tailleLaby(int socketTCP, uint8_t num)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
-        uint16_t h = atoi(&buf[3]);
-        uint16_t w = atoi(&buf[5]);
+        uint16_t h = ntohs(atoi(&buf[3]));
+        uint16_t w = ntohs(atoi(&buf[5]));
         fprintf(stdout, "Labyrinthe %d : w = %d et h = %d.\n", m, w, h);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
@@ -160,7 +158,7 @@ void tailleLaby(int socketTCP, uint8_t num)
     }
     else
     {
-        fprintf(stderr, "Fail.\n");
+        fprintf(stderr, "Fail : reception de %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -215,7 +213,7 @@ void listeJoueurs(int socketTCP, uint8_t num)
     }
     else
     {
-        fprintf(stderr, "Fail.\n");
+        fprintf(stderr, "Fail : reception de %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -230,11 +228,10 @@ void recupereGames(uint8_t n, int socketTCP)
         size_t t = 10 + 2 * 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        printf("%s\n", buf);
         // affichage dans le terminal
         uint8_t m = atoi(&buf[6]);
         uint8_t s = atoi(&buf[8]);
-        fprintf(stdout, "OGAME %d %d\n", m, s);
+        fprintf(stdout, "OGAME, id : %d, inscrits : %d\n", m, s);
     }
 }
 
