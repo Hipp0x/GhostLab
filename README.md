@@ -7,7 +7,8 @@ Fonctionnement :
 
 make  
 pour lancer un serveur : java Serveur.Serveur  
-pour lancer un client : ./joueur ("adresse serveur") (port tcp en numerique)  
+pour lancer un client : ./joueur ("adresse serveur") (port tcp en numerique) (port upd en numerique)  
+    ex :  ./joueur "127.0.01" 5621 4242   
 
 make clean  
 
