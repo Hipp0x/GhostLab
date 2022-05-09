@@ -284,7 +284,7 @@ void getID()
         lineSize = getline(&line, &len, stdin);
         if (lineSize != 9)
         {
-            fprintf(stdout, "Incorrect. SVP pas %ld mais 8 char\n", lineSize);
+            fprintf(stdout, "Incorrect. SVP pas %ld mais 8 char\n", (lineSize - 1));
         }
         else
         {

@@ -94,8 +94,7 @@ public class  ServicePartie implements Runnable {
         String ip = partie.getIp();
         int portMulti = partie.getPortMulti();
 
-        os.write(
-                ("WELCO " + partie.getId() + " " + partie.getLabyrinthe().getH() + " " + partie.getLabyrinthe().getW()
+        os.write(("WELCO " + partie.getId() + " " + partie.getLabyrinthe().getH() + " " + partie.getLabyrinthe().getW()
                         + " " + partie.getNbFantome() + " " + ip + " " + portMulti + "***").getBytes(),
                 0, (13 + 1 + 2 + 2 + 1 + 8 + 4));
         os.flush();
@@ -108,23 +107,21 @@ public class  ServicePartie implements Runnable {
         String y = j.getPosY();
         System.out.println(x + "   " + y);
 
-        os.write(
-                ("POSIT " + id + " " + x + " " + y + "***").getBytes(),
-                0, (11 + 8 + 3 + 3));
+        os.write(("POSIT " + id + " " + x + " " + y + "***").getBytes(), 0, (11 + 8 + 3 + 3));
         os.flush();
     }
 
     // envoi du move
     public void sendMove(SocketChannel s, String x, String y) throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(("MOVE! " + x + " " + y + "***").getBytes(), 0, 16);
+        System.out.println(new String(buf.array()));
         s.write(buf);
     }
 
     // envoi du move avec point
     public void sendMoveFant(SocketChannel s, String x, String y, String p, String id) throws IOException {
         // [SCORE␣id␣p␣x␣y+++]
-        ByteBuffer buf = ByteBuffer.wrap(
-                ("MOVEF " + x + " " + y + " " + p + "***").getBytes(), 0, (11 + 3 + 3 + 4));
+        ByteBuffer buf = ByteBuffer.wrap(("MOVEF " + x + " " + y + " " + p + "***").getBytes(), 0, (11 + 3 + 3 + 4));
         s.write(buf);
 
         byte[] data;
@@ -144,17 +141,12 @@ public class  ServicePartie implements Runnable {
     // envoi de la liste des joueurs
     public void sendListJoueur(SocketChannel s, ArrayList<Joueur> liste) throws IOException {
         int l = liste.size();
-        System.out.println(l);
-        ByteBuffer buf = ByteBuffer.wrap(
-                ("GLIS! " + l + "***").getBytes(), 0, 10);
+        ByteBuffer buf = ByteBuffer.wrap(("GLIS! " + l + "***").getBytes(), 0, 10);
         s.write(buf);
 
         for (int i = 0; i < l; i++) {
             Joueur j = liste.get(i);
-            buf = ByteBuffer.wrap(
-                    ("GPLYR " + j.getId() + " " + j.getPosX() + " " + j.getPosY() + " " + j.getPPoint() + "***")
-                            .getBytes(),
-                    0, (12 + 8 + 3 + 3 + 4));
+            buf = ByteBuffer.wrap(("GPLYR " + j.getId() + " " + j.getPosX() + " " + j.getPosY() + " " + j.getPPoint() + "***").getBytes(), 0, (12 + 8 + 3 + 3 + 4));
             s.write(buf);
         }
     }
@@ -201,6 +193,8 @@ public class  ServicePartie implements Runnable {
         ByteBuffer buf = ByteBuffer.allocate(5);
         s.read(buf);
         String action = new String(buf.array());
+
+        System.out.println(action);
 
         if (partie.isFinish()) {
             sendBye(s);
@@ -277,7 +271,6 @@ public class  ServicePartie implements Runnable {
                 fant = partie.moveR(d, joueur);
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
-
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
@@ -291,11 +284,11 @@ public class  ServicePartie implements Runnable {
                 break;
 
             case "GLIS?":
-                ArrayList<Joueur> sub;
+                ByteBuffer buff = ByteBuffer.allocate(3);
+                s.read(buff);
                 synchronized ((Object)joueurs) {
-                    sub = joueurs;
+                    sendListJoueur(s, joueurs);
                 }
-                sendListJoueur(s, sub);
                 break;
 
             case "MALL?":

@@ -34,7 +34,7 @@ void recvError(int ret)
 {
     if (ret <= 0)
     {
-        fprintf(stderr, "Probleme de reception : %s", strerror(errno));
+        fprintf(stderr, "Probleme de reception, ret = %d : %s", ret ,strerror(errno));
         exit(EXIT_FAILURE);
     }
     else
