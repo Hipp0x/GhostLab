@@ -7,7 +7,7 @@ public class Labyrinthe {
     private Case[][] laby;
 
     Labyrinthe() {
-        createLaby2();
+        createLaby3();
         h = 20;
         w = 20;
         printLaby();
@@ -168,6 +168,32 @@ public class Labyrinthe {
                 false, true, false, true, true, true, false, true, false);
         createLine(19, true, false, false, false, true, false, false, false, true, false,
                 false, false, true, false, true, false, false, false, false, false);
+
+    }
+
+    public void createLaby3(){
+        laby = new Case[20][20];
+
+        createLine(0, true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true);
+        createLine(1, true, false, false, false, true, false, false, false, false, false,false, false, true, false, false, false, false, false, true, false);
+        createLine(2, true, false, true, false, true, true, true, false, true, true, true, false, true, true, true, false, true, false, true, false);
+        createLine(3, true, false, true, false, false, false, false, false, true, false, false, false, false,false, true, false, true, false, true, false);
+        createLine(4, true, false, true, true, true, false, true, true, true, false, true, true, true, false, true, false, true, true, true, false);
+        createLine(5, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false,false, false);
+        createLine(6, true, true, true, false, true, true, true, true, true, false, true, false, true, true, true, true, true, false, true, false);
+        createLine(7, true, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false, true, false,true, false);
+        createLine(8, true, false, true, true, true, false, true, false, true, true, true, true, true, false, true, false, true, false, true, true);
+        createLine(9, true, false, true, false, true, false, true, false, false, false, true, false, false, false, true, false, false, false, false, false);
+        createLine(10, true, true, true, false, true, false, true, true, true, false, true, true, true, false, true, true, true, true, true,false);
+        createLine(11, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false);
+        createLine(12, true, true, true, false, true, true, true, false, true, true, true, false, true, true, true, false, true, false, true, true);
+        createLine(13, true, false, false, false, false, false, true, false, false, false, true, false, false, false, true, false, true, false, true, false);
+        createLine(14, true, false, true, true, true, true, true, false, true, false, true, true, true, true, true, false, true, true, true, false);
+        createLine(15, true, false, true, false, false, false, false, false, true, false, true, false, false, false, false, false, true, false, false, false);
+        createLine(16, true, false, true, false, true, false, true, true, true, true, true, false, true, true, true, true, true, false, true, true);
+        createLine(17, true, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false);
+        createLine(18, true, true, true, false, true, true, true, false, true, false, true, true, true, false, true, false, true, false, true, false);
+        createLine(19, false, false, false, false, true, false, false, false, false, false, true, false, false, false, false,false, true, false, false, false);
 
     }
 
