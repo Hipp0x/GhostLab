@@ -26,32 +26,12 @@ public class ServiceLancementPartie implements Runnable {
                     Thread t2 = new Thread(partie);
                     t2.start();
 
-                    parties.remove(p);
                     System.out.println("La partie " + p.getId() + " a commencé.");
                 }
             }
+
         }
     }
 
 
-    public ArrayList<Partie> getParties() {
-        return parties;
-    }
-
-    public void updateParties(ArrayList<Partie> parties){
-        this.parties = parties;
-    }
-
-    public void addPartie(Partie p){
-        parties.add(p);
-    }
-
-    public void addJoueur(int idPartie, Joueur j){
-        for(Partie p : parties){
-            if(p.getId() == idPartie){
-                p.addJoueur(j);
-                return;
-            }
-        }
-    }
 }

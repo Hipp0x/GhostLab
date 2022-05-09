@@ -2,14 +2,16 @@ package Serveur;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 
 public class ServiceConnexion implements Runnable {
 
-    ServerSocket serveur;
+    ServerSocketChannel serveur;
     private ArrayList<Partie> parties;
 
-    public ServiceConnexion(ServerSocket s, ArrayList<Partie> parties) {
+    public ServiceConnexion(ServerSocketChannel s, ArrayList<Partie> parties) {
         serveur = s;
         this.parties = parties;
     }
@@ -19,7 +21,7 @@ public class ServiceConnexion implements Runnable {
 
         while (true) {
 
-            Socket socket;
+            SocketChannel socket;
             try {
 
                 socket = serveur.accept();

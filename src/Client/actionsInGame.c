@@ -23,10 +23,11 @@ bool seDeplacer(int socketTCP, int distance, char direction){
     }
     
     size_t curr = 6;
-    char *dist;
-    sprintf(dist, "%d", distance);
+    char dist[10];
+    int distLength = sprintf(dist, "%d", distance);
+    printf("%s\n", dist);
     char sentDist[3];
-    int distLength = strlen(dist);
+
     // Ajout des "0" au début du string si nécessaire
     if (distLength < 4)
     {
@@ -34,10 +35,11 @@ bool seDeplacer(int socketTCP, int distance, char direction){
         for (i = 0; i < (3 - distLength); i++){
             memmove(sentDist + i, "0", 1);
         }
-        memmove(dist + i, dist, distLength);
+        memmove(sentDist + i, dist, distLength);
     }else{
         memmove(sentDist, "000", 3);
     }
+    printf("String envoyé : %s\n", sentDist);
 
     memmove(buf12 + curr, sentDist, 3);
     curr += 3;
@@ -110,7 +112,7 @@ bool printJoueurs(uint8_t j, int socketTCP)
     { 
         size_t sizeJ = 5 + 8 + 3 + 3 + 4 + 3 + 4;
         char buf30[sizeJ];
-        recvError(recv(socketTCP, buf30, 5, 0));
+        recvError(recv(socketTCP, buf30, sizeJ, 0));
         char *infos = strtok(buf30, " ");
         infos = strtok(NULL, " ");
         char *id = infos;
@@ -134,15 +136,17 @@ bool listeJoueursIG(int socketTCP){
     memcpy(buf8, "GLIS?***", 8);
     sendError(send(socketTCP, buf8, t, 0));
 
-    // Reception format [GLIS!***] ou [GOBYE***]
+    // Reception format [GLIS! s***] ou [GOBYE***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
+    printf("caca\n");
     buf5[5] = '\0';
     if (strcmp(buf5, "GLIS!") == 0)
     {
         size_t t = 3 + 1 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
+        printf("chiasse\n");
         uint8_t j = atoi(&buf[1]);
         fprintf(stdout, "Il y a %d joueurs dans la partie.\n", j);
 

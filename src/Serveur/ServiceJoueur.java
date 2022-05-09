@@ -3,17 +3,21 @@ package Serveur;
 import java.net.*;
 import java.io.*;
 import java.lang.*;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
 public class ServiceJoueur implements Runnable {
 
+    private final SocketChannel socketCh;
     private final Socket socket;
+
     private Partie game;
     private Joueur player;
     private static ArrayList<Partie> parties;
 
-    public ServiceJoueur(Socket s, ArrayList<Partie> parties) {
-        this.socket = s;
+    public ServiceJoueur(SocketChannel s, ArrayList<Partie> parties) {
+        this.socketCh = s;
+        this.socket = s.socket();
         this.parties = parties;
     }
 

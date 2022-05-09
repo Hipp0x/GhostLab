@@ -1,6 +1,7 @@
 package Serveur;
 
 import java.net.*;
+import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayList;
 
 public class Serveur {
@@ -11,7 +12,8 @@ public class Serveur {
 
         try {
 
-            ServerSocket server = new ServerSocket(5621);
+            ServerSocketChannel server = ServerSocketChannel.open();
+            server.bind(new InetSocketAddress(5467));
 
             ServiceConnexion connexion = new ServiceConnexion(server, parties);
             Thread t = new Thread(connexion);
