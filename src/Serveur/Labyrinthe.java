@@ -7,7 +7,7 @@ public class Labyrinthe {
     private Case[][] laby;
 
     Labyrinthe() {
-        createLaby3();
+        createLaby4();
         h = 20;
         w = 20;
         printLaby();
@@ -62,112 +62,53 @@ public class Labyrinthe {
 
     public void createLaby1() {
         laby = new Case[20][20];
-        // 0
-        createLine(0, true, false, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true);
-        // 1
-        createLine(1, true, false, true, false, false, false, true, false, false, false,
-                false, false, true, false, false, false, false, false, false, false);
-        // 2
-        createLine(2, true, false, true, false, true, true, true, false, true, true,
-                true, true, true, false, true, true, true, false, true, true);
-        // 3
-        createLine(3, true, false, false, false, false, false, true, false, false, false,
-                false, false, false, false, false, false, true, false, false, false);
-        // 4
-        createLine(4, true, true, true, true, true, false, true, true, true, false,
-                true, true, true, true, true, true, true, true, true, false);
-        // 5
-        createLine(5, true, false, false, false, true, false, false, false, true, false,
-                true, false, false, false, false, false, true, false, true, false);
-        // 6
-        createLine(6, true, false, true, true, true, false, true, false, true, false,
-                true, true, true, true, true, false, true, false, true, false);
-        // 7
-        createLine(7, true, false, true, false, false, false, true, false, true, false,
-                false, false, false, false, false, false, true, false, false, false);
-        // 8
-        createLine(8, true, false, true, false, true, true, true, false, true, true,
-                true, true, true, true, true, false, true, false, true, true);
-        // 9
-        createLine(9, true, false, true, false, true, false, false, false, false, false,
-                false, false, true, false, true, false, true, false, true, false);
-        // 10
-        createLine(10, true, false, true, true, true, false, true, true, true, false,
-                true, false, true, false, true, false, true, false, true, false);
-        // 11
-        createLine(11, true, false, false, false, false, false, true, false, false, false,
-                true, false, false, false, true, false, true, false, false, false);
-        // 12
-        createLine(12, true, true, true, true, true, true, true, false, true, false,
-                true, true, true, true, true, false, true, true, true, false);
-        // 13
-        createLine(13, true, false, false, false, false, false, true, false, true, false,
-                false, false, false, false, false, false, false, false, true, false);
-        // 14
-        createLine(14, true, true, true, true, true, false, true, false, true, false,
-                true, true, true, true, true, true, true, true, true, false);
-        // 15
-        createLine(15, true, false, false, false, false, false, true, false, true, false,
-                false, false, false, false, true, false, false, false, false, false);
-        // 16
-        createLine(16, true, false, true, false, true, true, true, false, true, true,
-                true, true, true, true, true, false, true, true, true, true);
-        // 17
-        createLine(17, true, false, true, false, false, false, false, false, false, false,
-                true, false, false, false, false, false, false, false, false, false);
-        // 18
-        createLine(18, true, false, true, false, true, true, true, true, true, false,
-                true, true, true, false, true, true, true, true, true, true);
-        // 19
-        createLine(19, true, false, true, false, true, false, false, false, false, false,
-                false, false, true, false, false, false, false, false, false, false);
+        
+        createLine(0, true, false, true, true, true, true, true, true, true, true,true, true, true, true, true, true, true, true, true, true);
+        createLine(1, true, false, true, false, false, false, true, false, false, false,false, false, true, false, false, false, false, false, false, false);
+        createLine(2, true, false, true, false, true, true, true, false, true, true,true, true, true, false, true, true, true, false, true, true);
+        createLine(3, true, false, false, false, false, false, true, false, false, false,false, false, false, false, false, false, true, false, false, false);
+        createLine(4, true, true, true, true, true, false, true, true, true, false,true, true, true, true, true, true, true, true, true, false);
+        createLine(5, true, false, false, false, true, false, false, false, true, false,true, false, false, false, false, false, true, false, true, false);
+        createLine(6, true, false, true, true, true, false, true, false, true, false,true, true, true, true, true, false, true, false, true, false);
+        createLine(7, true, false, true, false, false, false, true, false, true, false,false, false, false, false, false, false, true, false, false, false);
+        createLine(8, true, false, true, false, true, true, true, false, true, true,true, true, true, true, true, false, true, false, true, true);
+        createLine(9, true, false, true, false, true, false, false, false, false, false,false, false, true, false, true, false, true, false, true, false);
+        createLine(10, true, false, true, true, true, false, true, true, true, false,true, false, true, false, true, false, true, false, true, false);
+        createLine(11, true, false, false, false, false, false, true, false, false, false,true, false, false, false, true, false, true, false, false, false);
+        createLine(12, true, true, true, true, true, true, true, false, true, false,true, true, true, true, true, false, true, true, true, false);
+        createLine(13, true, false, false, false, false, false, true, false, true, false,false, false, false, false, false, false, false, false, true, false);
+        createLine(14, true, true, true, true, true, false, true, false, true, false,true, true, true, true, true, true, true, true, true, false);
+        createLine(15, true, false, false, false, false, false, true, false, true, false,false, false, false, false, true, false, false, false, false, false);
+        createLine(16, true, false, true, false, true, true, true, false, true, true,true, true, true, true, true, false, true, true, true, true);
+        createLine(17, true, false, true, false, false, false, false, false, false, false,true, false, false, false, false, false, false, false, false, false);
+        createLine(18, true, false, true, false, true, true, true, true, true, false,true, true, true, false, true, true, true, true, true, true);
+        createLine(19, true, false, true, false, true, false, false, false, false, false,false, false, true, false, false, false, false, false, false, false);
 
     }
 
     public void createLaby2() {
         laby = new Case[20][20];
 
-        createLine(0, true, true, true, true, true, true, true, true, true, true,
-                true, true, true, true, true, true, true, true, true, true);
-        createLine(1, true, false, false, false, true, false, false, false, true, false,
-                false, false, true, false, false, false, false, false, true, false);
-        createLine(2, true, true, true, false, true, false, true, false, true, false,
-                true, true, true, true, true, false, true, false, true, false);
-        createLine(3, true, false, true, false, false, false, true, false, false, false,
-                true, false, false, false, false, false, true, false, false, false);
-        createLine(4, true, false, true, false, true, true, true, true, true, false,
-                true, false, true, false, true, true, true, false, true, true);
-        createLine(5, true, false, false, false, false, false, true, false, true, false,
-                false, false, true, false, false, false, true, false, false, false);
-        createLine(6, true, true, true, true, true, false, true, false, true, true,
-                true, true, true, false, true, false, true, true, true, false);
-        createLine(7, true, false, true, false, false, false, false, false, true, false,
-                false, false, true, false, true, false, false, false, true, false);
-        createLine(8, true, false, true, true, true, true, true, true, true, false,
-                true, false, true, true, true, true, true, false, true, true);
-        createLine(9, true, false, false, false, false, false, true, false, false, false,
-                true, false, false, false, true, false, false, false, true, false);
-        createLine(10, true, true, true, false, true, false, true, false, true, true,
-                true, true, true, false, true, false, true, true, true, false);
-        createLine(11, true, false, false, false, true, false, false, false, true, false,
-                false, false, true, false, false, false, true, false, false, false);
-        createLine(12, true, false, true, true, true, true, true, true, true, false,
-                true, true, true, true, true, false, true, false, true, true);
-        createLine(13, true, false, false, false, true, false, false, false, true, false,
-                false, false, true, false, false, false, true, false, false, false);
-        createLine(14, true, true, true, false, true, false, true, false, true, true,
-                true, false, true, true, true, true, true, true, true, false);
-        createLine(15, true, false, true, false, false, false, true, false, false, false,
-                false, false, true, false, false, false, true, false, false, false);
-        createLine(16, true, false, true, true, true, true, true, true, true, false,
-                true, true, true, false, true, false, true, false, true, true);
-        createLine(17, true, false, false, false, false, false, true, false, false, false,
-                true, false, false, false, true, false, false, false, true, false);
-        createLine(18, true, true, true, false, true, false, true, false, true, false, true,
-                false, true, false, true, true, true, false, true, false);
-        createLine(19, true, false, false, false, true, false, false, false, true, false,
-                false, false, true, false, true, false, false, false, false, false);
+        createLine(0, true, true, true, true, true, true, true, true, true, true,true, true, true, true, true, true, true, true, true, true);
+        createLine(1, true, false, false, false, true, false, false, false, true, false,false, false, true, false, false, false, false, false, true, false);
+        createLine(2, true, true, true, false, true, false, true, false, true, false, true, true, true, true, true, false, true, false, true, false);
+        createLine(3, true, false, true, false, false, false, true, false, false, false, true, false, false, false, false, false, true, false, false, false);
+        createLine(4, true, false, true, false, true, true, true, true, true, false, true, false, true, false, true, true, true, false, true, true);
+        createLine(5, true, false, false, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false, false, false);
+        createLine(6, true, true, true, true, true, false, true, false, true, true, true, true, true, false, true, false, true, true, true, false);
+        createLine(7, true, false, true, false, false, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false);
+        createLine(8, true, false, true, true, true, true, true, true, true, false,true, false, true, true, true, true, true, false, true, true);
+        createLine(9, true, false, false, false, false, false, true, false, false, false,true, false, false, false, true, false, false, false, true, false);
+        createLine(10, true, true, true, false, true, false, true, false, true, true,true, true, true, false, true, false, true, true, true, false);
+        createLine(11, true, false, false, false, true, false, false, false, true, false,false, false, true, false, false, false, true, false, false, false);
+        createLine(12, true, false, true, true, true, true, true, true, true, false,true, true, true, true, true, false, true, false, true, true);
+        createLine(13, true, false, false, false, true, false, false, false, true, false,false, false, true, false, false, false, true, false, false, false);
+        createLine(14, true, true, true, false, true, false, true, false, true, true,true, false, true, true, true, true, true, true, true, false);
+        createLine(15, true, false, true, false, false, false, true, false, false, false,false, false, true, false, false, false, true, false, false, false);
+        createLine(16, true, false, true, true, true, true, true, true, true, false,true, true, true, false, true, false, true, false, true, true);
+        createLine(17, true, false, false, false, false, false, true, false, false, false,true, false, false, false, true, false, false, false, true, false);
+        createLine(18, true, true, true, false, true, false, true, false, true, false, true, false, true, false, true, true, true, false, true, false);
+        createLine(19, true, false, false, false, true, false, false, false, true, false, false, false, true, false, true, false, false, false, false, false);
 
     }
 
@@ -194,6 +135,32 @@ public class Labyrinthe {
         createLine(17, true, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false);
         createLine(18, true, true, true, false, true, true, true, false, true, false, true, true, true, false, true, false, true, false, true, false);
         createLine(19, false, false, false, false, true, false, false, false, false, false, true, false, false, false, false,false, true, false, false, false);
+
+    }
+
+    public void createLaby4(){
+        laby = new Case[20][20];
+
+        createLine(0, true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true);
+        createLine(1, true, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, true, false, false, false);
+        createLine(2, true, false, true, false, true, false, true, false, true, true, true, false, true, true, true, false, true, true, true, false);
+        createLine(3, true, false, false, false, true, false, false, false, false, false, false, false, true, false, true, false, false, false, true, false);
+        createLine(4, true, false, true, true, true, true, true, false, true, false, true, true, true, false, true, false, true, false, true, false);
+        createLine(5, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false, false, false);
+        createLine(6, true, true, true, false, true, false, true, true, true, false, true, false, true, false, true, false, true, true, true, false);
+        createLine(7, true, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false);
+        createLine(8, true, false, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, false, true, true);
+        createLine(9, true, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false, true, false, false, false);
+        createLine(10, true, true, true, false, true, true, true, true, true, true, true, false, true, true, true, false, true, true, true, false);
+        createLine(11, true, false, false, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false, false, false);
+        createLine(12, true, false, true, true, true, false, true, false, true, true, true, true, true, false, true, false, true, false, true, true);
+        createLine(13, true, false, true, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false, false, false);
+        createLine(14, true, false, true, false, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, false);
+        createLine(15, true, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false);
+        createLine(16, true, true, true, false, true, false, true, false, true, true, true, false, true, false, true, false, true, true, true, false);
+        createLine(17, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false);
+        createLine(18, true, false, true, true, true, false, true, false, true, false, true, false, true, true, true, true, true, false, true, true);
+        createLine(19, true, false, false, false, true, false, true, false, false, false, true, false, false, false, true, false, false, false, false, false);
 
     }
 
