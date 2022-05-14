@@ -156,7 +156,7 @@ void actionEnPartie(int socketTCP, char *ch)
         break;
     case 'm':; // Message à tous les joueurs de la partie
         choix = strtok(NULL, sep);
-        envoiMessATous(socketTCP, choix);
+        envoiMessATous(socketTCP, &ch[2]);
         break;
     case 'w':; // Message à un joueur
         choix = strtok(NULL, sep);

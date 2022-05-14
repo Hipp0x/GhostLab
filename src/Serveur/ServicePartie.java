@@ -82,7 +82,7 @@ public class  ServicePartie implements Runnable {
 
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
 
             e.printStackTrace();
         }
@@ -152,13 +152,16 @@ public class  ServicePartie implements Runnable {
     }
 
     // recupere le message (au + 200 char)
-    public String getMess(SocketChannel s) throws IOException {
+    public String getMess(SocketChannel s) throws IOException, InterruptedException {
         StringBuilder mess = new StringBuilder();
         ByteBuffer buf = ByteBuffer.allocate(1);
-        while (!buf.toString().equals("*")) {
+        do{
             s.read(buf);
-            mess.append(buf.toString());
-        }
+            System.out.println(new String(buf.array()));
+            Thread.sleep(2000);
+            mess.append(new String(buf.array()));
+        }while(!(new String(buf.array())).equals("*"));
+
         s.read(buf);
         s.read(buf);
 
@@ -187,7 +190,7 @@ public class  ServicePartie implements Runnable {
     }
 
     // lecture de l'action d'un joueur
-    public void readAction(SocketChannel s, int pos) throws IOException {
+    public void readAction(SocketChannel s, int pos) throws IOException, InterruptedException {
         Joueur joueur = joueurs.get(pos);
 
         ByteBuffer buf = ByteBuffer.allocate(5);
