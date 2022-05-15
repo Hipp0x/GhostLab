@@ -11,7 +11,7 @@ public class Partie {
 
     private Labyrinthe labyrinthe;
     // adresse ip
-    private  String ip = "229.100.100.";
+    private  String ip = "227.100.101.";
     private static int ipLastNum = 0;
     // port multi diffusion
     private int portMulti;
@@ -29,7 +29,7 @@ public class Partie {
         joueurs = new ArrayList<>();
         labyrinthe = new Labyrinthe();
         nbFant = 0;
-        portMulti = 8885;
+        portMulti = 8448;
         ip += Integer.toString(ipLastNum++);
     }
 
@@ -244,4 +244,28 @@ public class Partie {
         return isFinish;
     }
 
+    public String getPortMultiString() {
+        int v = portMulti;
+        StringBuilder s = new StringBuilder();
+        if (v < 10) {
+            s.append("00");
+            s.append(v);
+        } else if (v < 100) {
+            s.append("0");
+            s.append(v);
+        } else {
+            s.append(v);
+        }
+        return s.toString();
+    }
+
+    public String getIpString() {
+        int v = portMulti;
+        StringBuilder s = new StringBuilder();
+        s.append(ip);
+        for(int i = ip.length(); i < 15; i++){
+            s.append("#");
+        }
+        return s.toString();
+    }
 }
