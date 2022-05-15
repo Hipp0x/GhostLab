@@ -161,8 +161,10 @@ void actionEnPartie(int socketTCP, char *ch)
         enPartie = listeJoueursIG(socketTCP);
         break;
     case 'm':; // Message à tous les joueurs de la partie
-        choix = strtok(NULL, sep);
-        envoiMessATous(socketTCP, choix);
+        char *s = "***";
+        choix = strtok(NULL, s);
+        fprintf(stdout, "mess : %s", choix);
+        envoiMessATous(socketTCP, &ch[2]);
         break;
     case 'w':; // Message à un joueur
         choix = strtok(NULL, sep);
@@ -234,7 +236,7 @@ void receptMultiDiff(int socketMultiDiff)
         char *s = strtok(rest, "*");
         char *mess = s;
 
-        fprintf(stdout, "%s: %s\n", id, mess);
+        fprintf(stdout, "Message de %s: %s\n", id, mess);
     }
     else if (strcmp(buf5, "ENDGA") == 0)
     {
@@ -261,12 +263,13 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     uint8_t nbFantomes = atoi(&buf[14]);
     char *multi = strtok(&buf[16], " ");
     memmove(addrMC, multi, 15);
-    multi = strtok(NULL, " ");
+
+    multi = strtok(NULL, "***");
     memmove(portMC, multi, 4);
 
     struct sockaddr_in address_sock;
     address_sock.sin_family = AF_INET;
-    address_sock.sin_port = htons(atoi(portMC));
+    address_sock.sin_port = (atoi(portMC));
     address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 
     int ok = 1;
@@ -275,7 +278,7 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
 
     char *addr = strtok(addrMC, "#");
     struct ip_mreq mreq;
-    mreq.imr_multiaddr.s_addr = inet_addr(addr);
+    mreq.imr_multiaddr.s_addr = inet_addr(addrMC);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     r = setsockopt(socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
@@ -419,7 +422,7 @@ int main(int argc, char *argv[])
         free(line);
     }
 
-    receptWelcPos(socketTCP, socketUDP);
+    receptWelcPos(socketTCP, socketMultiDiff);
     fcntl(socketTCP, F_SETFL, O_NONBLOCK);
     fcntl(socketUDP, F_SETFL, O_NONBLOCK);
     fcntl(socketMultiDiff, F_SETFL, O_NONBLOCK);

@@ -4,10 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.net.InetAddress;
 import java.nio.*;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.*;
 
 public class ServicePartie implements Runnable {
@@ -84,21 +81,21 @@ public class ServicePartie implements Runnable {
 
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
 
             e.printStackTrace();
         }
 
     }
 
-    // envoi du welcome
+    // envoi du welcome [WELCO␣m␣h␣w␣f␣ip␣port***]
     public void sendWelcome(OutputStream os) throws IOException {
-        String ip = partie.getIp();
-        int portMulti = partie.getPortMulti();
+        String ip = partie.getIpString();
+        String portMulti = partie.getPortMultiString();
 
         os.write(("WELCO " + partie.getId() + " " + partie.getLabyrinthe().getH() + " " + partie.getLabyrinthe().getW()
                 + " " + partie.getNbFantome() + " " + ip + " " + portMulti + "***").getBytes(),
-                0, (13 + 1 + 2 + 2 + 1 + 8 + 4));
+                0, (5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6));
         os.flush();
     }
 
@@ -156,16 +153,20 @@ public class ServicePartie implements Runnable {
     }
 
     // recupere le message (au + 200 char)
-    public String getMess(SocketChannel s) throws IOException {
+    public String getMess(SocketChannel s) throws IOException, InterruptedException {
         StringBuilder mess = new StringBuilder();
         ByteBuffer buf = ByteBuffer.allocate(1);
-        while (!buf.toString().equals("*")) {
+        while (!(new String(buf.array())).equals("*")) {
+            mess.append(new String(buf.array()));
+            buf = ByteBuffer.allocate(1);
             s.read(buf);
-            mess.append(buf.toString());
         }
+        buf = ByteBuffer.allocate(1);
         s.read(buf);
+        buf = ByteBuffer.allocate(1);
         s.read(buf);
 
+        System.out.println("message : " + mess.toString());
         return mess.toString();
     }
 
@@ -229,14 +230,14 @@ public class ServicePartie implements Runnable {
     }
 
     // lecture de l'action d'un joueur
-    public void readAction(SocketChannel s, int pos) throws IOException {
+    public void readAction(SocketChannel s, int pos) throws IOException, InterruptedException {
         Joueur joueur = joueurs.get(pos);
 
         ByteBuffer buf = ByteBuffer.allocate(5);
         s.read(buf);
         String action = new String(buf.array());
 
-        System.out.println(action);
+        System.out.println("action : " + action);
 
         if (partie.isFinish()) {
             sendBye(s);
@@ -335,15 +336,25 @@ public class ServicePartie implements Runnable {
 
             case "MALL?":
                 // lire le message jusqu'aux 3* (max 200 char) et le stocker
+
                 mess = getMess(s);
                 // multi diffuser sur l'adresse + port de la partie
-                env = "MESSA " + joueur.getId() + " " + mess + "***";
-                data = env.getBytes();
+                String en = "MESSA " + joueur.getId() + " " + mess + "***";
+                ByteBuffer buffMC = ByteBuffer.wrap(en.getBytes());
+
+                System.out.println("ip de partie : " + partie.getIp());
+                System.out.println("port multi : " + partie.getPortMulti());
                 InetSocketAddress ia = new InetSocketAddress(partie.getIp(), partie.getPortMulti());
-                paquet = new DatagramPacket(data, data.length, ia);
-                dso.send(paquet);
+                DatagramChannel channel = DatagramChannel.open();
+                channel.bind(null);
+                channel.send(buffMC, ia);
+
+                // paquet = new DatagramPacket(dat, dat.length,
+                // InetAddress.getByName(partie.getIp()), partie.getPortMulti());
+                // dso.send(paquet);
 
                 sendMall(s);
+
                 break;
 
             case "SEND?":
