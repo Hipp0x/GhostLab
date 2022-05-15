@@ -30,7 +30,6 @@ CLASSES = \
 	Serveur/Serveur.java \
 	Serveur/ServiceConnexion.java \
 	Serveur/ServiceJoueur.java \
-	Serveur/ServiceLancementPartie.java \
 	Serveur/ServicePartie.java
 
 	# all the object files cassini needs

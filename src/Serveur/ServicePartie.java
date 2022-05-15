@@ -10,7 +10,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class  ServicePartie implements Runnable {
+public class ServicePartie implements Runnable {
 
     Partie partie;
     ArrayList<Joueur> joueurs;
@@ -33,6 +33,8 @@ public class  ServicePartie implements Runnable {
             Selector selector = Selector.open();
             dso = new DatagramSocket(partie.getPortMulti(), (InetAddress.getByName(partie.getIp())));
 
+            partie.placerFantome();
+
             for (Joueur joueur : joueurs) {
 
                 os = joueur.getSocket().getOutputStream();
@@ -51,8 +53,8 @@ public class  ServicePartie implements Runnable {
                     y = (new Random()).nextInt(h);
                     cas = laby[x][y];
 
-                }while(cas.isMur());
-                joueur.setPos(x,y);
+                } while (cas.isMur());
+                joueur.setPos(x, y);
                 System.out.println("Joueur " + joueur.getId() + ": Position (" + x + "," + y + ").");
                 // envoi du message [POSIT␣id␣x␣y***] a chacun des joueurs
                 sendPosition(os, joueur);
@@ -95,7 +97,7 @@ public class  ServicePartie implements Runnable {
         int portMulti = partie.getPortMulti();
 
         os.write(("WELCO " + partie.getId() + " " + partie.getLabyrinthe().getH() + " " + partie.getLabyrinthe().getW()
-                        + " " + partie.getNbFantome() + " " + ip + " " + portMulti + "***").getBytes(),
+                + " " + partie.getNbFantome() + " " + ip + " " + portMulti + "***").getBytes(),
                 0, (13 + 1 + 2 + 2 + 1 + 8 + 4));
         os.flush();
     }
@@ -146,7 +148,9 @@ public class  ServicePartie implements Runnable {
 
         for (int i = 0; i < l; i++) {
             Joueur j = liste.get(i);
-            buf = ByteBuffer.wrap(("GPLYR " + j.getId() + " " + j.getPosX() + " " + j.getPosY() + " " + j.getPPoint() + "***").getBytes(), 0, (12 + 8 + 3 + 3 + 4));
+            buf = ByteBuffer
+                    .wrap(("GPLYR " + j.getId() + " " + j.getPosX() + " " + j.getPosY() + " " + j.getPPoint() + "***")
+                            .getBytes(), 0, (12 + 8 + 3 + 3 + 4));
             s.write(buf);
         }
     }
@@ -184,6 +188,44 @@ public class  ServicePartie implements Runnable {
     public void sendBye(SocketChannel s) throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(("GOBYE***").getBytes(), 0, (8));
         s.write(buf);
+    }
+
+    // envoi du labyrinthe
+    public void sendLaby(SocketChannel s) throws IOException {
+        ByteBuffer buf = ByteBuffer.wrap(("TRCHL***").getBytes(), 0, (8));
+        s.write(buf);
+        Labyrinthe l = partie.getLabyrinthe();
+        int w = l.getW();
+        int h = l.getH();
+        Case[][] laby = l.getLaby();
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                if (laby[i][j].isMur()) {
+
+                    buf = ByteBuffer.wrap(("TRUE!***").getBytes(), 0, (8));
+                    s.write(buf);
+                    System.out.println("envoie true");
+                } else {
+
+                    buf = ByteBuffer.wrap(("FALSE***").getBytes(), 0, (8));
+                    s.write(buf);
+                    System.out.println("envoie false");
+                }
+            }
+        }
+    }
+
+    // envoi du labyrinthe
+    public void sendFant(SocketChannel s) throws IOException {
+        ByteBuffer buf = ByteBuffer.wrap(("TRCHF***").getBytes(), 0, (8));
+        s.write(buf);
+        ArrayList<Fantome> l = partie.getFantomes();
+        Random rand = new Random();
+        int i = rand.nextInt(l.size());
+        Fantome f = l.get(i);
+        buf = ByteBuffer.wrap((f.getPosX() + " " + f.getPosY() + "***").getBytes(), 0, (8));
+        s.write(buf);
+
     }
 
     // lecture de l'action d'un joueur
@@ -286,7 +328,7 @@ public class  ServicePartie implements Runnable {
             case "GLIS?":
                 ByteBuffer buff = ByteBuffer.allocate(3);
                 s.read(buff);
-                synchronized ((Object)joueurs) {
+                synchronized ((Object) joueurs) {
                     sendListJoueur(s, joueurs);
                 }
                 break;
@@ -344,7 +386,16 @@ public class  ServicePartie implements Runnable {
                 }
 
                 break;
-
+            case "XTLX?":
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                sendLaby(s);
+                break;
+            case "XTFX?":
+                buf = ByteBuffer.allocate(3);
+                s.read(buf);
+                sendFant(s);
+                break;
             default:
                 // finir la lecture
                 // envoi dunno

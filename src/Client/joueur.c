@@ -17,17 +17,24 @@ char portMC[4];
 char addrMC[15];
 bool inscrit;
 bool enPartie;
+uint16_t hauteur;
+uint16_t largeur;
 
 /*
 -----------FONCTIONS-----------
 */
 
-bool isDigit(char *a){
+bool isDigit(char *a)
+{
     int l = strlen(a);
-    for (int i = 0; i < l; i++){
-        if (isalpha(a[i])){
+    for (int i = 0; i < l; i++)
+    {
+        if (isalpha(a[i]))
+        {
             return false;
-        } else if (a[i] = '\n'){
+        }
+        else if (a[i] = '\n')
+        {
             return true;
         }
     }
@@ -121,7 +128,6 @@ bool actionAvantPartie(int socketTCP, char *ch)
             return false;
         }
         break;
-
     default:
         fprintf(stdout, "Ce n'est pas correct.\n");
         return false;
@@ -163,6 +169,20 @@ void actionEnPartie(int socketTCP, char *ch)
         char *id = choix;
         choix = strtok(NULL, sep);
         envoiMessAJoueur(socketTCP, choix, id);
+        break;
+    case 'x':;
+        if (strcmp(ch, "xtrichexlabyx"))
+        {
+            tricheLaby(socketTCP, largeur, hauteur);
+        }
+        else if (strcmp(ch, "xtrichexfantx"))
+        {
+            tricheFant(socketTCP);
+        }
+        else
+        {
+            fprintf(stdout, "Ce n'est pas correct.\n");
+        }
         break;
     default:;
         fprintf(stdout, "Ce n'est pas correct.\n");
@@ -236,8 +256,8 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
     uint8_t gameID = atoi(&buf[6]);
-    uint16_t hauteur = atoi(&buf[8]);
-    uint16_t largeur = atoi(&buf[11]);
+    hauteur = atoi(&buf[8]);
+    largeur = atoi(&buf[11]);
     uint8_t nbFantomes = atoi(&buf[14]);
     char *multi = strtok(&buf[16], " ");
     memmove(addrMC, multi, 15);

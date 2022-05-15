@@ -11,7 +11,7 @@ public class Partie {
 
     private Labyrinthe labyrinthe;
     // adresse ip
-    private  String ip = "229.100.100.";
+    private String ip = "229.100.100.";
     private static int ipLastNum = 0;
     // port multi diffusion
     private int portMulti;
@@ -59,6 +59,52 @@ public class Partie {
     }
 
     public void placerFantome() {
+
+        int w = labyrinthe.getW();
+        int h = labyrinthe.getH();
+        Case[][] laby = labyrinthe.getLaby();
+        Case cas;
+        int normaux;
+        int moyen;
+        int rare;
+        if (nbFant <= 2) {
+            for (int i = 0; i < nbFant; i++) {
+                int x;
+                int y;
+                do {
+                    x = (new Random()).nextInt(w);
+                    y = (new Random()).nextInt(h);
+                    cas = laby[x][y];
+
+                } while (cas.isMur());
+                Fantome a = new Fantome(x, y, 1);
+                fantomes.add(a);
+            }
+        } else {
+            normaux = (int) (0.7 * 5);
+            moyen = (int) (0.7 * (nbFant - normaux));
+            rare = nbFant - normaux;
+            for (int i = 0; i < nbFant; i++) {
+                int x;
+                int y;
+                do {
+                    x = (new Random()).nextInt(w);
+                    y = (new Random()).nextInt(h);
+                    cas = laby[x][y];
+
+                } while (cas.isMur());
+                if (i < normaux) {
+                    Fantome a = new Fantome(x, y, 1);
+                    fantomes.add(a);
+                } else if (i < moyen) {
+                    Fantome a = new Fantome(x, y, 2);
+                    fantomes.add(a);
+                } else {
+                    Fantome a = new Fantome(x, y, 3);
+                    fantomes.add(a);
+                }
+            }
+        }
 
     }
 
@@ -203,6 +249,10 @@ public class Partie {
      * Getters et Setters
      * -----
      */
+
+    public void setFantome(int x) {
+        nbFant = x;
+    }
 
     public int getId() {
         return id;
