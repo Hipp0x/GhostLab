@@ -84,6 +84,7 @@ public class Partie {
             normaux = (int) (0.7 * 5);
             moyen = (int) (0.7 * (nbFant - normaux));
             rare = nbFant - normaux;
+            System.out.println("normaux : " + normaux + ", moyen : " + moyen + ", rare : " + rare);
             for (int i = 0; i < nbFant; i++) {
                 int x;
                 int y;
@@ -140,7 +141,7 @@ public class Partie {
                 break;
             }
         }
-        j.setX(x + compt);
+        j.setX(x - compt);
         return fant;
     }
 
@@ -310,12 +311,25 @@ public class Partie {
     }
 
     public String getIpString() {
-        int v = portMulti;
         StringBuilder s = new StringBuilder();
         s.append(ip);
         for (int i = ip.length(); i < 15; i++) {
             s.append("#");
         }
         return s.toString();
+    }
+
+    public void printFant() {
+        System.out.println("Print Fantomes");
+        for (Fantome a : fantomes) {
+            System.out.println("j : " + a.getJ() + "i : " + a.getI());
+        }
+    }
+
+    public void printJoueur() {
+        System.out.println("Print Joueur");
+        for (Joueur a : joueurs) {
+            System.out.println("x : " + a.getX() + "y : " + a.getY());
+        }
     }
 }

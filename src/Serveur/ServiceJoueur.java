@@ -2,7 +2,6 @@ package Serveur;
 
 import java.net.*;
 import java.io.*;
-import java.lang.*;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
@@ -18,7 +17,7 @@ public class ServiceJoueur implements Runnable {
     public ServiceJoueur(SocketChannel s, ArrayList<Partie> parties) {
         this.socketCh = s;
         this.socket = s.socket();
-        this.parties = parties;
+        ServiceJoueur.parties = parties;
     }
 
     public void run() {
@@ -44,7 +43,7 @@ public class ServiceJoueur implements Runnable {
 
                         // initialiser le nb de fantome
                         int nbjoueur = p.getNbJoueurs();
-                        int nbFant = Math.max(15, nbjoueur * 3);
+                        int nbFant = Math.min(15, nbjoueur * 3);
                         p.setFantome(nbFant);
 
                         // lancer le thread de la partie

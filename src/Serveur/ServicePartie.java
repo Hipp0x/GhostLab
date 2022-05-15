@@ -66,6 +66,9 @@ public class ServicePartie implements Runnable {
 
             }
 
+            partie.printFant();
+            partie.printJoueur();
+
             while (true) {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
@@ -75,6 +78,7 @@ public class ServicePartie implements Runnable {
                     for (SocketChannel s : ssc) {
                         if (key.isReadable()) {
                             readAction(s, ssc.indexOf(s));
+                            partie.printFant();
                         }
                     }
                 }
