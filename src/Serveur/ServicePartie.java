@@ -5,6 +5,7 @@ import java.net.*;
 import java.net.InetAddress;
 import java.nio.*;
 import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ServicePartie implements Runnable {
@@ -88,7 +89,7 @@ public class ServicePartie implements Runnable {
             for (Joueur joueur : joueurs) {
 
                 // multidiffuser le gagnant
-                sendBye(joueur.getSocket().getChannel());
+                sendFinGame();
 
             }
 
@@ -202,6 +203,26 @@ public class ServicePartie implements Runnable {
         s.write(buf);
     }
 
+    // multidiffuser le score d'un joueur lors de la prise d'un fantome
+    public void sendUpdateScoreJoueur() {
+        // SCORE id p x y+++
+    }
+
+    // multidiffuser la fin du jeu
+    public void sendFinGame() {
+        // ENDGA id p+++
+    }
+
+    // multidiffuser le deplacement d'un fantome
+    public void sendDeplacementFantome() {
+        // GHOST x y+++
+    }
+
+    // multidiffuser un message pour tous les joueurs
+    public void sendMessageForAll() {
+        // MESSA id mess+++
+    }
+
     // envoi du labyrinthe
     public void sendLaby(SocketChannel s) throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(("TRCHL***").getBytes(), 0, (8));
@@ -275,6 +296,7 @@ public class ServicePartie implements Runnable {
                     joueur.setPoint(joueur.getPoint() + fant);
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
+                    sendUpdateScoreJoueur();
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -293,6 +315,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
+                    sendUpdateScoreJoueur();
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -312,6 +335,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
+                    sendUpdateScoreJoueur();
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -329,6 +353,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
+                    sendUpdateScoreJoueur();
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -341,17 +366,15 @@ public class ServicePartie implements Runnable {
             case "GLIS?":
                 ByteBuffer buff = ByteBuffer.allocate(3);
                 s.read(buff);
-                synchronized ((Object) joueurs) {
-                    sendListJoueur(s, joueurs);
-                }
+                sendListJoueur(s, joueurs);
                 break;
 
-            case "MALL?":
+            case "MALL?": // utiliser fonction sendMessageForAll quand ca sera fonctionnel
                 // lire le message jusqu'aux 3* (max 200 char) et le stocker
 
                 mess = getMess(s);
                 // multi diffuser sur l'adresse + port de la partie
-                String en = "MESSA " + joueur.getId() + " " + mess + "***";
+                String en = "MESSA " + joueur.getId() + " " + mess + "+++";
                 ByteBuffer buffMC = ByteBuffer.wrap(en.getBytes());
 
                 System.out.println("ip de partie : " + partie.getIp());
@@ -366,7 +389,6 @@ public class ServicePartie implements Runnable {
                 // dso.send(paquet);
 
                 sendMall(s);
-
                 break;
 
             case "SEND?":
@@ -409,21 +431,41 @@ public class ServicePartie implements Runnable {
                 }
 
                 break;
-            case "XTLX?":
+            case "XTLX?": // triche pour labyrinthe
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 sendLaby(s);
                 break;
-            case "XTFX?":
+            case "XTFX?": // triche pour fantome
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 sendFant(s);
                 break;
             default:
-                // finir la lecture
-                // envoi dunno
+                clearIS(s);
+                buf = ByteBuffer.wrap(("DUNNO***").getBytes(), 0, (8));
+                s.write(buf);
                 break;
         }
+
+    }
+
+    // clear la lecture jusqu'aux ***
+    public void clearIS(SocketChannel iso) throws IOException {
+        System.out.println("dans clear IS");
+        ByteBuffer buf = ByteBuffer.allocate(1);
+        String r = new String(buf.array());
+        while (!("*").equals(r)) {
+            buf = ByteBuffer.allocate(1);
+            iso.read(buf);
+            r = new String(buf.array());
+        }
+
+        buf = ByteBuffer.allocate(1);
+        iso.read(buf);
+
+        buf = ByteBuffer.allocate(1);
+        iso.read(buf);
 
     }
 
