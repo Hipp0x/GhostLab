@@ -44,9 +44,8 @@ bool isDigit(char *a)
 // les actions que peut faire le joueur avant le debut d'une partie
 bool actionAvantPartie(int socketTCP, char *ch)
 {
-    char *sep = " ";
-    char *choix = strtok(ch, sep);
-    printf("choix : %s\n", choix);
+    char *choix = ch;
+    char *l;
     uint8_t num;
     switch (choix[0])
     {
@@ -57,17 +56,15 @@ bool actionAvantPartie(int socketTCP, char *ch)
         break;
 
     case 'r':; // rejoindre une partie
-        choix = strtok(NULL, sep);
-        printf("numero : %s\n", choix);
-        if (!isDigit(choix))
+        l = choix + 1;
+        if (!isDigit(l))
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", choix);
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", l);
             return false;
         }
         else
         {
-            num = atoi(choix);
-            fprintf(stdout, "num :  %d\n", num);
+            num = atoi(l);
             inscrit = rejoindrePartie(socketTCP, identifiant, port, num);
             return false;
         }
@@ -80,15 +77,14 @@ bool actionAvantPartie(int socketTCP, char *ch)
         break;
 
     case 't':; // taille labyrinthe de la partie m
-        choix = strtok(NULL, sep);
-        printf("numero : .%sxxx", choix);
-        if (!isDigit(choix))
+        l = choix + 1;
+        if (!isDigit(l))
         {
             fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", choix);
         }
         else
         {
-            num = atoi(choix);
+            num = atoi(l);
             fprintf(stdout, "num apres atoi : %d\n", num);
             tailleLaby(socketTCP, num);
         }
@@ -96,17 +92,16 @@ bool actionAvantPartie(int socketTCP, char *ch)
         break;
 
     case 'j':; // liste joueurs de la partie partie m
-        choix = strtok(NULL, sep);
-        printf("numero : %s\n", choix);
-        if (!isDigit(choix))
+        l = choix + 1;
+        if (!isDigit(l))
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", l);
             return false;
             break;
         }
         else
         {
-            num = atoi(choix);
+            num = atoi(l);
             listeJoueurs(socketTCP, num);
             return false;
             break;
