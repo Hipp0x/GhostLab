@@ -5,8 +5,10 @@ import java.net.*;
 import java.net.InetAddress;
 import java.nio.*;
 import java.nio.channels.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ServicePartie implements Runnable {
 
@@ -70,7 +72,38 @@ public class ServicePartie implements Runnable {
             partie.printFant();
             partie.printJoueur();
 
-            while (partie.getFantomes().size() > 0) {
+            Runnable task = new Runnable() {
+
+                @Override
+                public void run() {
+                    Random random = new Random();
+                    int indice = random.nextInt(partie.getNbFantome());
+                    Fantome f = partie.getFantomes().get(indice);
+
+                    Case[][] laby = partie.getLabyrinthe().getLaby();
+                    int h = laby.length;
+                    int w = laby[0].length;
+                    int x;
+                    int y;
+                    Case cas;
+                    do {
+                        x = (new Random()).nextInt(w);
+                        y = (new Random()).nextInt(h);
+                        cas = laby[x][y];
+
+                    } while (cas.isMur());
+                    f.setPosition(x, y);
+
+                    partie.printFant();
+                    sendDeplacementFantome(f);
+                }
+
+            };
+
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            executor.scheduleAtFixedRate(task, 40, 30, TimeUnit.SECONDS);
+
+            while (partie.getFantomes().size() > 0 && partie.getJoueurs().size() > 0) {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
@@ -85,12 +118,8 @@ public class ServicePartie implements Runnable {
                 }
 
             }
-
-            for (Joueur joueur : joueurs) {
-
-                // multidiffuser le gagnant
+            if (partie.getFantomes().size() == 0) {
                 sendFinGame();
-
             }
 
         } catch (IOException | InterruptedException e) {
@@ -204,18 +233,32 @@ public class ServicePartie implements Runnable {
     }
 
     // multidiffuser le score d'un joueur lors de la prise d'un fantome
-    public void sendUpdateScoreJoueur() {
+    public void sendUpdateScoreJoueur(Joueur j) {
         // SCORE id p x y+++
+        String mess = "SCORE " + j.getId() + " " + j.getPPoint() + " " + j.getPosX() + " " + j.getPosY() + "+++";
+    }
+
+    public Joueur getBestPlayer() {
+        Joueur j = joueurs.get(0);
+        for (Joueur x : joueurs) {
+            if (x.getPoint() > j.getPoint()) {
+                j = x;
+            }
+        }
+        return j;
     }
 
     // multidiffuser la fin du jeu
     public void sendFinGame() {
         // ENDGA id p+++
+        Joueur j = getBestPlayer();
+        String mess = "ENDGA " + j.getId() + " " + j.getPPoint() + "+++";
     }
 
     // multidiffuser le deplacement d'un fantome
-    public void sendDeplacementFantome() {
+    public void sendDeplacementFantome(Fantome f) {
         // GHOST x y+++
+        String mess = "GHOST " + f.getPosX() + " " + f.getPosY() + "+++";
     }
 
     // multidiffuser un message pour tous les joueurs
@@ -296,7 +339,7 @@ public class ServicePartie implements Runnable {
                     joueur.setPoint(joueur.getPoint() + fant);
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    sendUpdateScoreJoueur();
+                    sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -315,7 +358,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    sendUpdateScoreJoueur();
+                    sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -335,7 +378,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    sendUpdateScoreJoueur();
+                    sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -353,7 +396,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    sendUpdateScoreJoueur();
+                    sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
