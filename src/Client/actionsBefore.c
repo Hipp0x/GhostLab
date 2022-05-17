@@ -42,7 +42,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
 }
 
 // demande pour rejoindre la partie num
-void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num)
+bool rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num)
 {
     // envoi format [REGIS␣id␣port␣m***]
     size_t t = 23 + 1;
@@ -73,12 +73,14 @@ void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = atoi(&buf[1]);
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
+        return true;
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
+        return false;
     }
     else
     {

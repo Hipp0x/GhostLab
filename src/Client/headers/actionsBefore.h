@@ -1,8 +1,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 void creerPartie(int socketTCP, char identifiant[], char port[]);
-void rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num);
+bool rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num);
 void desinscription(int socketTCP);
 void tailleLaby(int socketTCP, uint8_t num);
 void listeJoueurs(int socketTCP, uint8_t num);

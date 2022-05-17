@@ -69,7 +69,7 @@ public class ServicePartie implements Runnable {
             partie.printFant();
             partie.printJoueur();
 
-            while (true) {
+            while (partie.getFantomes().size() > 0) {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
@@ -82,6 +82,13 @@ public class ServicePartie implements Runnable {
                         }
                     }
                 }
+
+            }
+
+            for (Joueur joueur : joueurs) {
+
+                // multidiffuser le gagnant
+                sendBye(joueur.getSocket().getChannel());
 
             }
 
@@ -220,7 +227,7 @@ public class ServicePartie implements Runnable {
         }
     }
 
-    // envoi du labyrinthe
+    // envoi d'un fantome
     public void sendFant(SocketChannel s) throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(("TRCHF***").getBytes(), 0, (8));
         s.write(buf);
@@ -241,7 +248,7 @@ public class ServicePartie implements Runnable {
         s.read(buf);
         String action = new String(buf.array());
 
-        System.out.println("action : " + action);
+        // System.out.println("action : " + action);
 
         if (partie.isFinish()) {
             sendBye(s);
@@ -265,6 +272,7 @@ public class ServicePartie implements Runnable {
                 s.read(buf);
 
                 if (fant > 0) {
+                    joueur.setPoint(joueur.getPoint() + fant);
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
                 } else {

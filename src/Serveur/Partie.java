@@ -128,11 +128,16 @@ public class Partie {
         for (int i = 1; i <= d; i++) {
             if (x - i >= 0) {
                 if (!laby[x - i][y].isMur()) {
+                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
-                    if (laby[x - i][y].getNbFantome() > 0) {
-                        setCapture(laby[x - i][y].getFantomes());
-                        laby[x - i][y].removeFantome();
-                        fant += laby[x - i][y].getNbFantome();
+                    for (Fantome f : fantomes) {
+                        if (f.getI() == (x - i) && f.getJ() == (y)) {
+                            l.add(f);
+                        }
+                    }
+                    for (Fantome e : l) {
+                        fantomes.remove(e);
+                        fant += e.getPoint();
                     }
                 } else {
                     break;
@@ -155,11 +160,16 @@ public class Partie {
         for (int i = 1; i <= d; i++) {
             if (x + i < h) {
                 if (!laby[x + i][y].isMur()) {
+                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
-                    if (laby[x + i][y].getNbFantome() > 0) {
-                        setCapture(laby[x + i][y].getFantomes());
-                        laby[x + i][y].removeFantome();
-                        fant += laby[x + i][y].getNbFantome();
+                    for (Fantome f : fantomes) {
+                        if (f.getI() == (x + i) && f.getJ() == (y)) {
+                            l.add(f);
+                        }
+                    }
+                    for (Fantome e : l) {
+                        fantomes.remove(e);
+                        fant += e.getPoint();
                     }
                 } else {
                     break;
@@ -182,11 +192,16 @@ public class Partie {
         for (int i = 1; i <= d; i++) {
             if (y + i < w) {
                 if (!laby[x][y + i].isMur()) {
+                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
-                    if (laby[x][y + i].getNbFantome() > 0) {
-                        setCapture(laby[x][y + i].getFantomes());
-                        laby[x][y + i].removeFantome();
-                        fant += laby[x][y + i].getNbFantome();
+                    for (Fantome f : fantomes) {
+                        if (f.getI() == (x) && f.getJ() == (y + i)) {
+                            l.add(f);
+                        }
+                    }
+                    for (Fantome e : l) {
+                        fantomes.remove(e);
+                        fant += e.getPoint();
                     }
                 } else {
                     break;
@@ -208,11 +223,16 @@ public class Partie {
         for (int i = 1; i <= d; i++) {
             if (y - i >= 0) {
                 if (!laby[x][y - i].isMur()) {
+                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
-                    if (laby[x][y - i].getNbFantome() > 0) {
-                        setCapture(laby[x][y - i].getFantomes());
-                        laby[x][y - i].removeFantome();
-                        fant += laby[x][y - i].getNbFantome();
+                    for (Fantome f : fantomes) {
+                        if (f.getI() == (x) && f.getJ() == (y - i)) {
+                            l.add(f);
+                        }
+                    }
+                    for (Fantome e : l) {
+                        fantomes.remove(e);
+                        fant += e.getPoint();
                     }
                 } else {
                     break;

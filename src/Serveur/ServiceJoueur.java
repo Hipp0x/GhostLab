@@ -2,7 +2,10 @@ package Serveur;
 
 import java.net.*;
 import java.io.*;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class ServiceJoueur implements Runnable {
@@ -95,7 +98,6 @@ public class ServiceJoueur implements Runnable {
                     } else {
                         dunno(os);
                     }
-                    clearIS(is);
                     break;
                 case "LIST?":
                     System.out.println("//recv LIST?");
@@ -114,7 +116,6 @@ public class ServiceJoueur implements Runnable {
                     } else {
                         dunno(os);
                     }
-                    clearIS(is);
                     break;
                 case "GAME?":
                     System.out.println("//recv GAME?");
@@ -127,6 +128,7 @@ public class ServiceJoueur implements Runnable {
                     clearIS(is);
                     return true;
                 default:
+                    System.out.println("action inconnue : " + action);
                     clearIS(is);
                     dunno(os);
                     break;
@@ -165,7 +167,6 @@ public class ServiceJoueur implements Runnable {
                     os.flush();
                     System.out.println("//send REGOK pour " + game.getId());
                     good = true;
-                    clearIS(is);
                     break;
                 case "REGIS":
                     System.out.println("//recv REGIS");
@@ -199,7 +200,6 @@ public class ServiceJoueur implements Runnable {
                         os.flush();
                         System.out.println("//send REGNO");
                     }
-                    clearIS(is);
                     break;
                 case "GAME?":
                     System.out.println("//recv GAME?");
@@ -218,7 +218,6 @@ public class ServiceJoueur implements Runnable {
                     } else {
                         dunno(os);
                     }
-                    clearIS(is);
                     break;
                 case "LIST?":
                     System.out.println("//recv LIST?");
@@ -237,9 +236,9 @@ public class ServiceJoueur implements Runnable {
                     } else {
                         dunno(os);
                     }
-                    clearIS(is);
                     break;
                 default:
+                    System.out.println("action inconnue : " + action);
                     clearIS(is);
                     dunno(os);
                     break;
@@ -248,11 +247,7 @@ public class ServiceJoueur implements Runnable {
         } while (!good);
     }
 
-    public void trashAsterisks(BufferedReader br) throws IOException {
-        char[] trash = new char[3];
-        readError(br.read(trash, 0, 3), socket);
-    }
-
+    // affiche les parties disponibles
     public void printAvailableGames(OutputStream os) throws IOException {
         os.write(("GAMES " + parties.size() + "***").getBytes(), 0, 10);
         os.flush();
@@ -265,6 +260,7 @@ public class ServiceJoueur implements Runnable {
         }
     }
 
+    // cherche la partie associée au gameID (null sinon)
     public Partie findGame(int gameID) {
         for (Partie p : parties) {
             if (p.getId() == gameID) {
@@ -274,6 +270,7 @@ public class ServiceJoueur implements Runnable {
         return null;
     }
 
+    // verifie les infos
     public boolean verifyInfos(String[] infos) {
         // Vérifie le port
         if (!(infos[1].length() == 4 && infos[1].matches("[0-9]+"))) {
@@ -290,6 +287,7 @@ public class ServiceJoueur implements Runnable {
         return true;
     }
 
+    // recupere l'action
     public String getAction(InputStream iso, OutputStream os) throws IOException {
         byte[] buf = new byte[5];
         int r = iso.read(buf, 0, 5);
@@ -301,37 +299,57 @@ public class ServiceJoueur implements Runnable {
         return new String(buf);
     }
 
+    // recupere les infos
     public String[] getInfos(int which, InputStream iso) throws IOException {
         switch (which) {
             case 0:
                 byte[] create = new byte[17];
                 readError(iso.read(create, 0, 17), socket);
-                clearIS(iso);
                 return ((new String(create)).substring(1, 14)).split(" ");
             case 1:
                 String[] info = new String[3];
-                byte[] join = new byte[14];
-                readError(iso.read(join, 0, 14), socket);
+                byte[] join = new byte[15];
+                readError(iso.read(join, 0, 15), socket);
                 String infos = new String(join);
                 String[] tmp = (infos.substring(1)).split(" ");
-                int trash = iso.read();
-                int gameId = iso.read();
-                System.out.println("Valeur originale : " + gameId);
-                System.out.println("Valeur après conversion : " + (gameId & 0xFF));
+
+                // lire le m
+                byte[] gameId = new byte[1];
+                readError(iso.read(gameId, 0, 1), socket);
+
+                int iD = new BigInteger(gameId).intValue();
+
+                // lire ***
+                byte[] star = new byte[3];
+                readError(iso.read(star, 0, 3), socket);
                 info[0] = tmp[0];
                 info[1] = tmp[1];
-                info[2] = Integer.toString(gameId);
-                clearIS(iso);
+                info[2] = String.valueOf(iD);
                 return info;
             case 2:
-                int trashh = iso.read();
-                int gameID = iso.read();
-                clearIS(iso);
-                return new String[] { Integer.toString(gameID) };
+
+                // lire lespace
+                byte[] vide = new byte[1];
+                readError(iso.read(vide, 0, 1), socket);
+
+                byte[] gameID = new byte[1];
+                readError(iso.read(gameID, 0, 1), socket);
+
+                int id = new BigInteger(gameID).intValue();
+
+                // lire ***
+                byte[] stAr = new byte[3];
+                readError(iso.read(stAr, 0, 3), socket);
+                System.out.println("stars : " + new String(stAr,
+                        StandardCharsets.UTF_8));
+
+                return new String[] { String.valueOf(id) };
+
         }
         return new String[] { "" };
     }
 
+    //
     public String getGameId(BufferedReader br) throws IOException {
         char[] curr;
         StringBuilder gameID = new StringBuilder();
@@ -347,24 +365,41 @@ public class ServiceJoueur implements Runnable {
         return new String(gameID);
     }
 
+    // clear la lecture jusqu'aux ***
     public void clearIS(InputStream iso) throws IOException {
-        while (iso.available() > 0) {
-            iso.read();
+        System.out.println("dans clear IS");
+        byte[] trash = new byte[1];
+        String r = new String(trash, StandardCharsets.UTF_8);
+        while (!("*").equals(r)) {
+            trash = new byte[1];
+            readError(iso.read(trash, 0, 1), socket);
+            r = new String(trash, StandardCharsets.UTF_8);
+            System.out.println("trash : " + r);
         }
+
+        trash = new byte[1];
+        readError(iso.read(trash, 0, 1), socket);
+
+        trash = new byte[1];
+        readError(iso.read(trash, 0, 1), socket);
+
     }
 
+    // regarde si la lecture a fait une erreur
     public void readError(int readRet, Socket sock) throws IOException {
         if (!(readRet > 0)) {
             sock.close();
         }
     }
 
+    // envoi dunno
     public void dunno(OutputStream os) throws IOException {
         System.out.println("//send DUNNO");
         os.write(("DUNNO***").getBytes(), 0, 8);
         os.flush();
     }
 
+    // supprime un jouuer de la partie
     public void removeJoueur(int gameID, Joueur player) {
         for (Partie p : parties) {
             if (p.getId() == gameID) {
@@ -374,6 +409,7 @@ public class ServiceJoueur implements Runnable {
         }
     }
 
+    //
     public void joueurReady() {
         for (Partie p : parties) {
             if (p.getId() == game.getId()) {

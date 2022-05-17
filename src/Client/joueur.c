@@ -61,14 +61,14 @@ bool actionAvantPartie(int socketTCP, char *ch)
         printf("numero : %s\n", choix);
         if (!isDigit(choix))
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", choix);
             return false;
         }
         else
         {
             num = atoi(choix);
-            rejoindrePartie(socketTCP, identifiant, port, num);
-            inscrit = true;
+            fprintf(stdout, "num :  %d\n", num);
+            inscrit = rejoindrePartie(socketTCP, identifiant, port, num);
             return false;
         }
         break;
@@ -81,14 +81,15 @@ bool actionAvantPartie(int socketTCP, char *ch)
 
     case 't':; // taille labyrinthe de la partie m
         choix = strtok(NULL, sep);
-        printf("numero : %s\n", choix);
+        printf("numero : .%sxxx", choix);
         if (!isDigit(choix))
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
+            fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", choix);
         }
         else
         {
             num = atoi(choix);
+            fprintf(stdout, "num apres atoi : %d\n", num);
             tailleLaby(socketTCP, num);
         }
         return false;
@@ -160,18 +161,21 @@ void actionEnPartie(int socketTCP, char *ch)
     case 'p':; // Liste des joueurs dans la partie
         enPartie = listeJoueursIG(socketTCP);
         break;
+
     case 'm':; // Message à tous les joueurs de la partie
         char *s = "***";
         choix = strtok(NULL, s);
         fprintf(stdout, "mess : %s", choix);
         envoiMessATous(socketTCP, &ch[2]);
         break;
+
     case 'w':; // Message à un joueur
         choix = strtok(NULL, sep);
         char *id = choix;
         choix = strtok(NULL, sep);
         envoiMessAJoueur(socketTCP, choix, id);
         break;
+
     case 'x':;
         if (strcmp(ch, "xtrichexlabyx"))
         {
