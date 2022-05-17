@@ -318,6 +318,7 @@ public class ServiceJoueur implements Runnable {
                 readError(iso.read(gameId, 0, 1), socket);
 
                 int iD = new BigInteger(gameId).intValue();
+                System.out.println("id : " + iD);
 
                 // lire ***
                 byte[] star = new byte[3];
@@ -336,6 +337,7 @@ public class ServiceJoueur implements Runnable {
                 readError(iso.read(gameID, 0, 1), socket);
 
                 int id = new BigInteger(gameID).intValue();
+                System.out.println("id : " + id);
 
                 // lire ***
                 byte[] stAr = new byte[3];
