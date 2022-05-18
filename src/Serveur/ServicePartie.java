@@ -31,7 +31,7 @@ public class ServicePartie implements Runnable {
         try {
 
             Selector selector = Selector.open();
-            dso = new DatagramSocket(partie.getPortMulti(), (InetAddress.getByName(partie.getIp())));
+            //dso = new DatagramSocket(partie.getPortMulti(), (InetAddress.getByName(partie.getIp())));
 
             partie.placerFantome();
 
@@ -112,7 +112,7 @@ public class ServicePartie implements Runnable {
                     for (SocketChannel s : ssc) {
                         if (key.isReadable()) {
                             readAction(s, ssc.indexOf(s));
-                            partie.printFant();
+                            //partie.printFant();
                         }
                     }
                 }
@@ -197,17 +197,18 @@ public class ServicePartie implements Runnable {
     public String getMess(SocketChannel s) throws IOException, InterruptedException {
         StringBuilder mess = new StringBuilder();
         ByteBuffer buf = ByteBuffer.allocate(1);
-        while (!(new String(buf.array())).equals("*")) {
+        do{
+            s.read(buf);
             mess.append(new String(buf.array()));
             buf = ByteBuffer.allocate(1);
             s.read(buf);
-        }
+        }while(!(new String(buf.array())).equals("*"));
         buf = ByteBuffer.allocate(1);
         s.read(buf);
         buf = ByteBuffer.allocate(1);
         s.read(buf);
 
-        System.out.println("message : " + mess.toString());
+        System.out.println("message :" + mess.toString());
         return mess.toString();
     }
 
@@ -426,10 +427,10 @@ public class ServicePartie implements Runnable {
                 DatagramChannel channel = DatagramChannel.open();
                 channel.bind(null);
                 channel.send(buffMC, ia);
+                System.out.println(new String(buffMC.array()) + "     ENVOYE");
 
-                // paquet = new DatagramPacket(dat, dat.length,
-                // InetAddress.getByName(partie.getIp()), partie.getPortMulti());
-                // dso.send(paquet);
+                //paquet = new DatagramPacket(dat, dat.length, InetAddress.getByName(partie.getIp()), partie.getPortMulti());
+                //dso.send(paquet);
 
                 sendMall(s);
                 break;

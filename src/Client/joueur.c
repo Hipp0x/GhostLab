@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <pthread.h>
 
 /*
 -----------VARIABLES-----------
@@ -14,7 +15,7 @@
 char port[4] = "5467";
 char *identifiant;
 char portMC[4];
-char addrMC[15];
+char addrMC[16];
 bool inscrit;
 bool enPartie;
 uint16_t hauteur;
@@ -317,67 +318,97 @@ void actionEnPartie(int socketTCP, char *ch)
     }
 }
 
-void receptMultiDiff(int socketMultiDiff)
+void receptMultiDiff(int socketMultiDiff, char *received)
 {
-    char buf5[6];
-    recvError(recv(socketMultiDiff, buf5, 5, 0));
-    buf5[5] = '\0';
-    if (strcmp(buf5, "GHOST") == 0)
+    char *buff = strtok(received, "+    ");
+    char *action = strtok(buff, " ");
+    printf("%s has been received\n", action);
+    if (strcmp(action, "GHOST") == 0)
     {
-        size_t t = 3 + 3 + 3 + 2;
-        char buf[t];
-        recvError(recv(socketMultiDiff, buf, t, 0));
-        int x = atoi(&buf[1]);
-        int y = atoi(&buf[5]);
+        
+        int x = atoi(&buff[6]);
+        int y = atoi(&buff[10]);
 
         fprintf(stdout, "Un fantome s'est déplacé en (%d,%d).", x, y);
     }
-    else if (strcmp(buf5, "SCORE") == 0)
+    else if (strcmp(action, "SCORE") == 0)
     {
-        size_t t = 8 + 4 + 3 + 3 + 3 + 4;
-        char buf[t];
-        recvError(recv(socketMultiDiff, buf, t, 0));
-        char *infos = strtok(&buf[1], " ");
-
+        char *infos = strtok(NULL, " ");
         char *id = infos;
-        uint16_t points = buf[10];
-        int x = buf[15];
-        int y = buf[19];
+
+        uint16_t points = (uint16_t) atoi(&buff[15]);
+        int x = atoi(&buff[20]);
+        int y = atoi(&buff[24]);
 
         fprintf(stdout, "%s a attrapé un fantome en (%d,%d) et a maintenant %u points", id, x, y, points);
     }
-    else if (strcmp(buf5, "MESSA") == 0)
+    else if (strcmp(action, "MESSA") == 0)
     {
-        size_t t = 8 + 200 + 3 + 2;
-        char buf[t];
-        recvError(recv(socketMultiDiff, buf, t, 0));
-
-        char *infos = strtok(&buf[1], " ");
+        char *infos = strtok(NULL, " ");
         char *id = infos;
 
-        infos = strtok(NULL, " ");
-        char *rest = infos;
-
-        char *s = strtok(rest, "*");
-        char *mess = s;
+        char *mess = &buff[15];
 
         fprintf(stdout, "Message de %s: %s\n", id, mess);
     }
-    else if (strcmp(buf5, "ENDGA") == 0)
+    else if (strcmp(action, "ENDGA") == 0)
     {
-        size_t t = 8 + 4 + 3 + 2;
-        char buf[t];
-        recvError(recv(socketMultiDiff, buf, t, 0));
-
-        char *infos = strtok(&buf[1], " ");
+        
+        char *infos = strtok(NULL, " ");
         char *id = infos;
-        uint16_t points = atoi(&buf[10]);
+
+        uint16_t points = (uint16_t) atoi(&buff[15]);
 
         fprintf(stdout, "La partie est terminée!\n%s a gagné avec %u points!", id, points);
     }
 }
 
-void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
+void *multiCast(void *arg)
+{
+    int socketMC = *((int *)arg);
+
+    size_t t = 5 + 8 + 200 + 3 + 2;
+    char buf[t];
+    while (1)
+    {
+        int len = recv(socketMC, buf, t, 0);
+        buf[len] = '\0';
+        receptMultiDiff(socketMC, buf);
+    }
+
+    close(socketMC);
+    return NULL;
+}
+
+void *receptUdp(void *arg)
+{
+    int socketUDP = *((int *)arg);
+
+    size_t t = 5 + 8 + 200 + 3 + 2;
+    char buf[t];
+    while (1)
+    {
+        int len = recv(socketUDP, buf, t, 0);
+        buf[len] = '\0';
+
+        char *buff = strtok(buf, "+");
+
+        char *infos = strtok(buff, " ");
+        infos = strtok(NULL, " ");
+
+        char *id = infos;
+        infos = strtok(NULL, " ");
+
+        char *mess = &buff[15];
+
+        fprintf(stdout, "%s vous a envoyé : %s\n", id, mess);
+    }
+
+    close(socketUDP);
+    return NULL;
+}
+
+void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
 {
     size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6; // 39
     char buf[t];
@@ -388,24 +419,10 @@ void receptWelcPos(int socketTCP, int socketMultiDiff) // Reception format [WELC
     uint8_t nbFantomes = atoi(&buf[14]);
     char *multi = strtok(&buf[16], " ");
     memmove(addrMC, multi, 15);
+    addrMC[15] = '\0';
 
     multi = strtok(NULL, "***");
     memmove(portMC, multi, 4);
-
-    struct sockaddr_in address_sock;
-    address_sock.sin_family = AF_INET;
-    address_sock.sin_port = (atoi(portMC));
-    address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    int ok = 1;
-    int r = setsockopt(socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
-    r = bind(socketMultiDiff, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
-
-    char *addr = strtok(addrMC, "#");
-    struct ip_mreq mreq;
-    mreq.imr_multiaddr.s_addr = inet_addr(addrMC);
-    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-    r = setsockopt(socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
     fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %u et une largeur de %u.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, nbFantomes);
 
@@ -511,9 +528,6 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    // socket multi diffusion serveur
-    int socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
-
     // connexion au serveur
     address_sock.sin_port = htons(portTCP);
     int sock_client = connect(socketTCP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
@@ -547,23 +561,36 @@ int main(int argc, char *argv[])
         free(line);
     }
 
-    receptWelcPos(socketTCP, socketMultiDiff);
+    receptWelcPos(socketTCP);
+    struct sockaddr_in address_sockMC;
+    address_sockMC.sin_family = AF_INET;
+    address_sockMC.sin_port = htons(8448);
+    address_sockMC.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    int *socketMultiDiff = (int *) malloc(sizeof(int));
+    *socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
+    int ok = 1;
+    int r2=setsockopt(*socketMultiDiff,SOL_SOCKET,SO_REUSEPORT,&ok,sizeof(ok));
+    r2=bind(*socketMultiDiff,(struct sockaddr *)&address_sockMC,sizeof(struct sockaddr_in));
+    struct ip_mreq mreq;
+    mreq.imr_multiaddr.s_addr = inet_addr("229.100.100.0");
+    mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+    r2=setsockopt(*socketMultiDiff,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
+
+    pthread_t th1, th2;
+    pthread_create(&th1, NULL, multiCast, socketMultiDiff);
+    pthread_create(&th1, NULL, receptUdp, &socketUDP);
+
     fcntl(socketTCP, F_SETFL, O_NONBLOCK);
-    fcntl(socketUDP, F_SETFL, O_NONBLOCK);
-    fcntl(socketMultiDiff, F_SETFL, O_NONBLOCK);
-    struct pollfd p[3];
+    struct pollfd p[2];
 
     p[0].fd = socketTCP;
     p[0].events = POLLOUT;
-    p[1].fd = socketUDP;
-    p[1].events = POLLIN;
-    p[2].fd = socketMultiDiff;
-    p[2].events = POLLIN;
 
     while (enPartie)
     {
 
-        int ret = poll(p, 3, -1);
+        int ret = poll(p, 2, -1);
         if (ret > 0)
         {
             if (p[0].revents == POLLOUT)
@@ -580,29 +607,6 @@ int main(int argc, char *argv[])
                 lineSize = getline(&line, &len, stdin);
                 actionEnPartie(p[0].fd, line);
                 free(line);
-            }
-
-            if (p[1].revents == POLLIN)
-            {
-                size_t t = 5 + 8 + 200 + 3 + 2;
-                char buf[t];
-                recvError(recv(socketTCP, buf, t, 0));
-
-                char *infos = strtok(buf, " ");
-                infos = strtok(NULL, " ");
-
-                char *id = infos;
-                infos = strtok(NULL, " ");
-
-                char *s = infos;
-                char *mess = strtok(s, "*");
-
-                fprintf(stdout, "%s vous a envoyé : %s\n", id, mess);
-            }
-
-            if (p[2].revents == POLLIN)
-            {
-                receptMultiDiff(socketMultiDiff);
             }
         }
     }
