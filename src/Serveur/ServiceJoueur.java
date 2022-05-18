@@ -127,6 +127,18 @@ public class ServiceJoueur implements Runnable {
                     joueurReady();
                     clearIS(is);
                     return true;
+                case "NEWPL":
+                    os.write(("REGNO***").getBytes(), 0, 8);
+                    os.flush();
+                    System.out.println("//send REGNO");
+                    clearIS(is);
+                    break;
+                case "REGIS":
+                    os.write(("REGNO***").getBytes(), 0, 8);
+                    os.flush();
+                    System.out.println("//send REGNO");
+                    clearIS(is);
+                    break;
                 default:
                     System.out.println("action inconnue : " + action);
                     clearIS(is);
