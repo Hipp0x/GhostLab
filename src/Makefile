@@ -19,7 +19,7 @@ CLFAGS ?= -Wall
 	$(JC) $*.java
 
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -pthread -c -o $@ $< $(CFLAGS)
 
 CLASSES = \
 	Serveur/Case.java \
@@ -40,7 +40,7 @@ all: codejava codec
 codejava : $(CLASSES:.java=.class)
 
 codec: $(OBJFILES)
-	$(CC) $(CFLAGS) -o joueur $(OBJFILES)
+	$(CC) $(CFLAGS) -pthread -o joueur $(OBJFILES)
 
 
 # to remove the compiled files
