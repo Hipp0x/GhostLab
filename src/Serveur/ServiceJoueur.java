@@ -127,6 +127,18 @@ public class ServiceJoueur implements Runnable {
                     joueurReady();
                     clearIS(is);
                     return true;
+                case "NEWPL":
+                    os.write(("REGNO***").getBytes(), 0, 8);
+                    os.flush();
+                    System.out.println("//send REGNO");
+                    clearIS(is);
+                    break;
+                case "REGIS":
+                    os.write(("REGNO***").getBytes(), 0, 8);
+                    os.flush();
+                    System.out.println("//send REGNO");
+                    clearIS(is);
+                    break;
                 default:
                     System.out.println("action inconnue : " + action);
                     clearIS(is);
@@ -318,6 +330,7 @@ public class ServiceJoueur implements Runnable {
                 readError(iso.read(gameId, 0, 1), socket);
 
                 int iD = new BigInteger(gameId).intValue();
+                System.out.println("id : " + iD);
 
                 // lire ***
                 byte[] star = new byte[3];
@@ -336,6 +349,7 @@ public class ServiceJoueur implements Runnable {
                 readError(iso.read(gameID, 0, 1), socket);
 
                 int id = new BigInteger(gameID).intValue();
+                System.out.println("id : " + id);
 
                 // lire ***
                 byte[] stAr = new byte[3];

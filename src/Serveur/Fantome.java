@@ -61,4 +61,9 @@ public class Fantome {
         return setPosToString(j);
     }
 
+    public void setPosition(int x, int y) {
+        i = x;
+        j = y;
+    }
+
 }

@@ -25,18 +25,17 @@ uint16_t largeur;
 -----------FONCTIONS-----------
 */
 
-bool isDigit(char *a)
+bool isDigit(char *a, int l)
 {
-    int l = strlen(a);
     for (int i = 0; i < l; i++)
     {
-        if (isalpha(a[i]))
-        {
-            return false;
-        }
-        else if (a[i] = '\n')
+        if (a[i] == '\n')
         {
             return true;
+        }
+        else if (isalpha(a[i]) || ispunct(a[i]) || (isspace(a[i]) && i != 0))
+        {
+            return false;
         }
     }
     return true;
@@ -45,88 +44,130 @@ bool isDigit(char *a)
 // les actions que peut faire le joueur avant le debut d'une partie
 bool actionAvantPartie(int socketTCP, char *ch)
 {
-    char *sep = " ";
-    char *choix = strtok(ch, sep);
-    printf("choix : %s\n", choix);
+    char *choix = ch;
+    char *l;
     uint8_t num;
     switch (choix[0])
     {
     case 'c':; // creer une partie
-        creerPartie(socketTCP, identifiant, port);
-        inscrit = true;
+        if (strlen(ch) == 2)
+        {
+            creerPartie(socketTCP, identifiant, port);
+            inscrit = true;
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : c.\n");
+        }
         return false;
         break;
 
     case 'r':; // rejoindre une partie
-        choix = strtok(NULL, sep);
-        printf("numero : %s\n", choix);
-        if (!isDigit(choix))
+        if (ch[1] == ' ')
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", choix);
-            return false;
+            l = choix + 1;
+            if (!isDigit(l, strlen(l)))
+            {
+                fprintf(stdout, "Vous devez entrer un chiffre, et non :%s.\n", l);
+            }
+            else
+            {
+                num = atoi(l);
+                inscrit = rejoindrePartie(socketTCP, identifiant, port, num);
+            }
         }
         else
         {
-            num = atoi(choix);
-            fprintf(stdout, "num :  %d\n", num);
-            inscrit = rejoindrePartie(socketTCP, identifiant, port, num);
-            return false;
+            fprintf(stdout, "Respectez le format : r entier.\n");
         }
+        return false;
         break;
 
     case 'd':; // desinscription d'une partie
-        desinscription(socketTCP);
-        inscrit = false;
+        if (strlen(ch) == 2)
+        {
+            desinscription(socketTCP);
+            inscrit = false;
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : d.\n");
+        }
         return false;
         break;
 
     case 't':; // taille labyrinthe de la partie m
-        choix = strtok(NULL, sep);
-        printf("numero : .%sxxx", choix);
-        if (!isDigit(choix))
+        if (ch[1] == ' ')
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s\n", choix);
+            l = choix + 1;
+            if (!isDigit(l, strlen(l)))
+            {
+                fprintf(stdout, "Vous devez entrer un chiffre, et non :%s.\n", choix);
+            }
+            else
+            {
+                num = atoi(l);
+                fprintf(stdout, "num apres atoi : %d\n", num);
+                tailleLaby(socketTCP, num);
+            }
         }
         else
         {
-            num = atoi(choix);
-            fprintf(stdout, "num apres atoi : %d\n", num);
-            tailleLaby(socketTCP, num);
+            fprintf(stdout, "Respectez le format : t entier.\n");
         }
         return false;
         break;
 
     case 'j':; // liste joueurs de la partie partie m
-        choix = strtok(NULL, sep);
-        printf("numero : %s\n", choix);
-        if (!isDigit(choix))
+        if (ch[1] == ' ')
         {
-            fprintf(stdout, "Vous devez entrer un chiffre, et non %s", choix);
-            return false;
-            break;
+            l = choix + 1;
+            if (!isDigit(l, strlen(l)))
+            {
+                fprintf(stdout, "Vous devez entrer un chiffre, et non :%s.", l);
+            }
+            else
+            {
+                num = atoi(l);
+                listeJoueurs(socketTCP, num);
+            }
         }
         else
         {
-            num = atoi(choix);
-            listeJoueurs(socketTCP, num);
-            return false;
-            break;
+            fprintf(stdout, "Respectez le format : j entier.\n");
         }
+        return false;
+        break;
 
     case 'p':; // liste parties qui n'ont pas encore commencé
-        listeParties(socketTCP);
+        if (strlen(ch) == 2)
+        {
+            listeParties(socketTCP);
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : p.\n");
+        }
         return false;
         break;
 
     case 's':; // start
-        if (inscrit)
+        if (strlen(ch) == 2)
         {
-            start(socketTCP);
-            return true;
+            if (inscrit)
+            {
+                start(socketTCP);
+                return true;
+            }
+            else
+            {
+                fprintf(stdout, "Vous ne pouvez faire ca !\n");
+                return false;
+            }
         }
         else
         {
-            fprintf(stdout, "Vous ne pouvez faire ca !\n");
+            fprintf(stdout, "Respectez le format : s.\n");
             return false;
         }
         break;
