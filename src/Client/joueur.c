@@ -28,14 +28,18 @@ bool isDigit(char *a, int l)
 {
     for (int i = 0; i < l; i++)
     {
+        fprintf(stdout, "i : %d\n", i);
         if (a[i] == '\n')
         {
+            fprintf(stdout, "cas n \n");
             return true;
         }
         else if (isalpha(a[i]) || ispunct(a[i]) || (isspace(a[i]) && i != 0))
         {
+            fprintf(stdout, "cas alpha ponctu ou espace :%c. \n", a[i]);
             return false;
         }
+        fprintf(stdout, "cas normal \n");
     }
     return true;
 }
@@ -180,41 +184,117 @@ bool actionAvantPartie(int socketTCP, char *ch)
 void actionEnPartie(int socketTCP, char *ch)
 {
     enPartie = true;
-    char *sep = " ";
-    char *choix = strtok(ch, sep);
-    printf("char : %s\n", choix);
+    char *choix;
+    char *sep;
+    printf("char : %s\n", ch);
     uint8_t num;
-    switch (choix[0])
+    switch (ch[0])
     {
     case 'l':; // Aller a gauche
     case 'r':; // Aller à droite
     case 'd':; // Aller en bas
     case 'u':; // Aller en haut
-        char dir = choix[0];
-        choix = strtok(NULL, sep);
-        int dist = atoi(&choix[0]);
-        enPartie = seDeplacer(socketTCP, dist, dir);
+        if (ch[1] == ' ')
+        {
+            char *l = ch + 1;
+            if (isDigit(l, strlen(l)))
+            {
+                char dir = ch[0];
+                int dist = atoi(l);
+                fprintf(stdout, "l : %s\n", l);
+                fprintf(stdout, "distance : %d.\n", dist);
+                enPartie = seDeplacer(socketTCP, dist, dir);
+            }
+            else
+            {
+                fprintf(stdout, "Vous devez entrer un chiffre, et non :%s.\n", l);
+            }
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : c.\n");
+        }
+
         break;
     case 'q':; // Quitter la partie
-        enPartie = quitterPartie(socketTCP);
+        if (strlen(ch) == 2)
+        {
+            enPartie = quitterPartie(socketTCP);
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : q.\n");
+        }
         break;
 
     case 'p':; // Liste des joueurs dans la partie
-        enPartie = listeJoueursIG(socketTCP);
+        if (strlen(ch) == 2)
+        {
+            enPartie = listeJoueursIG(socketTCP);
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : p.\n");
+        }
         break;
 
     case 'm':; // Message à tous les joueurs de la partie
-        char *s = "***";
-        choix = strtok(NULL, s);
-        fprintf(stdout, "mess : %s", choix);
-        envoiMessATous(socketTCP, &ch[2]);
+        if (ch[1] == ' ')
+        {
+            if (strlen(ch) < 3)
+            {
+                sep = " ";
+                choix = strtok(ch, sep);
+                fprintf(stdout, "choix : %s.\n", choix);
+                sep = "\n";
+                choix = strtok(NULL, sep);
+                fprintf(stdout, "choix : %s.\n", choix);
+                fprintf(stdout, "mess : %s", choix);
+                envoiMessATous(socketTCP, choix);
+            }
+            else
+            {
+                fprintf(stdout, "Votre message est vide.\n");
+            }
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : m message.\n");
+        }
         break;
 
     case 'w':; // Message à un joueur
-        choix = strtok(NULL, sep);
-        char *id = choix;
-        choix = strtok(NULL, sep);
-        envoiMessAJoueur(socketTCP, choix, id);
+        if (ch[1] == ' ' && ch[10] == ' ')
+        {
+            sep = " ";
+            choix = strtok(ch, sep); // pour w
+
+            choix = strtok(NULL, sep); // pour id
+            char *id = choix;
+            if (strlen(id) == 8)
+            {
+                if (strlen(ch) < 11)
+                {
+
+                    sep = "\n";
+                    choix = strtok(NULL, sep); // pour le mess
+
+                    envoiMessAJoueur(socketTCP, choix, id);
+                }
+                else
+                {
+                    fprintf(stdout, "Votre message est vide.\n");
+                }
+            }
+            else
+            {
+                fprintf(stdout, "Votre id doit faire 8 characteres.\n");
+            }
+        }
+        else
+        {
+            fprintf(stdout, "Respectez le format : w id message.\n");
+        }
         break;
 
     case 'x':;

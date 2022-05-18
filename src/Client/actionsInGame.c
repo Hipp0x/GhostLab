@@ -182,7 +182,7 @@ bool printJoueurs(uint8_t j, int socketTCP)
                     int y = atoi(&buf30[20]);
                     uint32_t points = atoi(&buf30[24]);
 
-                        // affichage dans le terminal
+                    // affichage dans le terminal
                     fprintf(stdout, "Le Joueur %s en (%d,%d) a %u points.\n", id, x, y, points);
                 }
                 break;
@@ -249,12 +249,12 @@ bool listeJoueursIG(int socketTCP)
 bool envoiMessATous(int socketTCP, char *mess)
 {
     // Envoi format [MALL?␣mess***]
-    size_t t = 5 + strlen(mess) - 1 + 3 + 1;
+    size_t t = 5 + strlen(mess) + 3 + 1;
     char buf[t];
     memcpy(buf, "MALL? ", 6);
     size_t curr = 6;
-    memmove(buf + curr, mess, strlen(mess) - 1);
-    curr += strlen(mess) - 1;
+    memmove(buf + curr, mess, strlen(mess));
+    curr += strlen(mess);
     memmove(buf + curr, "***", 3);
     sendError(send(socketTCP, buf, t, 0));
     buf[t] = '\0';
