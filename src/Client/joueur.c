@@ -12,7 +12,7 @@
 -----------VARIABLES-----------
 */
 
-char port[4] = "5467";
+char *port;
 char *identifiant;
 char portMC[4];
 char addrMC[16];
@@ -522,6 +522,7 @@ int main(int argc, char *argv[])
     // recuperation du port voulu
     uint16_t portTCP = atoi(argv[2]);
     uint16_t portUDP = atoi(argv[3]);
+    port = argv[3];
 
     //
     struct sockaddr_in address_sock;
