@@ -529,8 +529,6 @@ int main(int argc, char *argv[])
     address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
     address_sock.sin_port = htons(portUDP);
 
-    fprintf(stdout, "Mauvais nombre de parametres au lancement.\n");
-
     getID();
 
     // socket tcp serveur

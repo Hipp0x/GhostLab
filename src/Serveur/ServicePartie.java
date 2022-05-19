@@ -225,7 +225,9 @@ public class ServicePartie implements Runnable {
 
     // recupere l'id du joueur
     public String getID(SocketChannel s) throws IOException {
-        ByteBuffer buf = ByteBuffer.allocate(8);
+        ByteBuffer buf = ByteBuffer.allocate(1);
+        s.read(buf);
+        buf = ByteBuffer.allocate(8);
         s.read(buf);
 
         System.out.println("ID :" + (new String(buf.array())));
@@ -483,8 +485,6 @@ public class ServicePartie implements Runnable {
 
             case "SEND?":
                 // stocker id 8char
-                buf = ByteBuffer.allocate(1);
-                s.read(buf);
                 String id = getID(s);
                 System.out.println("Après getID");
 
@@ -505,6 +505,7 @@ public class ServicePartie implements Runnable {
 
                     env = "MESSP " + joueur.getId() + " " + mess + "+++";
                     ByteBuffer buffUdp = ByteBuffer.wrap(env.getBytes());
+                    System.out.println("Adresse IP UDP = " + wanted.getSocket().getInetAddress().getHostAddress() + "\n Port UDP = " + wanted.getPort());
                     InetSocketAddress addr = new InetSocketAddress(wanted.getSocket().getInetAddress().getHostAddress(),
                             wanted.getPort());
                     DatagramChannel chan = DatagramChannel.open();
