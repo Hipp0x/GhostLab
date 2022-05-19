@@ -224,21 +224,27 @@ bool envoiMessATous(int socketTCP, char *mess)
 bool envoiMessAJoueur(int socketTCP, char *mess, char *id)
 {
     // Envoi format [SEND?␣id␣mess***]
-    size_t t = 5 + +8 + strlen(mess) + 3 + 1;
+    size_t t = 5 + 8 + strlen(mess) + 3 + 2;
     char buf[t];
     memcpy(buf, "SEND? ", 6);
     size_t curr = 6;
     memmove(buf + curr, id, 8);
     curr += 8;
+    memmove(buf + curr, " ", 1);
+    curr += 1;
     memmove(buf + curr, mess, strlen(mess));
     curr += strlen(mess);
     memmove(buf + curr, "***", 3);
     sendError(send(socketTCP, buf, t, 0));
+    buf[t] = '\0';
 
     // Reception format [SEND!***] ou [NSEND***]
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
+
+    printf("Received : %s", buf5);
+
     if (strcmp(buf5, "SEND!") == 0)
     {
         char buf[3];

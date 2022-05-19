@@ -262,8 +262,7 @@ void actionEnPartie(int socketTCP, char *ch)
                 fprintf(stdout, "choix : %s.\n", choix);
                 sep = "\n";
                 choix = strtok(NULL, sep);
-                fprintf(stdout, "choix : %s.\n", choix);
-                fprintf(stdout, "mess : %s", choix);
+                fprintf(stdout, "mess : %s\n", choix);
                 envoiMessATous(socketTCP, choix);
             }
             else
@@ -338,7 +337,7 @@ void actionEnPartie(int socketTCP, char *ch)
 
 void receptMultiDiff(int socketMultiDiff, char *received)
 {
-    char *buff = strtok(received, "+++");
+    char *buff = strtok(received, "+");
     char *action = strtok(buff, " ");
     printf("%s has been received\n", action);
     if (strcmp(action, "GHOST") == 0)
@@ -352,9 +351,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
     else if (strcmp(action, "SCORE") == 0)
     {
         char *infos = strtok(NULL, " ");
-        fprintf(stdout, "infos : %s\n", infos);
         char *id = infos;
-        fprintf(stdout, "id : %s\n", id);
 
         uint16_t points = (uint16_t)atoi(&buff[15]);
         int x = atoi(&buff[20]);
@@ -544,7 +541,7 @@ int main(int argc, char *argv[])
     int r = bind(socketUDP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
     if (r != 0)
     {
-        perror("Erreur de bind");
+        perror("Erreur de bind\n");
         exit(-1);
     }
 
@@ -584,18 +581,20 @@ int main(int argc, char *argv[])
     receptWelcPos(socketTCP);
     struct sockaddr_in address_sockMC;
     address_sockMC.sin_family = AF_INET;
-    address_sockMC.sin_port = htons(8448);
+    address_sockMC.sin_port = htons(atoi(portMC));
     address_sockMC.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    int *socketMultiDiff = (int *)malloc(sizeof(int));
+    char *addr = strtok(addrMC, "#");
+
+    int *socketMultiDiff = (int *) malloc(sizeof(int));
     *socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
     int ok = 1;
     int r2 = setsockopt(*socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
     r2 = bind(*socketMultiDiff, (struct sockaddr *)&address_sockMC, sizeof(struct sockaddr_in));
     struct ip_mreq mreq;
-    mreq.imr_multiaddr.s_addr = inet_addr("229.100.100.0");
-    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-    r2 = setsockopt(*socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+    mreq.imr_multiaddr.s_addr = inet_addr(addr);
+    mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+    r2=setsockopt(*socketMultiDiff,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
 
     pthread_t th1, th2;
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);
@@ -604,7 +603,7 @@ int main(int argc, char *argv[])
     while (enPartie)
     {
         // lecture du choix du joueur
-        fprintf(stdout, "Que voulez-vous faire ?\n");
+        fprintf(stdout, "\nQue voulez-vous faire ?\n");
         fprintf(stdout, "l (aller à gauche) x, r (aller à droite) x, d (aller en bas) x, u (aller en haut) x, q (quitter partie), p (liste joueurs), m (message à tous) q, w (message a joueur) y  q.\n");
         fprintf(stdout, "avec x = distance souhaitée, y = id du joueur, q = message si necessaire.\n");
         // action

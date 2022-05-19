@@ -221,11 +221,11 @@ public class ServicePartie implements Runnable {
 
     // recupere l'id du joueur
     public String getID(SocketChannel s) throws IOException {
-        StringBuilder id = new StringBuilder();
         ByteBuffer buf = ByteBuffer.allocate(8);
         s.read(buf);
 
-        return id.toString();
+        System.out.println("ID :"+ (new String(buf.array())));
+        return new String(buf.array());
     }
 
     // envoi de Mall
@@ -382,6 +382,7 @@ public class ServicePartie implements Runnable {
         byte[] data;
         DatagramPacket paquet;
 
+        System.out.println( "Recu :" + action);
         switch (action) {
             case "UPMOV":
                 buf = ByteBuffer.allocate(1);
@@ -479,8 +480,11 @@ public class ServicePartie implements Runnable {
             case "SEND?":
                 // stocker id 8char
                 String id = getID(s);
+                System.out.println("Après getID");
+
                 // stocker mess
                 mess = getMess(s);
+                System.out.println("Après getMess");
 
                 OutputStream os2 = joueur.getSocket().getOutputStream();
 
@@ -493,25 +497,23 @@ public class ServicePartie implements Runnable {
                     // envoi [MESSP␣id2␣mess+++] sur adresse + port udp du joueur id ou id2 = joueur
                     // qui fait la demande
 
-                    env = "MESSP " + joueur.getId() + " " + mess + "***";
-                    data = env.getBytes();
-                    paquet = new DatagramPacket(data, data.length,
-                            wanted.getSocket().getInetAddress(),
-                            wanted.getPort());
-                    dso.send(paquet);
+                    env = "MESSP " + joueur.getId() + " " + mess + "+++";
+                    ByteBuffer buffUdp = ByteBuffer.wrap(env.getBytes());
+                    InetSocketAddress addr = new InetSocketAddress(wanted.getSocket().getInetAddress().getHostAddress(), wanted.getPort());
+                    DatagramChannel chan = DatagramChannel.open();
+                    chan.bind(null);
+                    chan.send(buffUdp, addr);
 
                     // envoi [SEND!***] au joueur qui fait la demande
-                    os2.write(
-                            ("SEND!***").getBytes(), 0, (8));
-                    os2.flush();
+                    ByteBuffer send = ByteBuffer.wrap(("SEND!***").getBytes(), 0, 8);
+                    s.write(send);
 
                 } else {
 
                     // sinon
                     // [NSEND***]
-                    os2.write(
-                            ("NSEND***").getBytes(), 0, (8));
-                    os2.flush();
+                    ByteBuffer nsend = ByteBuffer.wrap(("NSEND***").getBytes(), 0, 8);
+                    s.write(nsend);
 
                 }
 
