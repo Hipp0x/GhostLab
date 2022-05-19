@@ -115,7 +115,11 @@ public class ServicePartie implements Runnable {
                     SelectionKey key = iterator.next();
                     iterator.remove();
                     for (SocketChannel s : ssc) {
-                        if (key.isReadable()) {
+                        if (key.isReadable() && key.channel() == s.socket().getChannel()) {
+                            Joueur j = getJoueur(s);
+                            if (j != null) {
+                                System.out.println("nom du joueur : " + j.getId());
+                            }
                             readAction(s, ssc.indexOf(s));
                         }
                     }
@@ -224,7 +228,7 @@ public class ServicePartie implements Runnable {
         ByteBuffer buf = ByteBuffer.allocate(8);
         s.read(buf);
 
-        System.out.println("ID :"+ (new String(buf.array())));
+        System.out.println("ID :" + (new String(buf.array())));
         return new String(buf.array());
     }
 
@@ -382,7 +386,7 @@ public class ServicePartie implements Runnable {
         byte[] data;
         DatagramPacket paquet;
 
-        System.out.println( "Recu :" + action);
+        System.out.println("Recu :" + action);
         switch (action) {
             case "UPMOV":
                 buf = ByteBuffer.allocate(1);
@@ -499,7 +503,8 @@ public class ServicePartie implements Runnable {
 
                     env = "MESSP " + joueur.getId() + " " + mess + "+++";
                     ByteBuffer buffUdp = ByteBuffer.wrap(env.getBytes());
-                    InetSocketAddress addr = new InetSocketAddress(wanted.getSocket().getInetAddress().getHostAddress(), wanted.getPort());
+                    InetSocketAddress addr = new InetSocketAddress(wanted.getSocket().getInetAddress().getHostAddress(),
+                            wanted.getPort());
                     DatagramChannel chan = DatagramChannel.open();
                     chan.bind(null);
                     chan.send(buffUdp, addr);
