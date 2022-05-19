@@ -501,33 +501,19 @@ int main(int argc, char *argv[])
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);
     pthread_create(&th1, NULL, receptUdp, &socketUDP);
 
-    fcntl(socketTCP, F_SETFL, O_NONBLOCK);
-    struct pollfd p[2];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLOUT;
-
     while (enPartie)
     {
+        // lecture du choix du joueur
+        fprintf(stdout, "Que voulez-vous faire ?\n");
+        fprintf(stdout, "l (aller à gauche) x, r (aller à droite) x, d (aller en bas) x, u (aller en haut) x, q (quitter partie), p (liste joueurs), m (message à tous) q, w (message a joueur) y  q.\n");
+        fprintf(stdout, "avec x = distance souhaitée, y = id du joueur, q = message si necessaire.\n");
+        // action
 
-        int ret = poll(p, 2, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLOUT)
-            {
-                // lecture du choix du joueur
-                fprintf(stdout, "Que voulez-vous faire ?\n");
-                fprintf(stdout, "l (aller à gauche) x, r (aller à droite) x, d (aller en bas) x, u (aller en haut) x, q (quitter partie), p (liste joueurs), m (message à tous) q, w (message a joueur) y  q.\n");
-                fprintf(stdout, "avec x = distance souhaitée, y = id du joueur, q = message si necessaire.\n");
-                // action
-
-                char *line = NULL;
-                ssize_t len = 0;
-                ssize_t lineSize = 0;
-                lineSize = getline(&line, &len, stdin);
-                actionEnPartie(p[0].fd, line);
-                free(line);
-            }
-        }
+        char *line = NULL;
+        ssize_t len = 0;
+        ssize_t lineSize = 0;
+        lineSize = getline(&line, &len, stdin);
+        actionEnPartie(socketTCP, line);
+        free(line);
     }
 }

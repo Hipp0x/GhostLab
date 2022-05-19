@@ -3,67 +3,50 @@
 
 bool receptSeDeplacer(int socketTCP)
 {
-
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
+    char buf5[6];
+    recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
+    if (strcmp(buf5, "MOVE!") == 0) // reception [MOVE!␣x␣y***]
     {
-
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-                char buf5[6];
-                recvError(recv(socketTCP, buf5, 5, 0));
-                buf5[5] = '\0';
-                if (strcmp(buf5, "MOVE!") == 0) // reception [MOVE!␣x␣y***]
-                {
-                    size_t t = 3 + 3 + 3 + 2;
-                    char buf[t];
-                    recvError(recv(socketTCP, buf, t, 0));
-                    int x = atoi(&buf[1]);
-                    int y = atoi(&buf[5]);
-                    fprintf(stdout, "Vous êtes à la position (%d,%d) (lig,col).\n", x, y);
-                    return true;
-                }
-                else if (strcmp(buf5, "MOVEF") == 0) // reception [MOVEF␣x␣y␣p***]
-                {
-                    size_t t = 3 + 3 + 3 + 2 + 4;
-                    char buf[t];
-                    recvError(recv(socketTCP, buf, t, 0));
-                    int x = atoi(&buf[1]);
-                    int y = atoi(&buf[5]);
-                    uint32_t p = atoi(&buf[9]);
-                    fprintf(stdout, "Vous êtes à la position (%d,%d) (col,lig).\nAprès avoir récolté un fantome vous avez %d points.", x, y, p);
-                    return true;
-                }
-                else if (strcmp(buf5, "DUNNO")) // reception [DUNNO***]
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stdout, "Action incomprise.\n");
-                    return true;
-                }
-                else if (strcmp(buf5, "GOBYE"))
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stderr, "La partie est terminée !\n");
-                    return false;
-                }
-                else
-                {
-                    fprintf(stderr, "Fail.\n");
-                    close(socketTCP);
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
+        size_t t = 3 + 3 + 3 + 2;
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
+        int x = atoi(&buf[1]);
+        int y = atoi(&buf[5]);
+        fprintf(stdout, "Vous êtes à la position (%d,%d) (lig,col).\n", x, y);
+        return true;
     }
+    else if (strcmp(buf5, "MOVEF") == 0) // reception [MOVEF␣x␣y␣p***]
+    {
+        size_t t = 3 + 3 + 3 + 2 + 4;
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
+        int x = atoi(&buf[1]);
+        int y = atoi(&buf[5]);
+        uint32_t p = atoi(&buf[9]);
+        fprintf(stdout, "Vous êtes à la position (%d,%d) (col,lig).\nAprès avoir récolté un fantome vous avez %d points.", x, y, p);
+        return true;
+    }
+    else if (strcmp(buf5, "DUNNO")) // reception [DUNNO***]
+    {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stdout, "Action incomprise.\n");
+        return true;
+    }
+    else if (strcmp(buf5, "GOBYE"))
+    {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stderr, "La partie est terminée !\n");
+        return false;
+    }
+    else
+    {
+        fprintf(stderr, "Fail.\n");
+        close(socketTCP);
+        exit(EXIT_FAILURE);
+    }    
 }
 
 // Demande à se déplacer dans une direction sur une distance
@@ -127,68 +110,36 @@ bool quitterPartie(int socketTCP)
     char buf[t];
     memcpy(buf, "IQUIT***", 8);
     sendError(send(socketTCP, buf, 8, 0));
-
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
-    {
-
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-                char buf8[8];
-                recvError(recv(socketTCP, buf8, 8, 0));
-                fprintf(stdout, "Vous avez quitté la partie.\n");
-                break;
-            }
-        }
-    }
-
+    
+    char buf8[8];
+    recvError(recv(socketTCP, buf8, 8, 0));
+    fprintf(stdout, "Vous avez quitté la partie.\n");
+                
     return false;
 }
 
 bool printJoueurs(uint8_t j, int socketTCP)
 {
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
+    
+    // reception des j [GPLYR␣id␣x␣y␣p***]
+    for (uint8_t i = 0; i < j; i++)
     {
+        size_t sizeJ = 5 + 8 + 3 + 3 + 4 + 3 + 4;
+        char buf30[sizeJ];
+        recvError(recv(socketTCP, buf30, sizeJ, 0));
+        printf("caca\n");
+        char *infos = strtok(buf30, " ");
+        infos = strtok(NULL, " ");
+        char *id = infos;
+        id[8] = '\0';
+        int x = atoi(&buf30[16]);
+        int y = atoi(&buf30[20]);
+        uint32_t points = atoi(&buf30[24]);
 
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-                // reception des j [GPLYR␣id␣x␣y␣p***]
-                for (uint8_t i = 0; i < j; i++)
-                {
-                    size_t sizeJ = 5 + 8 + 3 + 3 + 4 + 3 + 4;
-                    char buf30[sizeJ];
-                    recvError(recv(socketTCP, buf30, sizeJ, 0));
-                    printf("caca\n");
-                    char *infos = strtok(buf30, " ");
-                    infos = strtok(NULL, " ");
-                    char *id = infos;
-                    id[8] = '\0';
-                    int x = atoi(&buf30[16]);
-                    int y = atoi(&buf30[20]);
-                    uint32_t points = atoi(&buf30[24]);
-
-                        // affichage dans le terminal
-                    fprintf(stdout, "Le Joueur %s en (%d,%d) a %u points.\n", id, x, y, points);
-                }
-                break;
-            }
-        }
+            // affichage dans le terminal
+        fprintf(stdout, "Le Joueur %s en (%d,%d) a %u points.\n", id, x, y, points);
     }
+                
 }
 
 bool listeJoueursIG(int socketTCP)
@@ -199,51 +150,36 @@ bool listeJoueursIG(int socketTCP)
     memcpy(buf8, "GLIS?***", 8);
     sendError(send(socketTCP, buf8, t, 0));
 
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
+    // Reception format [GLIS! s***] ou [GOBYE***]
+    char buf5[6];
+    recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
+    if (strcmp(buf5, "GLIS!") == 0)
     {
+        size_t t = 3 + 1 + 1;
+        char buf[t];
+        recvError(recv(socketTCP, buf, t, 0));
+        uint8_t j = atoi(&buf[1]);
+        fprintf(stdout, "Il y a %d joueurs dans la partie.\n", j);
 
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-                // Reception format [GLIS! s***] ou [GOBYE***]
-                char buf5[6];
-                recvError(recv(socketTCP, buf5, 5, 0));
-                buf5[5] = '\0';
-                if (strcmp(buf5, "GLIS!") == 0)
-                {
-                    size_t t = 3 + 1 + 1;
-                    char buf[t];
-                    recvError(recv(socketTCP, buf, t, 0));
-                    uint8_t j = atoi(&buf[1]);
-                    fprintf(stdout, "Il y a %d joueurs dans la partie.\n", j);
-
-                    // Reception  des données de chaque joueur
-                    printJoueurs(j, socketTCP);
-                    return true;
-                }
-                else if (strcmp(buf5, "GOBYE"))
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stderr, "La partie est terminée !\n");
-                    return false;
-                }
-                else
-                {
-                    fprintf(stderr, "Fail.\n");
-                    close(socketTCP);
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
+        // Reception  des données de chaque joueur
+        printJoueurs(j, socketTCP);
+        return true;
     }
+    else if (strcmp(buf5, "GOBYE"))
+    {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stderr, "La partie est terminée !\n");
+        return false;
+    }
+    else
+    {
+        fprintf(stderr, "Fail.\n");
+        close(socketTCP);
+        exit(EXIT_FAILURE);
+    }
+            
 }
 
 bool envoiMessATous(int socketTCP, char *mess)
@@ -260,46 +196,30 @@ bool envoiMessATous(int socketTCP, char *mess)
     buf[t] = '\0';
     printf("%s\n", buf);
 
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
+    // Reception format [MALL!***]
+    char buf5[6];
+    recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
+    if (strcmp(buf5, "MALL!") == 0)
     {
-
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-                // Reception format [MALL!***]
-                char buf5[6];
-                recvError(recv(socketTCP, buf5, 5, 0));
-                buf5[5] = '\0';
-                if (strcmp(buf5, "MALL!") == 0)
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stderr, "La message a été envoyé à tous les joueurs.\n");
-                    return true;
-                }
-                else if (strcmp(buf5, "GOBYE"))
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stderr, "La partie est terminée !\n");
-                    return false;
-                }
-                else
-                {
-                    fprintf(stderr, "Fail.\n");
-                    close(socketTCP);
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stderr, "La message a été envoyé à tous les joueurs.\n");
+        return true;
     }
+    else if (strcmp(buf5, "GOBYE"))
+    {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stderr, "La partie est terminée !\n");
+        return false;
+    }
+    else
+    {
+        fprintf(stderr, "Fail.\n");
+        close(socketTCP);
+        exit(EXIT_FAILURE);
+    }  
 }
 
 // Envoi de message à un joueur de la partie
@@ -317,104 +237,72 @@ bool envoiMessAJoueur(int socketTCP, char *mess, char *id)
     memmove(buf + curr, "***", 3);
     sendError(send(socketTCP, buf, t, 0));
 
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
+    
+    // Reception format [SEND!***] ou [NSEND***]
+    char buf5[6];
+    recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
+    if (strcmp(buf5, "SEND!") == 0)
     {
-
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-                // Reception format [SEND!***] ou [NSEND***]
-                char buf5[6];
-                recvError(recv(socketTCP, buf5, 5, 0));
-                buf5[5] = '\0';
-                if (strcmp(buf5, "SEND!") == 0)
-                {
-                    char buf[3];
-                    recvError(recv(socketTCP, buf, 3, 0));
-                    fprintf(stdout, "Le message à été envoyé\n");
-                    return true;
-                }
-                else if (strcmp(buf5, "NSEND") == 0)
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stdout, "Le joueur spécifié n'existe pas ou n'est pas dans la partie.\n");
-                    return true;
-                }
-                else if (strcmp(buf5, "GOBYE"))
-                {
-                    char buf2[3];
-                    recvError(recv(socketTCP, buf2, 3, 0));
-                    fprintf(stderr, "La partie est terminée !\n");
-                    return false;
-                }
-                else
-                {
-                    fprintf(stderr, "Fail.\n");
-                    close(socketTCP);
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
+        char buf[3];
+        recvError(recv(socketTCP, buf, 3, 0));
+        fprintf(stdout, "Le message à été envoyé\n");
+        return true;
     }
+    else if (strcmp(buf5, "NSEND") == 0)
+    {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stdout, "Le joueur spécifié n'existe pas ou n'est pas dans la partie.\n");
+        return true;
+    }
+    else if (strcmp(buf5, "GOBYE"))
+    {
+        char buf2[3];
+        recvError(recv(socketTCP, buf2, 3, 0));
+        fprintf(stderr, "La partie est terminée !\n");
+        return false;
+    }
+    else
+    {
+        fprintf(stderr, "Fail.\n");
+        close(socketTCP);
+        exit(EXIT_FAILURE);
+    }
+            
 }
 
 bool recupLaby(int socketTCP, int w, int h)
 {
-    struct pollfd p[1];
-
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    int i = 0;
-    int j = 0;
-
-    while (true)
+    
+    for (int i = 0; i < w; i++)
     {
-
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
+        for (int j = 0; j < h; j++)
         {
-            if (p[0].revents == POLLIN)
-            {
-                for (i; i < w; i++)
-                {
-                    for (j; j < h; j++)
-                    {
-                        char buf[8];
-                        recvError(recv(socketTCP, buf, 8, 0));
-                        char *p;
-                        p = strtok(buf, "*");
+            char buf[8];
+            recvError(recv(socketTCP, buf, 8, 0));
+            char *p;
+            p = strtok(buf, "*");
 
-                        fprintf(stdout, "recu : %s pour i:%d et j:%d\n", p, i, j);
-                        if (strcmp(p, "TRUE!") == 0)
-                        {
-                            // fprintf(stdout, "X");
-                        }
-                        else if (strcmp(p, "FALSE") == 0)
-                        {
-                            // fprintf(stdout, "E");
-                        }
-                        else
-                        {
-                            fprintf(stderr, "Fail : reception de %s.\n", buf);
-                            close(socketTCP);
-                            exit(EXIT_FAILURE);
-                        }
-                    }
-                    fprintf(stdout, "\n");
-                }
-                return true;
+            fprintf(stdout, "recu : %s pour i:%d et j:%d\n", p, i, j);
+            if (strcmp(p, "TRUE!") == 0)
+            {
+                // fprintf(stdout, "X");
+            }
+            else if (strcmp(p, "FALSE") == 0)
+            {
+                // fprintf(stdout, "E");
+            }
+            else
+            {
+                fprintf(stderr, "Fail : reception de %s.\n", buf);
+                close(socketTCP);
+                exit(EXIT_FAILURE);
             }
         }
+        fprintf(stdout, "\n");
     }
+                
 }
 
 // triche pour voir le labyrinthe
@@ -423,49 +311,33 @@ bool tricheLaby(int socketTCP, int w, int h)
     char *mess = "XTLX?***";
     sendError(send(socketTCP, mess, 8, 0));
 
-    struct pollfd p[1];
+    char buf5[6];
+    recvError(recv(socketTCP, buf5, 5, 0));
+    buf5[5] = '\0';
+    fprintf(stdout, "recu : %s", buf5);
 
-    p[0].fd = socketTCP;
-    p[0].events = POLLIN;
-
-    while (true)
+    if (strcmp(buf5, "DUNNO") == 0)
     {
-
-        int ret = poll(p, 1, -1);
-        if (ret > 0)
-        {
-            if (p[0].revents == POLLIN)
-            {
-
-                char buf5[6];
-                recvError(recv(socketTCP, buf5, 5, 0));
-                buf5[5] = '\0';
-                fprintf(stdout, "recu : %s", buf5);
-
-                if (strcmp(buf5, "DUNNO") == 0)
-                {
-                    char buf3[3];
-                    recvError(recv(socketTCP, buf3, 3, 0));
-                    fprintf(stdout, "Action incomprise.\n");
-                    return true;
-                }
-                else if (strcmp(buf5, "TRCHL") == 0)
-                {
-                    fprintf(stdout, "w : %d\n", w);
-                    fprintf(stdout, "h : %d\n", h);
-                    char buf3[3];
-                    recvError(recv(socketTCP, buf3, 3, 0));
-                    return recupLaby(socketTCP, w, h);
-                }
-                else
-                {
-                    fprintf(stderr, "Fail : reception de %s.\n", buf5);
-                    close(socketTCP);
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
+        char buf3[3];
+        recvError(recv(socketTCP, buf3, 3, 0));
+        fprintf(stdout, "Action incomprise.\n");
+        return true;
     }
+    else if (strcmp(buf5, "TRCHL") == 0)
+    {
+        fprintf(stdout, "w : %d\n", w);
+        fprintf(stdout, "h : %d\n", h);
+        char buf3[3];
+        recvError(recv(socketTCP, buf3, 3, 0));
+        return recupLaby(socketTCP, w, h);
+    }
+    else
+    {
+        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        close(socketTCP);
+        exit(EXIT_FAILURE);
+    }
+            
 }
 
 // triche pour voir la position des fantomes
