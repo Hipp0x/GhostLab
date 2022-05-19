@@ -106,7 +106,7 @@ public class ServicePartie implements Runnable {
             };
 
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-            // executor.scheduleAtFixedRate(task, 40, 30, TimeUnit.SECONDS);
+            executor.scheduleAtFixedRate(task, 40, 30, TimeUnit.SECONDS);
 
             while (!partie.isFinish()) {
                 selector.select();
