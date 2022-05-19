@@ -144,6 +144,7 @@ public class Partie {
         for (Fantome e : l) {
             fantomes.remove(e);
             fant += 1;
+            nbFant -= 1;
         }
         if (fantomes.size() == 0) {
             setFinish(true);
@@ -188,6 +189,7 @@ public class Partie {
         for (Fantome e : l) {
             fantomes.remove(e);
             fant += 1;
+            nbFant -= 1;
         }
         if (fantomes.size() == 0) {
             setFinish(true);
@@ -232,6 +234,7 @@ public class Partie {
         }
         for (Fantome e : l) {
             fantomes.remove(e);
+            nbFant -= 1;
         }
         if (fantomes.size() == 0) {
             setFinish(true);
@@ -274,6 +277,7 @@ public class Partie {
         }
         for (Fantome e : l) {
             fantomes.remove(e);
+            nbFant -= 1;
         }
         if (fantomes.size() == 0) {
             setFinish(true);

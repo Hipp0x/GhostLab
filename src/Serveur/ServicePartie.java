@@ -74,11 +74,12 @@ public class ServicePartie implements Runnable {
             partie.printJoueur();
 
             Runnable task = new Runnable() {
-
                 @Override
                 public void run() {
                     Random random = new Random();
+                    System.out.println("nb de fantome : " + partie.getNbFantome());
                     int indice = random.nextInt(partie.getNbFantome());
+                    System.out.println("indice : " + indice);
                     Fantome f = partie.getFantomes().get(indice);
 
                     Case[][] laby = partie.getLabyrinthe().getLaby();
@@ -122,6 +123,7 @@ public class ServicePartie implements Runnable {
                 }
 
             }
+            executor.shutdown();
             if (partie.getFantomes().size() == 0) {
                 sendFinGame();
             }
