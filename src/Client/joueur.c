@@ -242,7 +242,7 @@ void actionEnPartie(int socketTCP, char *ch)
     case 'm':; // Message à tous les joueurs de la partie
         if (ch[1] == ' ')
         {
-            if (strlen(ch) < 3)
+            if (strlen(ch) > 3)
             {
                 sep = " ";
                 choix = strtok(ch, sep);
@@ -320,46 +320,48 @@ void actionEnPartie(int socketTCP, char *ch)
 
 void receptMultiDiff(int socketMultiDiff, char *received)
 {
-    char *buff = strtok(received, "+    ");
+    char *buff = strtok(received, "+++");
     char *action = strtok(buff, " ");
     printf("%s has been received\n", action);
     if (strcmp(action, "GHOST") == 0)
     {
-        
+
         int x = atoi(&buff[6]);
         int y = atoi(&buff[10]);
 
-        fprintf(stdout, "Un fantome s'est déplacé en (%d,%d).", x, y);
+        fprintf(stdout, "Un fantome s'est déplacé en (%d,%d).\n", x, y);
     }
     else if (strcmp(action, "SCORE") == 0)
     {
         char *infos = strtok(NULL, " ");
+        fprintf(stdout, "infos : %s\n", infos);
         char *id = infos;
+        fprintf(stdout, "id : %s\n", id);
 
-        uint16_t points = (uint16_t) atoi(&buff[15]);
+        uint16_t points = (uint16_t)atoi(&buff[15]);
         int x = atoi(&buff[20]);
         int y = atoi(&buff[24]);
 
-        fprintf(stdout, "%s a attrapé un fantome en (%d,%d) et a maintenant %u points", id, x, y, points);
+        fprintf(stdout, "%s a attrapé un fantome en (%d,%d) et a maintenant %u points\n", id, x, y, points);
     }
     else if (strcmp(action, "MESSA") == 0)
     {
-        char *infos = strtok(NULL, " ");
-        char *id = infos;
+        action = strtok(NULL, " ");
 
-        char *mess = &buff[15];
+        char *id = action;
+        char *mess = &buff[16];
 
-        fprintf(stdout, "Message de %s: %s\n", id, mess);
+        fprintf(stdout, "Message de %s : %s\n", id, mess);
     }
     else if (strcmp(action, "ENDGA") == 0)
     {
-        
+
         char *infos = strtok(NULL, " ");
         char *id = infos;
 
-        uint16_t points = (uint16_t) atoi(&buff[15]);
+        uint16_t points = (uint16_t)atoi(&buff[15]);
 
-        fprintf(stdout, "La partie est terminée!\n%s a gagné avec %u points!", id, points);
+        fprintf(stdout, "La partie est terminée!\n%s a gagné avec %u points!\n", id, points);
     }
 }
 
@@ -567,15 +569,15 @@ int main(int argc, char *argv[])
     address_sockMC.sin_port = htons(8448);
     address_sockMC.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    int *socketMultiDiff = (int *) malloc(sizeof(int));
+    int *socketMultiDiff = (int *)malloc(sizeof(int));
     *socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
     int ok = 1;
-    int r2=setsockopt(*socketMultiDiff,SOL_SOCKET,SO_REUSEPORT,&ok,sizeof(ok));
-    r2=bind(*socketMultiDiff,(struct sockaddr *)&address_sockMC,sizeof(struct sockaddr_in));
+    int r2 = setsockopt(*socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
+    r2 = bind(*socketMultiDiff, (struct sockaddr *)&address_sockMC, sizeof(struct sockaddr_in));
     struct ip_mreq mreq;
     mreq.imr_multiaddr.s_addr = inet_addr("229.100.100.0");
-    mreq.imr_interface.s_addr=htonl(INADDR_ANY);
-    r2=setsockopt(*socketMultiDiff,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
+    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+    r2 = setsockopt(*socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
     pthread_t th1, th2;
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);

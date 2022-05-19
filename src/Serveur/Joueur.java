@@ -86,7 +86,7 @@ public class Joueur {
         return s.toString();
     }
 
-    public void setPointToString(int v, String res) {
+    public void setPointToString(int v) {
         StringBuilder s = new StringBuilder();
         if (v < 10) {
             s.append("000");
@@ -100,10 +100,10 @@ public class Joueur {
         } else {
             s.append(Integer.toString(v));
         }
-        res = s.toString();
+        pPoint = s.toString();
     }
 
-    public void setPos(int x2, int y2){
+    public void setPos(int x2, int y2) {
         x = x2;
         pX = setPosToString(x2);
         y = y2;
@@ -121,7 +121,7 @@ public class Joueur {
     }
 
     public void setPoint(int p2) {
-        point = p2;
-        setPointToString(point, pPoint);
+        point += p2;
+        setPointToString(point);
     }
 }

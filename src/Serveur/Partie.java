@@ -1,5 +1,6 @@
 package Serveur;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Partie {
@@ -109,36 +110,30 @@ public class Partie {
 
     }
 
-    public void setCapture(ArrayList<Fantome> f) {
-        for (Fantome a : f) {
-            for (Fantome e : fantomes) {
-                if (e == a) {
-                    e.setCapture(true);
-                }
-            }
-        }
-    }
-
     public int moveU(int d, Joueur j) {
         Case[][] laby = labyrinthe.getLaby();
         int x = j.getX();
         int y = j.getY();
         int compt = 0;
         int fant = 0;
+        ArrayList<Fantome> l = new ArrayList();
         for (int i = 1; i <= d; i++) {
             if (x - i >= 0) {
                 if (!laby[x - i][y].isMur()) {
-                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
                     for (Fantome f : fantomes) {
                         if (f.getI() == (x - i) && f.getJ() == (y)) {
                             l.add(f);
+                            j.setPoint(f.getPoint());
+                            try {
+                                ServicePartie.sendUpdateScoreJoueur(j, f);
+                            } catch (IOException e1) {
+                                // TODO Auto-generated catch block
+                                e1.printStackTrace();
+                            }
                         }
                     }
-                    for (Fantome e : l) {
-                        fantomes.remove(e);
-                        fant += e.getPoint();
-                    }
+
                 } else {
                     break;
                 }
@@ -146,7 +141,15 @@ public class Partie {
                 break;
             }
         }
+        for (Fantome e : l) {
+            fantomes.remove(e);
+            fant += 1;
+        }
+        if (fantomes.size() == 0) {
+            setFinish(true);
+        }
         j.setX(x - compt);
+        System.out.println("jai " + j.getPPoint() + " points");
         return fant;
     }
 
@@ -157,20 +160,24 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
+        ArrayList<Fantome> l = new ArrayList();
         for (int i = 1; i <= d; i++) {
             if (x + i < h) {
                 if (!laby[x + i][y].isMur()) {
-                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
                     for (Fantome f : fantomes) {
                         if (f.getI() == (x + i) && f.getJ() == (y)) {
                             l.add(f);
+                            j.setPoint(f.getPoint());
+                            try {
+                                ServicePartie.sendUpdateScoreJoueur(j, f);
+                            } catch (IOException e1) {
+                                // TODO Auto-generated catch block
+                                e1.printStackTrace();
+                            }
                         }
                     }
-                    for (Fantome e : l) {
-                        fantomes.remove(e);
-                        fant += e.getPoint();
-                    }
+
                 } else {
                     break;
                 }
@@ -178,7 +185,15 @@ public class Partie {
                 break;
             }
         }
+        for (Fantome e : l) {
+            fantomes.remove(e);
+            fant += 1;
+        }
+        if (fantomes.size() == 0) {
+            setFinish(true);
+        }
         j.setX(x + compt);
+        System.out.println("jai " + j.getPPoint() + " points");
         return fant;
     }
 
@@ -189,26 +204,37 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
+        ArrayList<Fantome> l = new ArrayList();
         for (int i = 1; i <= d; i++) {
             if (y + i < w) {
                 if (!laby[x][y + i].isMur()) {
-                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
                     for (Fantome f : fantomes) {
                         if (f.getI() == (x) && f.getJ() == (y + i)) {
                             l.add(f);
+                            j.setPoint(f.getPoint());
+                            fant += 1;
+                            try {
+                                ServicePartie.sendUpdateScoreJoueur(j, f);
+                            } catch (IOException e1) {
+                                // TODO Auto-generated catch block
+                                e1.printStackTrace();
+                            }
                         }
                     }
-                    for (Fantome e : l) {
-                        fantomes.remove(e);
-                        fant += e.getPoint();
-                    }
+
                 } else {
                     break;
                 }
             } else {
                 break;
             }
+        }
+        for (Fantome e : l) {
+            fantomes.remove(e);
+        }
+        if (fantomes.size() == 0) {
+            setFinish(true);
         }
         j.setY(y + compt);
         return fant;
@@ -220,20 +246,25 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
+        ArrayList<Fantome> l = new ArrayList();
         for (int i = 1; i <= d; i++) {
             if (y - i >= 0) {
                 if (!laby[x][y - i].isMur()) {
-                    ArrayList<Fantome> l = new ArrayList();
                     compt++;
                     for (Fantome f : fantomes) {
                         if (f.getI() == (x) && f.getJ() == (y - i)) {
                             l.add(f);
+                            j.setPoint(f.getPoint());
+                            fant += 1;
+                            try {
+                                ServicePartie.sendUpdateScoreJoueur(j, f);
+                            } catch (IOException e1) {
+                                // TODO Auto-generated catch block
+                                e1.printStackTrace();
+                            }
                         }
                     }
-                    for (Fantome e : l) {
-                        fantomes.remove(e);
-                        fant += e.getPoint();
-                    }
+
                 } else {
                     break;
                 }
@@ -241,7 +272,14 @@ public class Partie {
                 break;
             }
         }
+        for (Fantome e : l) {
+            fantomes.remove(e);
+        }
+        if (fantomes.size() == 0) {
+            setFinish(true);
+        }
         j.setY(y - compt);
+        System.out.println("jai " + j.getPPoint() + " points");
         return fant;
     }
 
@@ -270,10 +308,6 @@ public class Partie {
      * Getters et Setters
      * -----
      */
-
-    public void setFantome(int x) {
-        nbFant = x;
-    }
 
     public int getId() {
         return id;
@@ -307,12 +341,20 @@ public class Partie {
         return fantomes;
     }
 
-    public void removeFantome(Fantome f) {
-        fantomes.remove(f);
-    }
-
     public boolean isFinish() {
         return isFinish;
+    }
+
+    public void setFinish(boolean v) {
+        isFinish = v;
+    }
+
+    public void setFantome(int x) {
+        nbFant = x;
+    }
+
+    public void removeFantome(Fantome f) {
+        fantomes.remove(f);
     }
 
     public String getPortMultiString() {

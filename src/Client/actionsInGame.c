@@ -18,23 +18,23 @@ bool receptSeDeplacer(int socketTCP)
     }
     else if (strcmp(buf5, "MOVEF") == 0) // reception [MOVEF␣x␣y␣p***]
     {
-        size_t t = 3 + 3 + 3 + 2 + 4;
+        size_t t = 3 + 3 + 3 + 3 + 4;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         int x = atoi(&buf[1]);
         int y = atoi(&buf[5]);
         uint32_t p = atoi(&buf[9]);
-        fprintf(stdout, "Vous êtes à la position (%d,%d) (col,lig).\nAprès avoir récolté un fantome vous avez %d points.", x, y, p);
+        fprintf(stdout, "Vous êtes à la position (%d,%d) (lig,col).\nAprès avoir récolté un fantome vous avez %d points.\n", x, y, p);
         return true;
     }
-    else if (strcmp(buf5, "DUNNO")) // reception [DUNNO***]
+    else if (strcmp(buf5, "DUNNO") == 0) // reception [DUNNO***]
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
         return true;
     }
-    else if (strcmp(buf5, "GOBYE"))
+    else if (strcmp(buf5, "GOBYE") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
@@ -43,7 +43,7 @@ bool receptSeDeplacer(int socketTCP)
     }
     else
     {
-        fprintf(stderr, "Fail.\n");
+        fprintf(stderr, "Fail : %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
