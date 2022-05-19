@@ -116,7 +116,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList();
+        ArrayList<Fantome> l = new ArrayList<Fantome>();
         for (int i = 1; i <= d; i++) {
             if (x - i >= 0) {
                 if (!laby[x - i][y].isMur()) {
@@ -128,7 +128,6 @@ public class Partie {
                             try {
                                 ServicePartie.sendUpdateScoreJoueur(j, f);
                             } catch (IOException e1) {
-                                // TODO Auto-generated catch block
                                 e1.printStackTrace();
                             }
                         }
@@ -150,7 +149,6 @@ public class Partie {
             setFinish(true);
         }
         j.setX(x - compt);
-        System.out.println("jai " + j.getPPoint() + " points");
         return fant;
     }
 
@@ -161,7 +159,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList();
+        ArrayList<Fantome> l = new ArrayList<Fantome>();
         for (int i = 1; i <= d; i++) {
             if (x + i < h) {
                 if (!laby[x + i][y].isMur()) {
@@ -173,7 +171,6 @@ public class Partie {
                             try {
                                 ServicePartie.sendUpdateScoreJoueur(j, f);
                             } catch (IOException e1) {
-                                // TODO Auto-generated catch block
                                 e1.printStackTrace();
                             }
                         }
@@ -195,7 +192,6 @@ public class Partie {
             setFinish(true);
         }
         j.setX(x + compt);
-        System.out.println("jai " + j.getPPoint() + " points");
         return fant;
     }
 
@@ -206,7 +202,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList();
+        ArrayList<Fantome> l = new ArrayList<Fantome>();
         for (int i = 1; i <= d; i++) {
             if (y + i < w) {
                 if (!laby[x][y + i].isMur()) {
@@ -219,7 +215,6 @@ public class Partie {
                             try {
                                 ServicePartie.sendUpdateScoreJoueur(j, f);
                             } catch (IOException e1) {
-                                // TODO Auto-generated catch block
                                 e1.printStackTrace();
                             }
                         }
@@ -249,7 +244,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList();
+        ArrayList<Fantome> l = new ArrayList<Fantome>();
         for (int i = 1; i <= d; i++) {
             if (y - i >= 0) {
                 if (!laby[x][y - i].isMur()) {
@@ -262,7 +257,6 @@ public class Partie {
                             try {
                                 ServicePartie.sendUpdateScoreJoueur(j, f);
                             } catch (IOException e1) {
-                                // TODO Auto-generated catch block
                                 e1.printStackTrace();
                             }
                         }
@@ -283,7 +277,6 @@ public class Partie {
             setFinish(true);
         }
         j.setY(y - compt);
-        System.out.println("jai " + j.getPPoint() + " points");
         return fant;
     }
 

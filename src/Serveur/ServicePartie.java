@@ -2,7 +2,6 @@ package Serveur;
 
 import java.io.*;
 import java.net.*;
-import java.net.InetAddress;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
@@ -184,19 +183,6 @@ public class ServicePartie implements Runnable {
         // [SCORE␣id␣p␣x␣y+++]
         ByteBuffer buf = ByteBuffer.wrap(("MOVEF " + x + " " + y + " " + p + "***").getBytes(), 0, (11 + 3 + 3 + 4));
         s.write(buf);
-
-        byte[] data;
-        for (Fantome f : partie.getFantomes()) {
-            if (f.getCapture()) {
-                partie.removeFantome(f);
-                String env = "SCORE " + id + " " + p + " " + x + " " + y + "***";
-                data = env.getBytes();
-                InetSocketAddress ia = new InetSocketAddress(partie.getIp(), partie.getPortMulti());
-                DatagramPacket paquet = new DatagramPacket(data, data.length, ia);
-                dso.send(paquet);
-            }
-        }
-
     }
 
     // envoi de la liste des joueurs
@@ -411,7 +397,6 @@ public class ServicePartie implements Runnable {
                     joueur.setPoint(joueur.getPoint() + fant);
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    // sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -430,7 +415,6 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    // sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -450,7 +434,6 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    // sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -468,7 +451,6 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
                             joueur.getPPoint(), joueur.getId());
-                    // sendUpdateScoreJoueur(joueur);
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }

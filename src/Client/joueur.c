@@ -45,6 +45,19 @@ bool isDigit(char *a, int l)
     return true;
 }
 
+bool isVide(char *a)
+{
+    int l = strlen(a);
+    for (int i = 0; i < l; i++)
+    {
+        if (isalpha(a[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 // les actions que peut faire le joueur avant le debut d'une partie
 bool actionAvantPartie(int socketTCP, char *ch)
 {
@@ -265,28 +278,33 @@ void actionEnPartie(int socketTCP, char *ch)
         break;
 
     case 'w':; // Message à un joueur
-        if (ch[1] == ' ' && ch[10] == ' ')
+        if (ch[1] == ' ' && ch[10] == ' ' && strlen(ch) > 12)
         {
             sep = " ";
             choix = strtok(ch, sep); // pour w
 
             choix = strtok(NULL, sep); // pour id
             char *id = choix;
+            fprintf(stdout, "id : %s.\n", id);
             if (strlen(id) == 8)
             {
-                if (strlen(ch) < 11)
+                choix = strtok(NULL, sep);
+                char *k = choix;
+                fprintf(stdout, "mess : %s.\n", k);
+                if (!isVide(k))
                 {
-
                     sep = "\n";
-                    choix = strtok(NULL, sep); // pour le mess
+                    choix = strtok(k, sep);
+                    fprintf(stdout, "mess : %s.\n", choix);
 
                     envoiMessAJoueur(socketTCP, choix, id);
                 }
                 else
                 {
-                    fprintf(stdout, "Votre message est vide.\n");
+                    fprintf(stdout, "Votre message est vide\n");
                 }
             }
+
             else
             {
                 fprintf(stdout, "Votre id doit faire 8 characteres.\n");

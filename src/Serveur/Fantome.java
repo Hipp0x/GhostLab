@@ -5,7 +5,6 @@ public class Fantome {
     private int i;
     private int j;
     private int point;
-    private boolean capture = false;
 
     public Fantome(int i, int j, int p) {
         this.i = i;
@@ -25,14 +24,6 @@ public class Fantome {
 
     public int getJ() {
         return j;
-    }
-
-    public boolean getCapture() {
-        return capture;
-    }
-
-    public void setCapture(boolean c) {
-        capture = c;
     }
 
     public int getPoint() {
