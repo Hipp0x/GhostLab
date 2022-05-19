@@ -483,6 +483,8 @@ public class ServicePartie implements Runnable {
 
             case "SEND?":
                 // stocker id 8char
+                buf = ByteBuffer.allocate(1);
+                s.read(buf);
                 String id = getID(s);
                 System.out.println("Après getID");
 
