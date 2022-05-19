@@ -316,11 +316,11 @@ void actionEnPartie(int socketTCP, char *ch)
         break;
 
     case 'x':;
-        if (strcmp(ch, "xtrichexlabyx"))
+        if (strcmp(ch, "xtrichexlabyx\n") == 0)
         {
             tricheLaby(socketTCP, largeur, hauteur);
         }
-        else if (strcmp(ch, "xtrichexfantx"))
+        else if (strcmp(ch, "xtrichexfantx\n") == 0)
         {
             tricheFant(socketTCP);
         }

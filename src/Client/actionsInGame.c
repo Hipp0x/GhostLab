@@ -351,13 +351,13 @@ bool tricheFant(int socketTCP)
     buf5[5] = '\0';
     fprintf(stdout, "recup : %s", buf5);
 
-    if (strcmp(buf5, "DUNNO"))
+    if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
         fprintf(stdout, "Action incomprise.\n");
     }
-    else if (strcmp(buf5, "TRCHF"))
+    else if (strcmp(buf5, "TRCHF") == 0)
     {
         char buf3[4];
         recvError(recv(socketTCP, buf3, 3, 0));
