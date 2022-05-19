@@ -526,10 +526,10 @@ int main(int argc, char *argv[])
     //
     struct sockaddr_in address_sock;
     address_sock.sin_family = AF_INET;
-    // address_sock.sin_port = htons(5621);
-    // address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
+    address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
     address_sock.sin_port = htons(portUDP);
-    inet_aton(argv[1], &address_sock.sin_addr);
+
+    fprintf(stdout, "Mauvais nombre de parametres au lancement.\n");
 
     getID();
 
@@ -547,6 +547,7 @@ int main(int argc, char *argv[])
 
     // connexion au serveur
     address_sock.sin_port = htons(portTCP);
+    inet_aton(argv[1], &address_sock.sin_addr);
     int sock_client = connect(socketTCP, (struct sockaddr *)&address_sock, sizeof(struct sockaddr_in));
     connectError(sock_client);
 
@@ -586,15 +587,15 @@ int main(int argc, char *argv[])
 
     char *addr = strtok(addrMC, "#");
 
-    int *socketMultiDiff = (int *) malloc(sizeof(int));
+    int *socketMultiDiff = (int *)malloc(sizeof(int));
     *socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
     int ok = 1;
     int r2 = setsockopt(*socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
     r2 = bind(*socketMultiDiff, (struct sockaddr *)&address_sockMC, sizeof(struct sockaddr_in));
     struct ip_mreq mreq;
     mreq.imr_multiaddr.s_addr = inet_addr(addr);
-    mreq.imr_interface.s_addr=htonl(INADDR_ANY);
-    r2=setsockopt(*socketMultiDiff,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
+    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+    r2 = setsockopt(*socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
     pthread_t th1, th2;
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);
