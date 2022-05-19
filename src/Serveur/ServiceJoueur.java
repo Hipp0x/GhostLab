@@ -36,14 +36,12 @@ public class ServiceJoueur implements Runnable {
                 exit = optionsInGame(os, is);
             } while (!exit);
 
+            Partie ready = null;
             synchronized ((Object) parties) {
                 for (Partie p : parties) {
-                    for (Joueur j : p.getJoueurs()) {
-                        System.out.println(j.isReady());
-                    }
 
                     if (p.peutDemarer()) {
-
+                        ready = p;
                         // initialiser le nb de fantome
                         int nbjoueur = p.getNbJoueurs();
                         int nbFant = Math.min(15, nbjoueur * 3);
@@ -56,6 +54,10 @@ public class ServiceJoueur implements Runnable {
 
                         System.out.println("La partie " + p.getId() + " a commencé.");
                     }
+                }
+
+                if(ready != null){
+                    parties.remove(ready);
                 }
 
             }
