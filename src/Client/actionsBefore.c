@@ -25,17 +25,17 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = (uint8_t)buf[1];
-        fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
+        fprintf(stdout, "You're now in game n°%d.\n", m);
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Vous êtes déjà dans une partie.\n");
+        fprintf(stdout, "You're already register in a game.\n");
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -72,19 +72,19 @@ bool rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = (uint8_t)buf[1];
-        fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
+        fprintf(stdout, "You're now in game n°%d.\n", m);
         return true;
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Inscription à la partie refusée.\n");
+        fprintf(stdout, "You can't join this game.\n");
         return false;
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -108,17 +108,17 @@ void desinscription(int socketTCP)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = (uint8_t)buf[1];
-        fprintf(stdout, "Vous êtes desinscris de la partie %d.\n", m);
+        fprintf(stdout, "You're unsubscribed from the game n°%d.\n", m);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -175,11 +175,11 @@ void tailleLaby(int socketTCP, uint8_t num)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -195,7 +195,7 @@ void recupereJoueur(uint8_t s, int socketTCP)
         recvError(recv(socketTCP, buf, 17, 0));
         buf[17] = '\0';
         // affichage dans le terminal
-        fprintf(stdout, "Joueur %s\n", &buf[6]);
+        fprintf(stdout, "Player %s\n", &buf[6]);
     }
 }
 
@@ -223,18 +223,18 @@ void listeJoueurs(int socketTCP, uint8_t num)
         recvError(recv(socketTCP, buf, 7, 0));
         uint8_t m = (uint8_t)buf[1];
         uint8_t s = (uint8_t)buf[3];
-        fprintf(stdout, "%d joueurs dans la partie %d :\n", s, m);
+        fprintf(stdout, "%d players in the game n°%d :\n", s, m);
         recupereJoueur(s, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -252,7 +252,7 @@ void recupereGames(uint8_t n, int socketTCP)
         // affichage dans le terminal
         uint8_t m = (uint8_t)buf[6];
         uint8_t s = (uint8_t)buf[8];
-        fprintf(stdout, "OGAME, id : %d, inscrits : %d\n", m, s);
+        fprintf(stdout, "OGAME, id : %d, registered : %d\n", m, s);
     }
 }
 
@@ -268,21 +268,20 @@ void listeParties(int socketTCP)
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
-    printf("%s\n", buf5);
     if (strcmp(buf5, "GAMES") == 0)
     {
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t n = (uint8_t)buf[1];
-        fprintf(stdout, "Games : %d\n", n);
+        fprintf(stdout, "GAMES %d\n", n);
         recupereGames(n, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
     }
     else
     {
