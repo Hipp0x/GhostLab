@@ -112,6 +112,7 @@ public class ServicePartie implements Runnable {
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
                     iterator.remove();
+                    SocketChannel deleted = null;
                     for (SocketChannel s : ssc) {
                         if (key.isReadable() && key.channel() == s.socket().getChannel()) {
                             Joueur j = getJoueur(s);
@@ -120,6 +121,9 @@ public class ServicePartie implements Runnable {
                             }
                             readAction(s, ssc.indexOf(s));
                         }
+                    }
+                    if(deleted != null){
+                        ssc.remove(deleted);
                     }
                 }
 

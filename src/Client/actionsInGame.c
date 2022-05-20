@@ -57,15 +57,19 @@ bool seDeplacer(int socketTCP, int distance, char direction)
     // Debut du message en fonction de la direction donnée
     switch (direction)
     {
+    case 'L':
     case 'l':
         memcpy(buf12, "LEMOV ", 6);
         break;
+    case 'R':
     case 'r':
         memcpy(buf12, "RIMOV ", 6);
         break;
+    case 'U':
     case 'u':
         memcpy(buf12, "UPMOV ", 6);
         break;
+    case 'D':
     case 'd':
         memcpy(buf12, "DOMOV ", 6);
         break;
@@ -74,7 +78,6 @@ bool seDeplacer(int socketTCP, int distance, char direction)
     size_t curr = 6;
     char dist[10];
     int distLength = sprintf(dist, "%d", distance);
-    printf("%s\n", dist);
     char sentDist[3];
 
     // Ajout des "0" au début du string si nécessaire
@@ -94,7 +97,6 @@ bool seDeplacer(int socketTCP, int distance, char direction)
     char affichage[4];
     memmove(affichage, sentDist, 3);
     affichage[3] = '\0';
-    printf("String envoyé : %s\n", affichage);
 
     memmove(buf12 + curr, sentDist, 3);
     curr += 3;

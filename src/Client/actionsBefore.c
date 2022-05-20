@@ -31,7 +31,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Vous êtes déjà dans une partie.\n");
     }
     else
     {
@@ -79,7 +79,7 @@ bool rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Inscription à la partie refusée.\n");
         return false;
     }
     else
@@ -268,6 +268,7 @@ void listeParties(int socketTCP)
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
+    printf("%s\n", buf5);
     if (strcmp(buf5, "GAMES") == 0)
     {
         size_t t = 4 + 1;
@@ -285,6 +286,7 @@ void listeParties(int socketTCP)
     }
     else
     {
+        printf("TNM----------\n");
         fprintf(stderr, "Fail.\n");
         close(socketTCP);
         exit(EXIT_FAILURE);

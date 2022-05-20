@@ -29,18 +29,14 @@ bool isDigit(char *a, int l)
 {
     for (int i = 0; i < l; i++)
     {
-        fprintf(stdout, "i : %d\n", i);
         if (a[i] == '\n')
         {
-            fprintf(stdout, "cas n \n");
             return true;
         }
         else if (isalpha(a[i]) || ispunct(a[i]) || (isspace(a[i]) && i != 0))
         {
-            fprintf(stdout, "cas alpha ponctu ou espace :%c. \n", a[i]);
             return false;
         }
-        fprintf(stdout, "cas normal \n");
     }
     return true;
 }
@@ -80,8 +76,8 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
-    case 'R':;
-    case 'r':; // rejoindre une partie
+    case 'J':;
+    case 'j':; // rejoindre une partie
         if (ch[1] == ' ')
         {
             l = choix + 1;
@@ -92,7 +88,9 @@ bool actionAvantPartie(int socketTCP, char *ch)
             else
             {
                 num = atoi(l);
-                inscrit = rejoindrePartie(socketTCP, identifiant, port, num);
+                if(rejoindrePartie(socketTCP, identifiant, port, num)){
+                    inscrit = true;
+                }
             }
         }
         else
@@ -102,8 +100,8 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
-    case 'D':;
-    case 'd':; // desinscription d'une partie
+    case 'U':;
+    case 'u':; // desinscription d'une partie
         if (strlen(ch) == 2)
         {
             desinscription(socketTCP);
@@ -116,8 +114,8 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
-    case 'T':;
-    case 't':; // taille labyrinthe de la partie m
+    case 'L':;
+    case 'l':; // taille labyrinthe de la partie m
         if (ch[1] == ' ')
         {
             l = choix + 1;
@@ -139,8 +137,8 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
-    case 'J':;
-    case 'j':; // liste joueurs de la partie partie m
+    case 'P':;
+    case 'p':; // liste joueurs de la partie partie m
         if (ch[1] == ' ')
         {
             l = choix + 1;
@@ -161,8 +159,8 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
-    case 'P':;
-    case 'p':; // liste parties qui n'ont pas encore commencé
+    case 'G':;
+    case 'g':; // liste parties qui n'ont pas encore commencé
         if (strlen(ch) == 2)
         {
             listeParties(socketTCP);
@@ -212,9 +210,13 @@ void actionEnPartie(int socketTCP, char *ch)
     switch (ch[0])
     {
     case 'l':; // Aller a gauche
+    case 'L':
     case 'r':; // Aller à droite
+    case 'R':
     case 'd':; // Aller en bas
+    case 'D':
     case 'u':; // Aller en haut
+    case 'U':
         if (ch[1] == ' ')
         {
             char *l = ch + 1;
@@ -237,6 +239,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
 
         break;
+    case 'Q':;
     case 'q':; // Quitter la partie
         if (strlen(ch) == 2)
         {
@@ -248,6 +251,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         break;
 
+    case 'P':;
     case 'p':; // Liste des joueurs dans la partie
         if (strlen(ch) == 2)
         {
@@ -259,6 +263,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         break;
 
+    case 'M':;
     case 'm':; // Message à tous les joueurs de la partie
         if (ch[1] == ' ')
         {
@@ -283,6 +288,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         break;
 
+    case 'W':;
     case 'w':; // Message à un joueur
         if (ch[1] == ' ' && ch[10] == ' ' && strlen(ch) > 12)
         {
@@ -322,6 +328,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         break;
 
+    case 'X':;
     case 'x':;
         if (strcmp(ch, "xtrichexlabyx\n") == 0)
         {
@@ -346,25 +353,27 @@ void receptMultiDiff(int socketMultiDiff, char *received)
 {
     char *buff = strtok(received, "+");
     char *action = strtok(buff, " ");
-    printf("%s has been received\n", action);
     if (strcmp(action, "GHOST") == 0)
     {
 
         int x = atoi(&buff[6]);
         int y = atoi(&buff[10]);
 
-        fprintf(stdout, "Un fantome s'est déplacé en (%d,%d).\n", x, y);
+        fprintf(stdout, "\n++Un fantome s'est déplacé en (%d,%d).++\n", x, y);
     }
     else if (strcmp(action, "SCORE") == 0)
     {
         char *infos = strtok(NULL, " ");
         char *id = infos;
+        if(!(strcmp(id, identifiant) == 0)){
+            return;
+        }
 
         uint16_t points = (uint16_t)atoi(&buff[15]);
         int x = atoi(&buff[20]);
         int y = atoi(&buff[24]);
 
-        fprintf(stdout, "%s a attrapé un fantome en (%d,%d) et a maintenant %u points\n", id, x, y, points);
+        fprintf(stdout, "++%s a attrapé un fantome en (%d,%d) et a maintenant %u points++\n", id, x, y, points);
     }
     else if (strcmp(action, "MESSA") == 0)
     {
@@ -373,7 +382,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
         char *id = action;
         char *mess = &buff[16];
 
-        fprintf(stdout, "Message de %s : %s\n", id, mess);
+        fprintf(stdout, "++Message de %s : %s++\n", id, mess);
     }
     else if (strcmp(action, "ENDGA") == 0)
     {
@@ -383,7 +392,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
 
         uint16_t points = (uint16_t)atoi(&buff[15]);
 
-        fprintf(stdout, "La partie est terminée!\n%s a gagné avec %u points!\n", id, points);
+        fprintf(stdout, "++La partie est terminée!\n%s a gagné avec %u points!++\n", id, points);
     }
 }
 
@@ -475,7 +484,6 @@ void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣i
 
     uint8_t fant;
     recvError(recv(socketTCP, &fant, 1, 0));
-    uint8_t nbFantomes = ntohs(fant);
 
     char buf1111[1];
     recvError(recv(socketTCP, buf1111, 1, 0));
@@ -490,21 +498,21 @@ void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣i
     char buf3[3];
     recvError(recv(socketTCP, buf3, 3, 0));
 
-    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %d et une largeur de %d.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, nbFantomes);
+    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %d et une largeur de %d.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, fant);
 
     char buf15[15];
     recvError(recv(socketTCP, buf15, 15, 0));
 
-    char buf3x2[3];
+    char buf3x2[4];
     recvError(recv(socketTCP, buf3x2, 3, 0));
-    int x = atoi(buf3);
+    int x = atoi(buf3x2);
 
     char buf1x6[1];
     recvError(recv(socketTCP, buf1x6, 1, 0));
 
-    char buf3x3[3];
+    char buf3x3[4];
     recvError(recv(socketTCP, buf3x3, 3, 0));
-    int y = atoi(buf3);
+    int y = atoi(buf3x3);
 
     char buf3x4[3];
     recvError(recv(socketTCP, buf3x4, 3, 0));
@@ -645,10 +653,10 @@ int main(int argc, char *argv[])
     {
         // lecture du choix du joueur
         fprintf(stdout, "\nQue voulez-vous faire ?\n\n");
-        fprintf(stdout, "(C)reer, (R)ejoindre x \n");
-        fprintf(stdout, "(D)esinscrire, (T)aille x\n");
-        fprintf(stdout, "Lister (j)oueurs x, Lister (p)arties\n");
-        fprintf(stdout, "(S)tart\n");
+
+        fprintf(stdout, "(C)reate, (J)oin x, (U)nregister,\n");
+        fprintf(stdout, "(L)abyrinth's size x, List (p)layers x, List (g)ames,\n");
+        fprintf(stdout, "(S)tart.\n");
         fprintf(stdout, "Avec x = num partie, si necessaire.\n");
         // action
 
@@ -659,30 +667,24 @@ int main(int argc, char *argv[])
         ans = actionAvantPartie(socketTCP, line);
         free(line);
     }
-    printf("Avant ReceptWelcPos\n");
     receptWelcPos(socketTCP);
-    printf("0-----------\n");
     struct sockaddr_in address_sockMC;
     address_sockMC.sin_family = AF_INET;
     address_sockMC.sin_port = htons(atoi(portMC));
     address_sockMC.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    printf("1-------------------\n");
     char *addr = strtok(addrMC, "#");
 
     int *socketMultiDiff = (int *)malloc(sizeof(int));
     *socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
     int ok = 1;
     int r2 = setsockopt(*socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
-    printf("2--------------------\n");
     r2 = bind(*socketMultiDiff, (struct sockaddr *)&address_sockMC, sizeof(struct sockaddr_in));
-    printf("3-------------------\n");
     struct ip_mreq mreq;
     mreq.imr_multiaddr.s_addr = inet_addr(addr);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     r2 = setsockopt(*socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
-    printf("caca-----------------");
     pthread_t th1, th2;
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);
     pthread_create(&th1, NULL, receptUdp, &socketUDP);
@@ -690,8 +692,11 @@ int main(int argc, char *argv[])
     while (enPartie)
     {
         // lecture du choix du joueur
-        fprintf(stdout, "\nQue voulez-vous faire ?\n");
-        fprintf(stdout, "l (aller à gauche) x, r (aller à droite) x, d (aller en bas) x, u (aller en haut) x, q (quitter partie), p (liste joueurs), m (message à tous) q, w (message a joueur) y  q.\n");
+        fprintf(stdout, "\nQue voulez-vous faire ?\n\n");
+
+        fprintf(stdout, "Go (l)eft x, Go (r)ight x, Go (d)own x, Go (u)p x,\n");
+        fprintf(stdout, "(M)essage everyone q, (W)hisper to someone y  q,\n");
+        fprintf(stdout, "List (p)layers, (Q)uit.\n");
         fprintf(stdout, "avec x = distance souhaitée, y = id du joueur, q = message si necessaire.\n");
         // action
 
