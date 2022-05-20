@@ -5,7 +5,7 @@ void connectError(int ret)
 {
     if (ret != 0)
     {
-        fprintf(stdout, "Probleme de connexion : %s", strerror(errno));
+        fprintf(stdout, "Connexion problem : %s", strerror(errno));
         close(ret);
         exit(EXIT_FAILURE);
     }
@@ -16,7 +16,7 @@ void sendError(int ret)
 {
     if (ret <= 0)
     {
-        fprintf(stderr, "Probleme d'envoi : %s", strerror(errno));
+        fprintf(stderr, "Sending problem : %s", strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
@@ -26,7 +26,7 @@ void recvError(int ret)
 {
     if (ret <= 0)
     {
-        fprintf(stderr, "Probleme de reception, ret = %d : %s", ret, strerror(errno));
+        fprintf(stderr, "Reception problem, ret = %d : %s", ret, strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
