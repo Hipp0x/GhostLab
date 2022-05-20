@@ -373,7 +373,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
         action = strtok(NULL, " ");
 
         char *id = action;
-        char *mess = &buff[16];
+        char *mess = &buff[15];
 
         fprintf(stdout, "++Message from %s : %s++\n", id, mess);
     }
@@ -436,15 +436,10 @@ void *receptUdp(void *arg)
 
 void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
 {
-    char buf[6];
-    recvError(recv(socketTCP, buf, 6, 0));
+    char buf[8];
+    recvError(recv(socketTCP, buf, 8, 0));
 
-    uint8_t gameID;
-    recvError(recv(socketTCP, &gameID, 1, 0));
-    gameID = ntohs(gameID);
-
-    char buf1[1];
-    recvError(recv(socketTCP, buf1, 1, 0));
+    uint8_t gameID = (uint8_t)buf[6];
 
     uint16_t height;
     recvError(recv(socketTCP, &height, 2, 0));

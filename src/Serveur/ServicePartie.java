@@ -122,13 +122,13 @@ public class ServicePartie implements Runnable {
                                 System.out.println("nom du joueur : " + j.getId());
                             }
                             delete = readAction(s, ssc.indexOf(s));
-                            if(delete){
+                            if (delete) {
                                 deleted.add(s);
                             }
                         }
                     }
-                    if(!deleted.isEmpty()){
-                        for (SocketChannel sc: deleted) {
+                    if (!deleted.isEmpty()) {
+                        for (SocketChannel sc : deleted) {
                             sc.close();
                             ssc.remove(sc);
                         }
@@ -233,6 +233,7 @@ public class ServicePartie implements Runnable {
     // envoi de la liste des joueurs
     public void sendListJoueur(SocketChannel s, ArrayList<Joueur> liste) throws IOException {
         int l = liste.size();
+        System.out.println("taille du joueur : " + l);
         ByteBuffer buf = ByteBuffer.wrap(("GLIS! " + l + "***").getBytes(), 0, 10);
         s.write(buf);
 
@@ -384,7 +385,7 @@ public class ServicePartie implements Runnable {
         int w = l.getW();
         int h = l.getH();
         Case[][] laby = l.getLaby();
-            for (int i = 0; i < w; i++) {
+        for (int i = 0; i < w; i++) {
             for (int j = 0; j < h; j++) {
                 if (laby[i][j].isMur()) {
 
