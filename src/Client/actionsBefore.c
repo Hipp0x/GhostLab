@@ -24,7 +24,7 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        uint8_t m = atoi(&buf[1]);
+        uint8_t m = (uint8_t)buf[1];
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
     }
     else if (strcmp(buf5, "REGNO") == 0)
@@ -71,7 +71,7 @@ bool rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        uint8_t m = atoi(&buf[1]);
+        uint8_t m = (uint8_t)buf[1];
         fprintf(stdout, "Vous êtes dans la partie %d.\n", m);
         return true;
     }
@@ -107,7 +107,7 @@ void desinscription(int socketTCP)
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        uint8_t m = atoi(&buf[1]);
+        uint8_t m = (uint8_t)buf[1];
         fprintf(stdout, "Vous êtes desinscris de la partie %d.\n", m);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
@@ -145,42 +145,31 @@ void tailleLaby(int socketTCP, uint8_t num)
     if (strcmp(buf5, "SIZE!") == 0)
     {
         // size_t t = 6 + 1 + 2 * 2;
-        char buf1[1];
+        char buf1[2];
         recvError(recv(socketTCP, buf1, 1, 0));
 
-        buf1[1];
-        recvError(recv(socketTCP, buf1, 1, 0));
-        uint8_t m = atoi(buf1);
-        fprintf(stdout, "val m : %s.\n", buf1);
-
-        buf1[1];
-        recvError(recv(socketTCP, buf1, 1, 0));
-
-        char buf2[2];
-        recvError(recv(socketTCP, buf2, 2, 0));
-        uint16_t h = ntohs(atoi(buf2));
-        uint16_t hh = (atoi(buf2));
-        fprintf(stdout, "val h : %s.\n", buf2);
+        uint8_t k0;
+        recvError(recv(socketTCP, &k0, 1, 0));
 
         buf1[1];
         recvError(recv(socketTCP, buf1, 1, 0));
 
-        buf2[2];
-        recvError(recv(socketTCP, buf2, 2, 0));
-        uint16_t w = ntohs(atoi(buf2));
-        uint16_t ww = (atoi(buf2));
-        fprintf(stdout, "val w : %s.\n", buf2);
+        // char buf2[3];
+        uint16_t k;
+        recvError(recv(socketTCP, &k, 2, 0));
+        uint16_t h = ntohs(k);
 
-        // fprintf(stdout, "val 3 : %s et 5 : %s, et fin %s.\n", &buf[3], &buf[6], &buf[8]);
-        //  uint16_t t1 = ntohs(atoi(4));
+        buf1[1];
+        recvError(recv(socketTCP, buf1, 1, 0));
+
+        uint16_t kk;
+        recvError(recv(socketTCP, &kk, 2, 0));
+        uint16_t w = ntohs(kk);
+
         fprintf(stdout, "Labyrinthe %d : w = %d et h = %d.\n", m, w, h);
-        fprintf(stdout, "Labyrinthe %d : ww = %d et hh = %d.\n", m, ww, hh);
-        // fprintf(stdout, "Test :  %d.\n", t1);
 
-        char buf3[4];
+        char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
-        buf3[3] = '\0';
-        fprintf(stdout, "normalement etoiles : %s.\n", buf3);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
@@ -232,8 +221,8 @@ void listeJoueurs(int socketTCP, uint8_t num)
     {
         char buf[5 + 2 * 1];
         recvError(recv(socketTCP, buf, 7, 0));
-        uint8_t m = atoi(&buf[1]);
-        uint8_t s = atoi(&buf[3]);
+        uint8_t m = (uint8_t)buf[1];
+        uint8_t s = (uint8_t)buf[3];
         fprintf(stdout, "%d joueurs dans la partie %d :\n", s, m);
         recupereJoueur(s, socketTCP);
     }
@@ -261,8 +250,8 @@ void recupereGames(uint8_t n, int socketTCP)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         // affichage dans le terminal
-        uint8_t m = atoi(&buf[6]);
-        uint8_t s = atoi(&buf[8]);
+        uint8_t m = (uint8_t)buf[6];
+        uint8_t s = (uint8_t)buf[8];
         fprintf(stdout, "OGAME, id : %d, inscrits : %d\n", m, s);
     }
 }
@@ -284,7 +273,7 @@ void listeParties(int socketTCP)
         size_t t = 4 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        uint8_t n = atoi(&buf[1]);
+        uint8_t n = (uint8_t)buf[1];
         fprintf(stdout, "Games : %d\n", n);
         recupereGames(n, socketTCP);
     }
