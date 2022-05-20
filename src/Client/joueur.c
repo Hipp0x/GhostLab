@@ -427,29 +427,73 @@ void *receptUdp(void *arg)
 
 void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣ip␣port***] et [POSIT␣id␣x␣y***]
 {
+    /*
     size_t t = 5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6; // 39
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
-    uint8_t gameID = atoi(&buf[6]);
-    hauteur = atoi(&buf[8]);
-    largeur = atoi(&buf[11]);
-    uint8_t nbFantomes = atoi(&buf[14]);
-    char *multi = strtok(&buf[16], " ");
+    fprintf(stdout, "entrre %s\n", buf);
+    char *multi = strtok(&buf[15], " ");
+    memmove(addrMC, multi, 15);
+    addrMC[15] = '\0';
+
+    multi = strtok(NULL, "***");
+    memmove(portMC, multi, 4);
+    */
+
+    char buf[8];
+    recvError(recv(socketTCP, buf, 8, 0));
+    uint8_t gameID = (uint8_t)buf[6];
+
+    uint16_t k;
+    recvError(recv(socketTCP, &k, 2, 0));
+    hauteur = ntohs(k);
+
+    char buf1[1];
+    recvError(recv(socketTCP, buf1, 1, 0));
+
+    uint16_t kk;
+    recvError(recv(socketTCP, &kk, 2, 0));
+    largeur = ntohs(kk);
+
+    fprintf(stdout, "%u, %u, %u, %u\n", k, hauteur, kk, largeur);
+
+    buf1[1];
+    recvError(recv(socketTCP, buf1, 1, 0));
+
+    uint8_t kkk;
+    recvError(recv(socketTCP, &kkk, 1, 0));
+    uint8_t nbFantomes = kkk;
+
+    buf[24];
+    recvError(recv(socketTCP, buf, 24, 0));
+    char *multi = strtok(&buf[0], " ");
     memmove(addrMC, multi, 15);
     addrMC[15] = '\0';
 
     multi = strtok(NULL, "***");
     memmove(portMC, multi, 4);
 
-    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %u et une largeur de %u.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, nbFantomes);
+    fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %d et une largeur de %d.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, nbFantomes);
 
-    t = 5 + 8 + 3 + 3 + 3 + 3;
-    char buf25[t];
-    recvError(recv(socketTCP, buf, t, 0));
-    int x = atoi(&buf[15]);
-    int y = atoi(&buf[19]);
+    /*
+        int t = 5 + 8 + 3 + 3 + 3 + 3;
+        char buf25[t];
+        recvError(recv(socketTCP, buf25, t, 0));
+        fprintf(stdout, "%s\n", buf25);
 
-    fprintf(stdout, "Vous êtes à la position (%d,%d).\n", x, y);
+        /*
+        char x[4];
+        x[0] = buf25[15];
+        x[1] = buf25[16];
+        x[2] = buf25[17];
+        x[3] = '\0';
+        char y[4];
+        y[0] = buf25[19];
+        y[1] = buf25[20];
+        y[2] = buf25[21];
+        y[3] = '\0';
+
+        fprintf(stdout, "Vous êtes à la position (%s,%s).\n", x, y); */
     enPartie = true;
 }
 

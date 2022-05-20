@@ -30,8 +30,6 @@ public class ServicePartie implements Runnable {
         try {
 
             Selector selector = Selector.open();
-            // dso = new DatagramSocket(partie.getPortMulti(),
-            // (InetAddress.getByName(partie.getIp())));
 
             partie.placerFantome();
 
@@ -147,21 +145,52 @@ public class ServicePartie implements Runnable {
             }
 
         } catch (IOException | InterruptedException e) {
-
             e.printStackTrace();
         }
 
     }
 
+    public byte[] intToLittleEndian(int taille) {
+        ByteBuffer bb = ByteBuffer.allocate(2);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putShort((short) taille);
+        System.out.println("val : " + taille);
+
+        byte[] val = bb.array();
+        System.out.println("taille du array : " + val.length);
+        ByteBuffer buffer = ByteBuffer.wrap(val);
+        short v = buffer.getShort();
+        System.out.println("val2 : " + v);
+
+        for (int i = 0; i < val.length; i++) {
+            System.out.print("i : " + i + ", val : " + val[i]);
+        }
+        System.out.println();
+        // return v;
+        return val;
+    }
+
     // envoi du welcome [WELCO␣m␣h␣w␣f␣ip␣port***]
     public void sendWelcome(OutputStream os) throws IOException {
+        System.out.println("debut de send welcome");
         String ip = partie.getIpString();
         String portMulti = partie.getPortMultiString();
 
-        os.write(("WELCO " + partie.getId() + " " + partie.getLabyrinthe().getH() + " " + partie.getLabyrinthe().getW()
-                + " " + partie.getNbFantome() + " " + ip + " " + portMulti + "***").getBytes(),
-                0, (5 + 1 + 2 + 2 + 1 + 15 + 4 + 3 + 6));
+        byte[] h = intToLittleEndian(partie.getLabyrinthe().getH());
+        byte[] w = intToLittleEndian(partie.getLabyrinthe().getW());
+
+        String s = "WELCO m hh ww f " + ip + " " + portMulti + "***";
+        byte[] request = s.getBytes();
+        request[6] = (byte) partie.getId();
+        request[8] = h[1];
+        request[9] = h[0];
+        request[11] = w[1];
+        request[12] = w[0];
+        request[14] = (byte) partie.getNbFantome();
+        System.out.println("taille byte : " + request.length);
+        os.write(request, 0, 39);
         os.flush();
+        System.out.println("in de send welcome");
     }
 
     // envoi de la position du joueur
@@ -388,7 +417,7 @@ public class ServicePartie implements Runnable {
         byte[] data;
         DatagramPacket paquet;
 
-        System.out.println("Recu :" + action);
+        System.out.println("Recu :" + action + ".");
         switch (action) {
             case "UPMOV":
                 buf = ByteBuffer.allocate(1);
@@ -505,7 +534,8 @@ public class ServicePartie implements Runnable {
 
                     env = "MESSP " + joueur.getId() + " " + mess + "+++";
                     ByteBuffer buffUdp = ByteBuffer.wrap(env.getBytes());
-                    System.out.println("Adresse IP UDP = " + wanted.getSocket().getInetAddress().getHostAddress() + "\n Port UDP = " + wanted.getPort());
+                    System.out.println("Adresse IP UDP = " + wanted.getSocket().getInetAddress().getHostAddress()
+                            + "\n Port UDP = " + wanted.getPort());
                     InetSocketAddress addr = new InetSocketAddress(wanted.getSocket().getInetAddress().getHostAddress(),
                             wanted.getPort());
                     DatagramChannel chan = DatagramChannel.open();

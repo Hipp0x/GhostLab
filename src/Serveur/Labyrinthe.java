@@ -8,14 +8,14 @@ public class Labyrinthe {
 
         Labyrinthe() {
                 // createLaby4();
-                laby = new Case[20][25];
+                laby = new Case[20][20];
                 for (int i = 0; i < 20; i++) {
                         for (int j = 0; j < 20; j++) {
                                 laby[i][j] = new Case(false);
                         }
                 }
                 h = 20;
-                w = 25;
+                w = 20;
                 printLaby();
         }
 
