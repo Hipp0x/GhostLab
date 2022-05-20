@@ -53,7 +53,7 @@ public class ServiceJoueur implements Runnable {
                         Thread t2 = new Thread(partie);
                         t2.start();
 
-                        System.out.println("La partie " + p.getId() + " a commencé.");
+                        System.out.println("The game n°" + p.getId() + " started.");
                     }
                 }
 
@@ -75,19 +75,8 @@ public class ServiceJoueur implements Runnable {
         ByteBuffer bb = ByteBuffer.allocate(2);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) taille);
-        System.out.println("val : " + taille);
 
         byte[] val = bb.array();
-        System.out.println("taille du array : " + val.length);
-        ByteBuffer buffer = ByteBuffer.wrap(val);
-        short v = buffer.getShort();
-        System.out.println("val2 : " + v);
-
-        for (int i = 0; i < val.length; i++) {
-            System.out.print("i : " + i + ", val : " + val[i]);
-        }
-        System.out.println();
-        // return v;
         return val;
     }
 
@@ -110,7 +99,7 @@ public class ServiceJoueur implements Runnable {
                     request[6] = (byte) gameId;
                     os.write(request);
                     os.flush();
-                    System.out.println("//send UNROK pour " + gameId);
+                    System.out.println("//send UNROK to " + gameId);
                     clearIS(is);
                     return false;
                 case "SIZE?":
@@ -130,12 +119,10 @@ public class ServiceJoueur implements Runnable {
                         request[11] = w[1];
                         request[12] = w[0];
 
-                        System.out.println(request);
-
                         os.write(request);
                         os.flush();
 
-                        System.out.println("//send SIZE! for Game n" + gameId + "'s labyrinth");
+                        System.out.println("//send SIZE! for Game n°" + gameId + "'s labyrinth");
                     } else {
                         dunno(os);
                     }
@@ -173,19 +160,22 @@ public class ServiceJoueur implements Runnable {
                     clearIS(is);
                     return true;
                 case "NEWPL":
+                    System.out.println("//recv NEWPL from " + player.getId());
                     os.write(("REGNO***").getBytes());
                     os.flush();
                     System.out.println("//send REGNO");
                     clearIS(is);
                     break;
                 case "REGIS":
+                    System.out.println("//recv REGIS from " + player.getId());
                     os.write(("REGNO***").getBytes());
                     os.flush();
                     System.out.println("//send REGNO");
                     clearIS(is);
                     break;
                 default:
-                    System.out.println("action inconnue : " + action);
+                    System.out.println("//recv " + action + " from " + player.getId());
+                    System.out.println("Unknow action");
                     clearIS(is);
                     dunno(os);
                     break;
@@ -231,7 +221,7 @@ public class ServiceJoueur implements Runnable {
                     os.write(request);
                     os.flush();
 
-                    System.out.println("//send REGOK for Game n" + game.getId());
+                    System.out.println("//send REGOK for Game n°" + game.getId());
                     good = true;
                     break;
                 case "REGIS":
@@ -246,7 +236,6 @@ public class ServiceJoueur implements Runnable {
                     }
                     id = infos[0];
                     port = Integer.parseInt(infos[1]);
-                    System.out.println(infos[2]);
                     gameId = Integer.parseInt(infos[2]);
                     player = new Joueur(id, port, socket);
                     System.out.println("from " + player.getId());
@@ -261,7 +250,7 @@ public class ServiceJoueur implements Runnable {
                                 request[6] = (byte) game.getId();
                                 os.write(request);
                                 os.flush();
-                                System.out.println("//send REGOK pour " + game);
+                                System.out.println("//send REGOK for the game n°" + game);
                                 break;
                             }
                         }
@@ -294,12 +283,10 @@ public class ServiceJoueur implements Runnable {
                         request[11] = w[1];
                         request[12] = w[0];
 
-                        System.out.println(request);
-
                         os.write(request);
                         os.flush();
 
-                        System.out.println("//send SIZE! pour labyrinthe " + gameId);
+                        System.out.println("//send SIZE! for Game n° " + gameId + "'s labyrinth.");
                     } else {
                         dunno(os);
                     }
@@ -327,7 +314,7 @@ public class ServiceJoueur implements Runnable {
                     }
                     break;
                 default:
-                    System.out.println("action inconnue : " + action);
+                    System.out.println("Unknow action : " + action);
                     clearIS(is);
                     dunno(os);
                     break;
@@ -344,7 +331,7 @@ public class ServiceJoueur implements Runnable {
         os.write(request);
         os.flush();
 
-        System.out.println("//send GAMES, " + parties.size() + " parties");
+        System.out.println("//send GAMES " + parties.size());
         // Envoi de toutes les parties créées à l'utilisateur
         for (Partie p : parties) {
             s = "OGAME i n***";
@@ -353,7 +340,7 @@ public class ServiceJoueur implements Runnable {
             request[8] = (byte) p.getNbJoueurs();
             os.write(request);
             os.flush();
-            System.out.println("//send OGAME, id : " + p.getId());
+            System.out.println("//send OGAME, for the " + p.getId() + " game");
         }
     }
 
@@ -415,7 +402,6 @@ public class ServiceJoueur implements Runnable {
                 readError(iso.read(gameId, 0, 1), socket);
 
                 int iD = new BigInteger(gameId).intValue();
-                System.out.println("id : " + iD);
 
                 // lire ***
                 byte[] star = new byte[3];
@@ -434,13 +420,10 @@ public class ServiceJoueur implements Runnable {
                 readError(iso.read(gameID, 0, 1), socket);
 
                 int id = new BigInteger(gameID).intValue();
-                System.out.println("id : " + id);
 
                 // lire ***
                 byte[] stAr = new byte[3];
                 readError(iso.read(stAr, 0, 3), socket);
-                System.out.println("stars : " + new String(stAr,
-                        StandardCharsets.UTF_8));
 
                 return new String[] { String.valueOf(id) };
 
@@ -466,14 +449,12 @@ public class ServiceJoueur implements Runnable {
 
     // clear la lecture jusqu'aux ***
     public void clearIS(InputStream iso) throws IOException {
-        System.out.println("dans clear IS");
         byte[] trash = new byte[1];
         String r = new String(trash, StandardCharsets.UTF_8);
         while (!("*").equals(r)) {
             trash = new byte[1];
             readError(iso.read(trash, 0, 1), socket);
             r = new String(trash, StandardCharsets.UTF_8);
-            System.out.println("trash : " + r);
         }
 
         trash = new byte[1];

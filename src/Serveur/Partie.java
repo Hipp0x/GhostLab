@@ -56,7 +56,11 @@ public class Partie {
                 return false;
             }
         }
-        return true;
+        if (joueurs.size() == 0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public void placerFantome() {
@@ -85,7 +89,6 @@ public class Partie {
             normaux = (int) (0.7 * 5);
             moyen = (int) (0.7 * (nbFant - normaux));
             rare = nbFant - normaux;
-            System.out.println("normaux : " + normaux + ", moyen : " + moyen + ", rare : " + rare);
             for (int i = 0; i < nbFant; i++) {
                 int x;
                 int y;

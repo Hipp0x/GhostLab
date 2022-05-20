@@ -16,7 +16,7 @@ public class Serveur {
             if (args.length != 2) {
 
                 System.out
-                        .println("Veuillez entrer une adresse et un port pour le serveur au lancement de la commande.");
+                        .println("Need an adresse and a port to start.");
                 System.exit(0);
 
             } else {
@@ -30,9 +30,9 @@ public class Serveur {
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("Veuillez rentrer un port correct pour le serveur.");
+            System.out.println("Please enter a valid port.");
         } catch (UnresolvedAddressException e) {
-            System.out.println("Veuillez rentrer une adresse correcte pour le serveur.");
+            System.out.println("Please enter a valid adresse.");
         } catch (Exception e) {
             System.out.println(e);
         }
