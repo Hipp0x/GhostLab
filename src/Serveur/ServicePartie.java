@@ -106,24 +106,32 @@ public class ServicePartie implements Runnable {
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
             executor.scheduleAtFixedRate(task, 40, 30, TimeUnit.SECONDS);
 
+            ArrayList<SocketChannel> deleted;
+            boolean delete = false;
             while (!partie.isFinish()) {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
                     iterator.remove();
-                    SocketChannel deleted = null;
+                    deleted = new ArrayList<>();
                     for (SocketChannel s : ssc) {
                         if (key.isReadable() && key.channel() == s.socket().getChannel()) {
                             Joueur j = getJoueur(s);
                             if (j != null) {
                                 System.out.println("nom du joueur : " + j.getId());
                             }
-                            readAction(s, ssc.indexOf(s));
+                            delete = readAction(s, ssc.indexOf(s));
+                            if(delete){
+                                deleted.add(s);
+                            }
                         }
                     }
-                    if(deleted != null){
-                        ssc.remove(deleted);
+                    if(!deleted.isEmpty()){
+                        for (SocketChannel sc: deleted) {
+                            sc.close();
+                            ssc.remove(sc);
+                        }
                     }
                 }
 
@@ -287,7 +295,6 @@ public class ServicePartie implements Runnable {
         clearIS(s);
         ByteBuffer buf = ByteBuffer.wrap(("GOBYE***").getBytes(), 0, (8));
         s.write(buf);
-        s.close();
 
         Joueur j = getJoueur(s);
         if (j != null) {
@@ -408,7 +415,7 @@ public class ServicePartie implements Runnable {
     }
 
     // lecture de l'action d'un joueur
-    public void readAction(SocketChannel s, int pos) throws IOException, InterruptedException {
+    public boolean readAction(SocketChannel s, int pos) throws IOException, InterruptedException {
         Joueur joueur = joueurs.get(pos);
 
         ByteBuffer buf = ByteBuffer.allocate(5);
@@ -440,7 +447,7 @@ public class ServicePartie implements Runnable {
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
-                break;
+                return false;
 
             case "DOMOV":
                 buf = ByteBuffer.allocate(1);
@@ -458,7 +465,7 @@ public class ServicePartie implements Runnable {
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
-                break;
+                return false;
 
             case "LEMOV":
                 buf = ByteBuffer.allocate(1);
@@ -477,7 +484,7 @@ public class ServicePartie implements Runnable {
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
-                break;
+                return false;
 
             case "RIMOV":
                 buf = ByteBuffer.allocate(1);
@@ -494,17 +501,17 @@ public class ServicePartie implements Runnable {
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
-                break;
+                return false;
 
             case "IQUIT":
                 sendBye(s);
-                break;
+                return true;
 
             case "GLIS?":
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 sendListJoueur(s, joueurs);
-                break;
+                return false;
 
             case "MALL?":
                 // lire le message jusqu'aux 3* (max 200 char) et le stocker
@@ -514,7 +521,7 @@ public class ServicePartie implements Runnable {
                 sendMessageForAll(mess, joueur);
 
                 sendMall(s);
-                break;
+                return false;
 
             case "SEND?":
                 // stocker id 8char
@@ -557,22 +564,22 @@ public class ServicePartie implements Runnable {
 
                 }
 
-                break;
+                return false;
             case "XTLX?": // triche pour labyrinthe
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 sendLaby(s);
-                break;
+                return false;
             case "XTFX?": // triche pour fantome
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 sendFant(s);
-                break;
+                return false;
             default:
                 clearIS(s);
                 buf = ByteBuffer.wrap(("DUNNO***").getBytes(), 0, (8));
                 s.write(buf);
-                break;
+                return false;
         }
 
     }
