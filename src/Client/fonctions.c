@@ -23,10 +23,6 @@ void sendError(int ret)
         fprintf(stderr, "Probleme d'envoi : %s", strerror(errno));
         exit(EXIT_FAILURE);
     }
-    else
-    {
-        fprintf(stdout, "///Envoi de %d data.\n", ret);
-    }
 }
 
 // gestion d'erreur pour la reception
@@ -36,9 +32,5 @@ void recvError(int ret)
     {
         fprintf(stderr, "Probleme de reception, ret = %d : %s", ret ,strerror(errno));
         exit(EXIT_FAILURE);
-    }
-    else
-    {
-        fprintf(stdout, "///Reception de %d data.\n", ret);
     }
 }

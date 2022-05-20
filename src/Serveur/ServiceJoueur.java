@@ -102,7 +102,7 @@ public class ServiceJoueur implements Runnable {
 
             switch (action) {
                 case "UNREG":
-                    System.out.println("//recv UNREG");
+                    System.out.println("//recv UNREG from " + player.getId());
                     gameId = game.getId();
                     removeJoueur(gameId, player);
                     s = "UNROK m***";
@@ -114,7 +114,7 @@ public class ServiceJoueur implements Runnable {
                     clearIS(is);
                     return false;
                 case "SIZE?":
-                    System.out.println("//recv SIZE?");
+                    System.out.println("//recv SIZE? from " + player.getId());
                     infos = getInfos(2, is);
                     gameId = Integer.parseInt(infos[0]);
                     p = findGame(gameId);
@@ -135,13 +135,13 @@ public class ServiceJoueur implements Runnable {
                         os.write(request);
                         os.flush();
 
-                        System.out.println("//send SIZE! pour labyrinthe " + gameId);
+                        System.out.println("//send SIZE! for Game n" + gameId + "'s labyrinth");
                     } else {
                         dunno(os);
                     }
                     break;
                 case "LIST?":
-                    System.out.println("//recv LIST?");
+                    System.out.println("//recv LIST? from " + player.getId());
                     infos = getInfos(2, is);
                     gameId = Integer.parseInt(infos[0]);
                     p = findGame(gameId);
@@ -163,12 +163,12 @@ public class ServiceJoueur implements Runnable {
                     }
                     break;
                 case "GAME?":
-                    System.out.println("//recv GAME?");
+                    System.out.println("//recv GAME? from " + player.getId());
                     printAvailableGames(os);
                     clearIS(is);
                     break;
                 case "START":
-                    System.out.println("//recv START");
+                    System.out.println("//recv START from " + player.getId());
                     joueurReady();
                     clearIS(is);
                     return true;
@@ -206,11 +206,12 @@ public class ServiceJoueur implements Runnable {
             Partie p = null;
             switch (action) {
                 case "NEWPL":
-                    System.out.println("//recv NEWPL");
+                    System.out.print("//recv NEWPL ");
                     infos = getInfos(0, is);
                     if (!verifyInfos(infos)) {
                         os.write(("REGNO***").getBytes(), 0, 8);
                         os.flush();
+                        System.out.println();
                         System.out.println("//send REGNO");
                         break;
                     }
@@ -222,6 +223,7 @@ public class ServiceJoueur implements Runnable {
                     synchronized ((Object) parties) {
                         parties.add(game);
                     }
+                    System.out.println("from " + player.getId());
 
                     s = "REGOK m***";
                     request = s.getBytes();
@@ -229,15 +231,16 @@ public class ServiceJoueur implements Runnable {
                     os.write(request);
                     os.flush();
 
-                    System.out.println("//send REGOK pour " + game.getId());
+                    System.out.println("//send REGOK for Game n" + game.getId());
                     good = true;
                     break;
                 case "REGIS":
-                    System.out.println("//recv REGIS");
+                    System.out.print("//recv REGIS ");
                     infos = getInfos(1, is);
                     if (!verifyInfos(infos)) {
                         os.write(("REGNO***").getBytes());
                         os.flush();
+                        System.out.println();
                         System.out.println("//send REGNO");
                         continue;
                     }
@@ -246,6 +249,7 @@ public class ServiceJoueur implements Runnable {
                     System.out.println(infos[2]);
                     gameId = Integer.parseInt(infos[2]);
                     player = new Joueur(id, port, socket);
+                    System.out.println("from " + player.getId());
                     synchronized ((Object) parties) {
                         for (Partie partie : parties) {
                             if (partie.getId() == gameId) {

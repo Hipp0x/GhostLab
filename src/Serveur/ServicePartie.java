@@ -373,7 +373,7 @@ public class ServicePartie implements Runnable {
         int w = l.getW();
         int h = l.getH();
         Case[][] laby = l.getLaby();
-        for (int i = 0; i < w; i++) {
+            for (int i = 0; i < w; i++) {
             for (int j = 0; j < h; j++) {
                 if (laby[i][j].isMur()) {
 
@@ -520,8 +520,6 @@ public class ServicePartie implements Runnable {
                 // stocker mess
                 mess = getMess(s);
                 System.out.println("Après getMess");
-
-                OutputStream os2 = joueur.getSocket().getOutputStream();
 
                 // verifier si id du joueur est ds partie
                 if (partie.exists(id)) {

@@ -66,6 +66,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
     uint8_t num;
     switch (choix[0])
     {
+    case 'C':;
     case 'c':; // creer une partie
         if (strlen(ch) == 2)
         {
@@ -79,6 +80,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
+    case 'R':;
     case 'r':; // rejoindre une partie
         if (ch[1] == ' ')
         {
@@ -100,6 +102,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
+    case 'D':;
     case 'd':; // desinscription d'une partie
         if (strlen(ch) == 2)
         {
@@ -113,6 +116,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
+    case 'T':;
     case 't':; // taille labyrinthe de la partie m
         if (ch[1] == ' ')
         {
@@ -135,6 +139,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
+    case 'J':;
     case 'j':; // liste joueurs de la partie partie m
         if (ch[1] == ' ')
         {
@@ -156,6 +161,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
+    case 'P':;
     case 'p':; // liste parties qui n'ont pas encore commencé
         if (strlen(ch) == 2)
         {
@@ -168,6 +174,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         return false;
         break;
 
+    case 'S':;
     case 's':; // start
         if (strlen(ch) == 2)
         {
@@ -440,41 +447,69 @@ void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣i
     memmove(portMC, multi, 4);
     */
 
-    char buf[8];
-    recvError(recv(socketTCP, buf, 8, 0));
-    uint8_t gameID = (uint8_t)buf[6];
+    char buf[6];
+    recvError(recv(socketTCP, buf, 6, 0));
 
-    uint16_t k;
-    recvError(recv(socketTCP, &k, 2, 0));
-    hauteur = ntohs(k);
+    uint8_t gameID;
+    recvError(recv(socketTCP, &gameID, 1, 0));
+    gameID = ntohs(gameID);
 
     char buf1[1];
     recvError(recv(socketTCP, buf1, 1, 0));
 
-    uint16_t kk;
-    recvError(recv(socketTCP, &kk, 2, 0));
-    largeur = ntohs(kk);
+    uint16_t height;
+    recvError(recv(socketTCP, &height, 2, 0));
+    hauteur = ntohs(height);
 
-    fprintf(stdout, "%u, %u, %u, %u\n", k, hauteur, kk, largeur);
+    char buf11[1];
+    recvError(recv(socketTCP, buf11, 1, 0));
 
-    buf1[1];
-    recvError(recv(socketTCP, buf1, 1, 0));
+    uint16_t width;
+    recvError(recv(socketTCP, &width, 2, 0));
+    largeur = ntohs(width);
 
-    uint8_t kkk;
-    recvError(recv(socketTCP, &kkk, 1, 0));
-    uint8_t nbFantomes = kkk;
+    fprintf(stdout, "%u, %u, %u, %u\n", height, hauteur, width, largeur);
 
-    buf[24];
-    recvError(recv(socketTCP, buf, 24, 0));
-    char *multi = strtok(&buf[0], " ");
-    memmove(addrMC, multi, 15);
-    addrMC[15] = '\0';
+    char buf111[1];
+    recvError(recv(socketTCP, buf111, 1, 0));
 
-    multi = strtok(NULL, "***");
-    memmove(portMC, multi, 4);
+    uint8_t fant;
+    recvError(recv(socketTCP, &fant, 1, 0));
+    uint8_t nbFantomes = ntohs(fant);
+
+    char buf1111[1];
+    recvError(recv(socketTCP, buf1111, 1, 0));
+
+    recvError(recv(socketTCP, addrMC, 15, 0));
+
+    char buf1x5[1];
+    recvError(recv(socketTCP, buf1x5, 1, 0));
+
+    recvError(recv(socketTCP, portMC, 4, 0));
+
+    char buf3[3];
+    recvError(recv(socketTCP, buf3, 3, 0));
 
     fprintf(stdout, "Bienvenue dans la partie %u!\nLe labyrinthe a une hauteur de %d et une largeur de %d.\nIl y a %u fantomes à attraper. Bonne chance!\n", gameID, hauteur, largeur, nbFantomes);
 
+    char buf15[15];
+    recvError(recv(socketTCP, buf15, 15, 0));
+
+    char buf3x2[3];
+    recvError(recv(socketTCP, buf3x2, 3, 0));
+    int x = atoi(buf3);
+
+    char buf1x6[1];
+    recvError(recv(socketTCP, buf1x6, 1, 0));
+
+    char buf3x3[3];
+    recvError(recv(socketTCP, buf3x3, 3, 0));
+    int y = atoi(buf3);
+
+    char buf3x4[3];
+    recvError(recv(socketTCP, buf3x4, 3, 0));
+
+    fprintf(stdout, "Vous êtes à la position (%d,%d).\n", x, y);
     /*
         int t = 5 + 8 + 3 + 3 + 3 + 3;
         char buf25[t];
@@ -609,9 +644,12 @@ int main(int argc, char *argv[])
     while (!ans)
     {
         // lecture du choix du joueur
-        fprintf(stdout, "\nQue voulez-vous faire ?\n");
-        fprintf(stdout, "c (create), r (rejoindre) x, d (desinscrire), t (taille) x, j (liste joueurs) x, p (liste parties), s (start).\n");
-        fprintf(stdout, "avec x = num partie, si necessaire.\n");
+        fprintf(stdout, "\nQue voulez-vous faire ?\n\n");
+        fprintf(stdout, "(C)reer, (R)ejoindre x \n");
+        fprintf(stdout, "(D)esinscrire, (T)aille x\n");
+        fprintf(stdout, "Lister (j)oueurs x, Lister (p)arties\n");
+        fprintf(stdout, "(S)tart\n");
+        fprintf(stdout, "Avec x = num partie, si necessaire.\n");
         // action
 
         char *line = NULL;
@@ -621,25 +659,30 @@ int main(int argc, char *argv[])
         ans = actionAvantPartie(socketTCP, line);
         free(line);
     }
-
+    printf("Avant ReceptWelcPos\n");
     receptWelcPos(socketTCP);
+    printf("0-----------\n");
     struct sockaddr_in address_sockMC;
     address_sockMC.sin_family = AF_INET;
     address_sockMC.sin_port = htons(atoi(portMC));
     address_sockMC.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    printf("1-------------------\n");
     char *addr = strtok(addrMC, "#");
 
     int *socketMultiDiff = (int *)malloc(sizeof(int));
     *socketMultiDiff = socket(PF_INET, SOCK_DGRAM, 0);
     int ok = 1;
     int r2 = setsockopt(*socketMultiDiff, SOL_SOCKET, SO_REUSEPORT, &ok, sizeof(ok));
+    printf("2--------------------\n");
     r2 = bind(*socketMultiDiff, (struct sockaddr *)&address_sockMC, sizeof(struct sockaddr_in));
+    printf("3-------------------\n");
     struct ip_mreq mreq;
     mreq.imr_multiaddr.s_addr = inet_addr(addr);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     r2 = setsockopt(*socketMultiDiff, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 
+    printf("caca-----------------");
     pthread_t th1, th2;
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);
     pthread_create(&th1, NULL, receptUdp, &socketUDP);
