@@ -88,7 +88,8 @@ bool actionAvantPartie(int socketTCP, char *ch)
             else
             {
                 num = atoi(l);
-                if(rejoindrePartie(socketTCP, identifiant, port, num)){
+                if (rejoindrePartie(socketTCP, identifiant, port, num))
+                {
                     inscrit = true;
                 }
             }
@@ -365,7 +366,8 @@ void receptMultiDiff(int socketMultiDiff, char *received)
     {
         char *infos = strtok(NULL, " ");
         char *id = infos;
-        if(!(strcmp(id, identifiant) == 0)){
+        if (!(strcmp(id, identifiant) == 0))
+        {
             return;
         }
 
@@ -638,11 +640,11 @@ int main(int argc, char *argv[])
     connectError(sock_client);
 
     // reception de [GAMES␣n***]
-    size_t t = 9 + sizeof(uint8_t);
+    size_t t = 10;
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
-    uint8_t n = atoi(&buf[6]);
-    fprintf(stdout, "GAMES %d \n", n);
+    uint8_t n = (uint8_t)buf[6];
+    fprintf(stdout, "GAMES %u\n", n);
 
     // reception de n message [OGAME␣m␣s***]
     recupereGames(n, socketTCP);
