@@ -13,7 +13,7 @@ bool receptSeDeplacer(int socketTCP)
         recvError(recv(socketTCP, buf, t, 0));
         int x = atoi(&buf[1]);
         int y = atoi(&buf[5]);
-        fprintf(stdout, "Vous êtes à la position (%d,%d) (lig,col).\n", x, y);
+        fprintf(stdout, "You're in (%d,%d).\n", x, y);
         return true;
     }
     else if (strcmp(buf5, "MOVEF") == 0) // reception [MOVEF␣x␣y␣p***]
@@ -24,21 +24,21 @@ bool receptSeDeplacer(int socketTCP)
         int x = atoi(&buf[1]);
         int y = atoi(&buf[5]);
         uint32_t p = atoi(&buf[9]);
-        fprintf(stdout, "Vous êtes à la position (%d,%d) (lig,col).\nAprès avoir récolté un fantome vous avez %d points.\n", x, y, p);
+        fprintf(stdout, "You're in (%d,%d).\nYou caught a ghost and have now %d points.\n", x, y, p);
         return true;
     }
     else if (strcmp(buf5, "DUNNO") == 0) // reception [DUNNO***]
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
         return true;
     }
     else if (strcmp(buf5, "GOBYE") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stderr, "La partie est terminée !\n");
+        fprintf(stderr, "The game is finish.\n");
         return false;
     }
     else
@@ -115,7 +115,7 @@ bool quitterPartie(int socketTCP)
 
     char buf8[8];
     recvError(recv(socketTCP, buf8, 8, 0));
-    fprintf(stdout, "Vous avez quitté la partie.\n");
+    fprintf(stdout, "You left the game.\n");
 
     return false;
 }
@@ -139,7 +139,7 @@ bool printJoueurs(uint8_t j, int socketTCP)
         uint32_t points = atoi(&buf30[24]);
 
         // affichage dans le terminal
-        fprintf(stdout, "Le Joueur %s en (%d,%d) a %u points.\n", id, x, y, points);
+        fprintf(stdout, "Player %s on (%d,%d) have %u points.\n", id, x, y, points);
     }
 }
 
@@ -161,7 +161,7 @@ bool listeJoueursIG(int socketTCP)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t j = atoi(&buf[1]);
-        fprintf(stdout, "Il y a %d joueurs dans la partie.\n", j);
+        fprintf(stdout, "There is %d players in the game.\n", j);
 
         // Reception  des données de chaque joueur
         printJoueurs(j, socketTCP);
@@ -171,7 +171,7 @@ bool listeJoueursIG(int socketTCP)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stderr, "La partie est terminée !\n");
+        fprintf(stderr, "The game is finish !\n");
         return false;
     }
     else
@@ -204,14 +204,14 @@ bool envoiMessATous(int socketTCP, char *mess)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stderr, "La message a été envoyé à tous les joueurs.\n");
+        fprintf(stderr, "You sent to everyone your message.\n");
         return true;
     }
     else if (strcmp(buf5, "GOBYE"))
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stderr, "La partie est terminée !\n");
+        fprintf(stderr, "The game is finish !\n");
         return false;
     }
     else
@@ -245,27 +245,25 @@ bool envoiMessAJoueur(int socketTCP, char *mess, char *id)
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
 
-    printf("Received : %s", buf5);
-
     if (strcmp(buf5, "SEND!") == 0)
     {
         char buf[3];
         recvError(recv(socketTCP, buf, 3, 0));
-        fprintf(stdout, "Le message à été envoyé\n");
+        fprintf(stdout, "Your message has been sent.\n");
         return true;
     }
     else if (strcmp(buf5, "NSEND") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Le joueur spécifié n'existe pas ou n'est pas dans la partie.\n");
+        fprintf(stdout, "This player is not valid.\n");
         return true;
     }
     else if (strcmp(buf5, "GOBYE"))
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stderr, "La partie est terminée !\n");
+        fprintf(stderr, "The game is finish !\n");
         return false;
     }
     else
@@ -288,18 +286,17 @@ bool recupLaby(int socketTCP, int w, int h)
             char *p;
             p = strtok(buf, "*");
 
-            fprintf(stdout, "recu : %s pour i:%d et j:%d\n", p, i, j);
             if (strcmp(p, "TRUE!") == 0)
             {
-                // fprintf(stdout, "X");
+                fprintf(stdout, "X");
             }
             else if (strcmp(p, "FALSE") == 0)
             {
-                // fprintf(stdout, "E");
+                fprintf(stdout, "E");
             }
             else
             {
-                fprintf(stderr, "Fail : reception de %s.\n", buf);
+                fprintf(stderr, "Fail : reception %s.\n", buf);
                 close(socketTCP);
                 exit(EXIT_FAILURE);
             }
@@ -317,26 +314,23 @@ bool tricheLaby(int socketTCP, int w, int h)
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
-    fprintf(stdout, "recu : %s", buf5);
 
     if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
         return true;
     }
     else if (strcmp(buf5, "TRCHL") == 0)
     {
-        fprintf(stdout, "w : %d\n", w);
-        fprintf(stdout, "h : %d\n", h);
         char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
         return recupLaby(socketTCP, w, h);
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
@@ -351,13 +345,12 @@ bool tricheFant(int socketTCP)
     char buf5[6];
     recvError(recv(socketTCP, buf5, 5, 0));
     buf5[5] = '\0';
-    fprintf(stdout, "recup : %s", buf5);
 
     if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
-        fprintf(stdout, "Action incomprise.\n");
+        fprintf(stdout, "Doesn't understant.\n");
     }
     else if (strcmp(buf5, "TRCHF") == 0)
     {
@@ -378,11 +371,11 @@ bool tricheFant(int socketTCP)
 
         recvError(recv(socketTCP, buf3, 3, 0));
 
-        fprintf(stdout, "Un fantome se trouve sur la case (%d, %d).\n", x, y);
+        fprintf(stdout, "A ghost is on (%d, %d).\n", x, y);
     }
     else
     {
-        fprintf(stderr, "Fail : reception de %s.\n", buf5);
+        fprintf(stderr, "Fail : reception %s.\n", buf5);
         close(socketTCP);
         exit(EXIT_FAILURE);
     }
