@@ -4,6 +4,7 @@ import java.net.*;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class ServiceJoueur implements Runnable {
                     }
                 }
 
-                if(ready != null){
+                if (ready != null) {
                     parties.remove(ready);
                 }
 
@@ -68,6 +69,20 @@ public class ServiceJoueur implements Runnable {
             System.out.println(e);
             e.printStackTrace();
         }
+    }
+
+    public short intToLittleEndian(int taille) {
+        ByteBuffer bb = ByteBuffer.allocate(2);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putShort((short) taille);
+        System.out.println("val : " + taille);
+
+        byte[] val = bb.array();
+        System.out.println("taille du array : " + val.length);
+        ByteBuffer buffer = ByteBuffer.wrap(val);
+        short v = buffer.getShort();
+        System.out.println("val2 : " + v);
+        return v;
     }
 
     public boolean optionsInGame(OutputStream os, InputStream is) throws IOException {
@@ -92,10 +107,36 @@ public class ServiceJoueur implements Runnable {
                     infos = getInfos(2, is);
                     gameId = Integer.parseInt(infos[0]);
                     p = findGame(gameId);
+                    short h = intToLittleEndian(game.getLabyrinthe().getH());
+                    short w = intToLittleEndian(game.getLabyrinthe().getW());
                     if (p != null) {
-                        os.write(("SIZE! " + gameId + " " + game.getLabyrinthe().getH() + " "
-                                + game.getLabyrinthe().getW() + "***").getBytes(), 0, 16);
+
+                        os.write(("SIZE! " + gameId + " " + h + " " + w + "***").getBytes());
                         os.flush();
+
+                        /*
+                         * os.write(("SIZE! ").getBytes());
+                         * os.flush();
+                         * 
+                         * os.write((game.getId()));
+                         * os.flush();
+                         * 
+                         * os.write((" ").getBytes());
+                         * os.flush();
+                         * 
+                         * os.write(h);
+                         * os.flush();
+                         * 
+                         * os.write((" ").getBytes());
+                         * os.flush();
+                         * 
+                         * os.write(w);
+                         * os.flush();
+                         * 
+                         * os.write(("***").getBytes());
+                         * os.flush();
+                         */
+
                         System.out.println("//send SIZE! pour labyrinthe " + gameId);
                     } else {
                         dunno(os);

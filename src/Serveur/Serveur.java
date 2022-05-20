@@ -15,7 +15,8 @@ public class Serveur {
 
             if (args.length != 2) {
 
-                System.out.println("Veuillez entrer une adresse et un port pour le serveur au lancement de la commande.");
+                System.out
+                        .println("Veuillez entrer une adresse et un port pour le serveur au lancement de la commande.");
                 System.exit(0);
 
             } else {

@@ -144,16 +144,43 @@ void tailleLaby(int socketTCP, uint8_t num)
     buf5[5] = '\0';
     if (strcmp(buf5, "SIZE!") == 0)
     {
-        size_t t = 6 + 1 + 2 * 2;
-        char buf[t];
-        recvError(recv(socketTCP, buf, t, 0));
-        uint8_t m = atoi(&buf[1]);
-        uint16_t h = ntohs(atoi(&buf[3]));
-        uint16_t hh = (atoi(&buf[3]));
-        uint16_t w = ntohs(atoi(&buf[5]));
-        uint16_t ww = (atoi(&buf[5]));
+        // size_t t = 6 + 1 + 2 * 2;
+        char buf1[1];
+        recvError(recv(socketTCP, buf1, 1, 0));
+
+        buf1[1];
+        recvError(recv(socketTCP, buf1, 1, 0));
+        uint8_t m = atoi(buf1);
+        fprintf(stdout, "val m : %s.\n", buf1);
+
+        buf1[1];
+        recvError(recv(socketTCP, buf1, 1, 0));
+
+        char buf2[2];
+        recvError(recv(socketTCP, buf2, 2, 0));
+        uint16_t h = ntohs(atoi(buf2));
+        uint16_t hh = (atoi(buf2));
+        fprintf(stdout, "val h : %s.\n", buf2);
+
+        buf1[1];
+        recvError(recv(socketTCP, buf1, 1, 0));
+
+        buf2[2];
+        recvError(recv(socketTCP, buf2, 2, 0));
+        uint16_t w = ntohs(atoi(buf2));
+        uint16_t ww = (atoi(buf2));
+        fprintf(stdout, "val w : %s.\n", buf2);
+
+        // fprintf(stdout, "val 3 : %s et 5 : %s, et fin %s.\n", &buf[3], &buf[6], &buf[8]);
+        //  uint16_t t1 = ntohs(atoi(4));
         fprintf(stdout, "Labyrinthe %d : w = %d et h = %d.\n", m, w, h);
         fprintf(stdout, "Labyrinthe %d : ww = %d et hh = %d.\n", m, ww, hh);
+        // fprintf(stdout, "Test :  %d.\n", t1);
+
+        char buf3[4];
+        recvError(recv(socketTCP, buf3, 3, 0));
+        buf3[3] = '\0';
+        fprintf(stdout, "normalement etoiles : %s.\n", buf3);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
