@@ -19,19 +19,28 @@ make clean
 
 --------------------------
 
+Utilisation :
+
+Pour jouer avec un client, nous avons mis en place une interface
+textuelle afin de rendre l'interaction avec le serveur plus simple.
+Il suffit simplement de suivre les instructions écrites sur le terminal
+et de rentrer les choix voulus.
+
+--------------------------
+
 Architecture :
 
 La partie Serveur se décompose en 2 services :
-Un service pour les connexions des joueurs 
-    A chaque nouveau joueur, un nouveau thread se créer.
+Un service pour les connexions des joueurs :
+    A chaque nouveau joueur, un nouveau thread se crée.
     La gestion des entrées se fait en mode bloquant (TCP)
 Un service pour les parties : 
-    A chaque début de partie, un nouveau thread se créer
+    A chaque début de partie, un nouveau thread se créé
     La gestion des entrées se fait en mode non bloquant
 
-La partie client fonctionne en mode bloquant (TCP) avant d'entrée dans une partie,
+La partie client fonctionne en mode bloquant (TCP) avant d'entrée dans une partie.
 Lorsqu'un client se trouve dans une partie,
-2 threads se créées pour la reception du multicast et de l'UDP.
+2 threads sont créés pour la reception du multicast et de l'UDP.
 Le TCP ne change pas.
 
 --------------------------
