@@ -166,14 +166,6 @@ public class ServicePartie implements Runnable {
         bb.putShort((short) taille);
 
         byte[] val = bb.array();
-        ByteBuffer buffer = ByteBuffer.wrap(val);
-        short v = buffer.getShort();
-
-        for (int i = 0; i < val.length; i++) {
-            System.out.print("i : " + i + ", val : " + val[i]);
-        }
-        System.out.println();
-        // return v;
         return val;
     }
 
@@ -188,10 +180,10 @@ public class ServicePartie implements Runnable {
         String s = "WELCO m hh ww f " + ip + " " + portMulti + "***";
         byte[] request = s.getBytes();
         request[6] = (byte) partie.getId();
-        request[8] = h[1];
-        request[9] = h[0];
-        request[11] = w[1];
-        request[12] = w[0];
+        request[8] = h[0];
+        request[9] = h[1];
+        request[11] = w[0];
+        request[12] = w[1];
         request[14] = (byte) partie.getNbFantome();
         os.write(request, 0, 39);
         os.flush();

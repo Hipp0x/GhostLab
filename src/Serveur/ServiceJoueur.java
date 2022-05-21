@@ -114,10 +114,10 @@ public class ServiceJoueur implements Runnable {
                         s = "SIZE! m hh ww***";
                         request = s.getBytes();
                         request[6] = (byte) gameId;
-                        request[8] = h[1];
-                        request[9] = h[0];
-                        request[11] = w[1];
-                        request[12] = w[0];
+                        request[8] = h[0];
+                        request[9] = h[1];
+                        request[11] = w[0];
+                        request[12] = w[1];
 
                         os.write(request);
                         os.flush();
@@ -278,10 +278,10 @@ public class ServiceJoueur implements Runnable {
                         s = "SIZE! m hh ww***";
                         request = s.getBytes();
                         request[6] = (byte) gameId;
-                        request[8] = h[1];
-                        request[9] = h[0];
-                        request[11] = w[1];
-                        request[12] = w[0];
+                        request[8] = h[0];
+                        request[9] = h[1];
+                        request[11] = w[0];
+                        request[12] = w[1];
 
                         os.write(request);
                         os.flush();

@@ -157,14 +157,14 @@ void tailleLaby(int socketTCP, uint8_t num)
         // char buf2[3];
         uint16_t k;
         recvError(recv(socketTCP, &k, 2, 0));
-        uint16_t h = ntohs(k);
+        uint16_t h = (k);
 
         buf1[1];
         recvError(recv(socketTCP, buf1, 1, 0));
 
         uint16_t kk;
         recvError(recv(socketTCP, &kk, 2, 0));
-        uint16_t w = ntohs(kk);
+        uint16_t w = (kk);
 
         fprintf(stdout, "**Labyrinth %d's size : w = %d and h = %d**\n", m, w, h);
 
