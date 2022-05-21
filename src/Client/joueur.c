@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
 
     pthread_t th1, th2;
     pthread_create(&th1, NULL, multiCast, socketMultiDiff);
-    pthread_create(&th1, NULL, receptUdp, &socketUDP);
+    pthread_create(&th2, NULL, receptUdp, &socketUDP);
 
     while (enPartie)
     {
