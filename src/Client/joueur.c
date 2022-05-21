@@ -71,7 +71,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : c.\n");
+            fprintf(stdout, "Use the format : c.\n");
         }
         return false;
         break;
@@ -83,7 +83,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
             l = choix + 1;
             if (!isDigit(l, strlen(l)))
             {
-                fprintf(stdout, "Youd need to enter a digital, not :%s.\n", l);
+                fprintf(stdout, "You need to enter digits only, not :%s.\n", l);
             }
             else
             {
@@ -96,7 +96,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : r entier.\n");
+            fprintf(stdout, "Use the format : r (integer).\n");
         }
         return false;
         break;
@@ -110,7 +110,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : d.\n");
+            fprintf(stdout, "Use the format : d.\n");
         }
         return false;
         break;
@@ -122,7 +122,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
             l = choix + 1;
             if (!isDigit(l, strlen(l)))
             {
-                fprintf(stdout, "Youd need to enter a digital, not :%s.\n", choix);
+                fprintf(stdout, "You need to enter digits only, not :%s.\n", choix);
             }
             else
             {
@@ -132,7 +132,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : t entier.\n");
+            fprintf(stdout, "Use the format : t entier.\n");
         }
         return false;
         break;
@@ -144,7 +144,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
             l = choix + 1;
             if (!isDigit(l, strlen(l)))
             {
-                fprintf(stdout, "Youd need to enter a digital, not :%s.", l);
+                fprintf(stdout, "You need to enter digits only, not :%s.", l);
             }
             else
             {
@@ -154,7 +154,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : j entier.\n");
+            fprintf(stdout, "Use the format : j entier.\n");
         }
         return false;
         break;
@@ -167,7 +167,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : p.\n");
+            fprintf(stdout, "Use the format : p.\n");
         }
         return false;
         break;
@@ -189,7 +189,7 @@ bool actionAvantPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : s.\n");
+            fprintf(stdout, "Use the format : s.\n");
             return false;
         }
         break;
@@ -227,12 +227,12 @@ void actionEnPartie(int socketTCP, char *ch)
             }
             else
             {
-                fprintf(stdout, "Youd need to enter a digital, not :%s.\n", l);
+                fprintf(stdout, "You need to enter digits only, not :%s.\n", l);
             }
         }
         else
         {
-            fprintf(stdout, "Respect the format : c.\n");
+            fprintf(stdout, "Use the format : c.\n");
         }
 
         break;
@@ -244,7 +244,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : q.\n");
+            fprintf(stdout, "Use the format : q.\n");
         }
         break;
 
@@ -256,7 +256,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : p.\n");
+            fprintf(stdout, "Use the format : p.\n");
         }
         break;
 
@@ -279,7 +279,7 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Respect the format : m message.\n");
+            fprintf(stdout, "Use the format : m message.\n");
         }
         break;
 
@@ -311,12 +311,12 @@ void actionEnPartie(int socketTCP, char *ch)
 
             else
             {
-                fprintf(stdout, "The id need to contains 8 char.\n");
+                fprintf(stdout, "The id needs to contain 8 char.\n");
             }
         }
         else
         {
-            fprintf(stdout, "Respect the format : w id message.\n");
+            fprintf(stdout, "Use the format : w id message.\n");
         }
         break;
 
@@ -332,11 +332,11 @@ void actionEnPartie(int socketTCP, char *ch)
         }
         else
         {
-            fprintf(stdout, "Wrong entry.\n");
+            fprintf(stdout, "Your action has the wrong format.\n");
         }
         break;
     default:;
-        fprintf(stdout, "Wrong entry.\n");
+        fprintf(stdout, "Your action has the wrong format.\n");
         break;
     }
 }
@@ -351,7 +351,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
         int x = atoi(&buff[6]);
         int y = atoi(&buff[10]);
 
-        fprintf(stdout, "\n++A gosht moved on(%d,%d).++\n", x, y);
+        fprintf(stdout, "\n++A ghost moved to (%d,%d)++\n", x, y);
     }
     else if (strcmp(action, "SCORE") == 0)
     {
@@ -366,7 +366,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
         int x = atoi(&buff[20]);
         int y = atoi(&buff[24]);
 
-        fprintf(stdout, "++%s catched a gosth in (%d,%d) and have now %u points++\n", id, x, y, points);
+        fprintf(stdout, "++%s caught a ghost at (%d,%d) and now has %u points++\n", id, x, y, points);
     }
     else if (strcmp(action, "MESSA") == 0)
     {
@@ -385,7 +385,7 @@ void receptMultiDiff(int socketMultiDiff, char *received)
 
         uint16_t points = (uint16_t)atoi(&buff[15]);
 
-        fprintf(stdout, "++The game is finish!\n%s won with %u points!++\n", id, points);
+        fprintf(stdout, "++The game has ended!\n%s won with %u points!++\n", id, points);
     }
 }
 
@@ -427,7 +427,7 @@ void *receptUdp(void *arg)
 
         char *mess = &buff[15];
 
-        fprintf(stdout, "%s sent you : %s\n", id, mess);
+        fprintf(stdout, "++%s sent you : %s++\n", id, mess);
     }
 
     close(socketUDP);
@@ -471,7 +471,7 @@ void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣i
     char buf3[3];
     recvError(recv(socketTCP, buf3, 3, 0));
 
-    fprintf(stdout, "Welcome in the game n.%u!\nLe labyrinthe a une height de %d et une width de %d.\nThere is %u ghost to catch.\nGood Luck!\n", gameID, hauteur, largeur, fant);
+    fprintf(stdout, "Welcome in the game n.%u!\nThe labyrinth has a height of %d and a width of %d.\nThere is %u ghosts to catch.\nGood Luck!\n", gameID, hauteur, largeur, fant);
 
     char buf15[15];
     recvError(recv(socketTCP, buf15, 15, 0));
@@ -516,7 +516,7 @@ void getID()
                 if (!isalnum(line[i]))
                 {
                     test = false;
-                    fprintf(stdout, "Incorrect. Please, the %d char is not a digital/alpha\n", (i + 1));
+                    fprintf(stdout, "Incorrect. Please, the %d char is not alphanumeric\n", (i + 1));
                 }
             }
             if (test)
@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
     uint8_t n = (uint8_t)buf[6];
-    fprintf(stdout, "GAMES %u\n", n);
+    fprintf(stdout, "There is %u games available    \n", n);
 
     // reception de n message [OGAME␣m␣s***]
     recupereGames(n, socketTCP);
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
         fprintf(stdout, "(C)reate, (J)oin x, (U)nregister,\n");
         fprintf(stdout, "(L)abyrinth's size x, List (p)layers x, List (g)ames,\n");
         fprintf(stdout, "(S)tart.\n");
-        fprintf(stdout, "With x = partie's id.\n");
+        fprintf(stdout, "With x = the game's id.\n");
 
         // action
         char *line = NULL;

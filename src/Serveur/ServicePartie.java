@@ -60,7 +60,6 @@ public class ServicePartie implements Runnable {
                 // ajout d'une socket du joueur
                 SocketChannel acceptor = joueur.getSocket().getChannel();
                 acceptor.configureBlocking(false);
-                System.out.println("La socket est connectée ? : " + acceptor.isConnected());
                 acceptor.socket().setReuseAddress(true);
                 acceptor.register(selector, SelectionKey.OP_READ);
                 ssc.add(acceptor);
@@ -76,7 +75,6 @@ public class ServicePartie implements Runnable {
                     Random random = new Random();
                     System.out.println("nb de fantome : " + partie.getNbFantome());
                     int indice = random.nextInt(partie.getNbFantome());
-                    System.out.println("indice : " + indice);
                     Fantome f = partie.getFantomes().get(indice);
 
                     Case[][] laby = partie.getLabyrinthe().getLaby();
@@ -119,7 +117,7 @@ public class ServicePartie implements Runnable {
                         if (key.isReadable() && key.channel() == s.socket().getChannel()) {
                             Joueur j = getJoueur(s);
                             if (j != null) {
-                                System.out.println("nom du joueur : " + j.getId());
+                                System.out.println("Nom du joueur : " + j.getId());
                             }
                             delete = readAction(s, ssc.indexOf(s));
                             if (delete) {
@@ -166,13 +164,10 @@ public class ServicePartie implements Runnable {
         ByteBuffer bb = ByteBuffer.allocate(2);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) taille);
-        System.out.println("val : " + taille);
 
         byte[] val = bb.array();
-        System.out.println("taille du array : " + val.length);
         ByteBuffer buffer = ByteBuffer.wrap(val);
         short v = buffer.getShort();
-        System.out.println("val2 : " + v);
 
         for (int i = 0; i < val.length; i++) {
             System.out.print("i : " + i + ", val : " + val[i]);
@@ -184,7 +179,6 @@ public class ServicePartie implements Runnable {
 
     // envoi du welcome [WELCO␣m␣h␣w␣f␣ip␣port***]
     public void sendWelcome(OutputStream os) throws IOException {
-        System.out.println("debut de send welcome");
         String ip = partie.getIpString();
         String portMulti = partie.getPortMultiString();
 
@@ -199,10 +193,8 @@ public class ServicePartie implements Runnable {
         request[11] = w[1];
         request[12] = w[0];
         request[14] = (byte) partie.getNbFantome();
-        System.out.println("taille byte : " + request.length);
         os.write(request, 0, 39);
         os.flush();
-        System.out.println("in de send welcome");
     }
 
     // envoi de la position du joueur
@@ -261,7 +253,7 @@ public class ServicePartie implements Runnable {
         buf = ByteBuffer.allocate(1);
         s.read(buf);
 
-        System.out.println("message :" + mess.toString());
+        System.out.println("Message :" + mess.toString());
         return mess.toString();
     }
 
@@ -316,7 +308,7 @@ public class ServicePartie implements Runnable {
         DatagramChannel channel = DatagramChannel.open();
         channel.bind(null);
         channel.send(buffMC, ia);
-        System.out.println(new String(buffMC.array()) + "     ENVOYE");
+        System.out.println(new String(buffMC.array()) + "     SENT");
     }
 
     // retourne le meilleur joueur de la partie
@@ -343,7 +335,7 @@ public class ServicePartie implements Runnable {
         DatagramChannel channel = DatagramChannel.open();
         channel.bind(null);
         channel.send(buffMC, ia);
-        System.out.println(new String(buffMC.array()) + "     ENVOYE");
+        System.out.println(new String(buffMC.array()) + "     SENT");
     }
 
     // multidiffuser le deplacement d'un fantome
@@ -358,7 +350,7 @@ public class ServicePartie implements Runnable {
         DatagramChannel channel = DatagramChannel.open();
         channel.bind(null);
         channel.send(buffMC, ia);
-        System.out.println(new String(buffMC.array()) + "     ENVOYE");
+        System.out.println(new String(buffMC.array()) + "     SENT");
     }
 
     // multidiffuser un message pour tous les joueurs
@@ -374,7 +366,7 @@ public class ServicePartie implements Runnable {
         DatagramChannel channel = DatagramChannel.open();
         channel.bind(null);
         channel.send(buffMC, ia);
-        System.out.println(new String(buffMC.array()) + "     ENVOYE");
+        System.out.println(new String(buffMC.array()) + "     SENT");
     }
 
     // envoi du labyrinthe
@@ -474,7 +466,6 @@ public class ServicePartie implements Runnable {
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 d = Integer.parseInt((new String(buf.array())));
-                System.out.println(d);
                 fant = partie.moveL(d, joueur);
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
@@ -527,11 +518,9 @@ public class ServicePartie implements Runnable {
             case "SEND?":
                 // stocker id 8char
                 String id = getID(s);
-                System.out.println("Après getID");
 
                 // stocker mess
                 mess = getMess(s);
-                System.out.println("Après getMess");
 
                 // verifier si id du joueur est ds partie
                 if (partie.exists(id)) {
@@ -587,7 +576,6 @@ public class ServicePartie implements Runnable {
 
     // clear la lecture jusqu'aux ***
     public void clearIS(SocketChannel iso) throws IOException {
-        System.out.println("dans clear IS");
         ByteBuffer buf = ByteBuffer.allocate(1);
         String r = new String(buf.array());
         while (!("*").equals(r)) {

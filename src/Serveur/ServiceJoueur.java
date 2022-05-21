@@ -175,7 +175,7 @@ public class ServiceJoueur implements Runnable {
                     break;
                 default:
                     System.out.println("//recv " + action + " from " + player.getId());
-                    System.out.println("Unknow action");
+                    System.out.println("Unknown action");
                     clearIS(is);
                     dunno(os);
                     break;
@@ -314,7 +314,7 @@ public class ServiceJoueur implements Runnable {
                     }
                     break;
                 default:
-                    System.out.println("Unknow action : " + action);
+                    System.out.println("Unknown action : " + action);
                     clearIS(is);
                     dunno(os);
                     break;
@@ -340,7 +340,7 @@ public class ServiceJoueur implements Runnable {
             request[8] = (byte) p.getNbJoueurs();
             os.write(request);
             os.flush();
-            System.out.println("//send OGAME, for the " + p.getId() + " game");
+            System.out.println("//send OGAME, for Game n°" + p.getId());
         }
     }
 

@@ -25,13 +25,13 @@ void creerPartie(int socketTCP, char identifiant[], char port[])
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = (uint8_t)buf[1];
-        fprintf(stdout, "You're now in game n°%d.\n", m);
+        fprintf(stdout, "**You're now in the game n°%d**\n", m);
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "You're already register in a game.\n");
+        fprintf(stdout, "**You're already registered in a game**\n");
     }
     else
     {
@@ -72,14 +72,14 @@ bool rejoindrePartie(int socketTCP, char identifiant[], char port[], uint8_t num
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = (uint8_t)buf[1];
-        fprintf(stdout, "You're now in game n°%d.\n", m);
+        fprintf(stdout, "**You're now in the game n°%d**\n", m);
         return true;
     }
     else if (strcmp(buf5, "REGNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "You can't join this game.\n");
+        fprintf(stdout, "**You can't join this game**\n");
         return false;
     }
     else
@@ -108,13 +108,13 @@ void desinscription(int socketTCP)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t m = (uint8_t)buf[1];
-        fprintf(stdout, "You're unsubscribed from the game n°%d.\n", m);
+        fprintf(stdout, "**You have left the game n°%d**\n", m);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Doesn't understant.\n");
+        fprintf(stdout, "**The server doesn't understand**\n");
     }
     else
     {
@@ -166,7 +166,7 @@ void tailleLaby(int socketTCP, uint8_t num)
         recvError(recv(socketTCP, &kk, 2, 0));
         uint16_t w = ntohs(kk);
 
-        fprintf(stdout, "Labyrinthe %d : w = %d et h = %d.\n", m, w, h);
+        fprintf(stdout, "**Labyrinth %d's size : w = %d and h = %d**\n", m, w, h);
 
         char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
@@ -175,7 +175,7 @@ void tailleLaby(int socketTCP, uint8_t num)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Doesn't understant.\n");
+        fprintf(stdout, "**The server doesn't understand**\n");
     }
     else
     {
@@ -195,7 +195,7 @@ void recupereJoueur(uint8_t s, int socketTCP)
         recvError(recv(socketTCP, buf, 17, 0));
         buf[17] = '\0';
         // affichage dans le terminal
-        fprintf(stdout, "Player %s\n", &buf[6]);
+        fprintf(stdout, "**Player %s**\n", &buf[6]);
     }
 }
 
@@ -223,14 +223,14 @@ void listeJoueurs(int socketTCP, uint8_t num)
         recvError(recv(socketTCP, buf, 7, 0));
         uint8_t m = (uint8_t)buf[1];
         uint8_t s = (uint8_t)buf[3];
-        fprintf(stdout, "%d players in the game n°%d :\n", s, m);
+        fprintf(stdout, "**There's %d players in the game n°%d :**\n", s, m);
         recupereJoueur(s, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Doesn't understant.\n");
+        fprintf(stdout, "**The server doesn't understand**\n");
     }
     else
     {
@@ -252,7 +252,7 @@ void recupereGames(uint8_t n, int socketTCP)
         // affichage dans le terminal
         uint8_t m = (uint8_t)buf[6];
         uint8_t s = (uint8_t)buf[8];
-        fprintf(stdout, "OGAME, id : %d, registered : %d\n", m, s);
+        fprintf(stdout, "**Game n°%d, %d players**\n", m, s);
     }
 }
 
@@ -281,11 +281,10 @@ void listeParties(int socketTCP)
     {
         char buf2[3];
         recvError(recv(socketTCP, buf2, 3, 0));
-        fprintf(stdout, "Doesn't understant.\n");
+        fprintf(stdout, "**The server doesn't understand**\n");
     }
     else
     {
-        printf("TNM----------\n");
         fprintf(stderr, "Fail.\n");
         close(socketTCP);
         exit(EXIT_FAILURE);
@@ -299,4 +298,5 @@ void start(int socketTCP)
     char buf8[8];
     memcpy(buf8, "START***", 8);
     sendError(send(socketTCP, buf8, 8, 0));
+    fprintf(stdout, "**Please wait for the others to be ready...**\n");
 }
