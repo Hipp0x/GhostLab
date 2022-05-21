@@ -1,5 +1,7 @@
 package Serveur;
 
+import java.util.Random;
+
 public class Labyrinthe {
 
         private int h; // nb de lignes
@@ -7,15 +9,18 @@ public class Labyrinthe {
         private Case[][] laby;
 
         Labyrinthe() {
-                // createLaby4();
-                laby = new Case[20][20];
-                for (int i = 0; i < 20; i++) {
-                        for (int j = 0; j < 20; j++) {
-                                laby[i][j] = new Case(false);
-                        }
+                int l = new Random().nextInt(4);
+                if (l == 0) {
+                        createLaby1();
+                } else if (l == 1){
+                        createLaby2();
+                } else if (l == 2) {
+                        createLaby3();
+                } else {
+                        createLaby4();
                 }
-                h = 20;
-                w = 20;
+                h = laby.length;
+                w = laby[0].length;
                 printLaby();
         }
 
@@ -26,8 +31,8 @@ public class Labyrinthe {
          */
 
         public void printLaby() {
-                for (int i = 0; i < 20; i++) {
-                        for (int j = 0; j < 20; j++) {
+                for (int i = 0; i < h; i++) {
+                        for (int j = 0; j < w; j++) {
                                 if (laby[i][j].isMur()) {
                                         System.out.print("XX");
                                 } else {
