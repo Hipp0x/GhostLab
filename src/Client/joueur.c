@@ -294,14 +294,12 @@ void actionEnPartie(int socketTCP, char *ch)
             char *id = choix;
             if (strlen(id) == 8)
             {
+                sep = "\n";
                 choix = strtok(NULL, sep);
                 char *k = choix;
                 if (!isVide(k))
                 {
-                    sep = "\n";
-                    choix = strtok(k, sep);
-
-                    envoiMessAJoueur(socketTCP, choix, id);
+                    envoiMessAJoueur(socketTCP, k, id);
                 }
                 else
                 {
@@ -423,9 +421,9 @@ void *receptUdp(void *arg)
         infos = strtok(NULL, " ");
 
         char *id = infos;
-        infos = strtok(NULL, " ");
+        infos = strtok(NULL, "+");
 
-        char *mess = &buff[15];
+        char *mess = infos;
 
         fprintf(stdout, "++%s sent you : %s++\n", id, mess);
     }
