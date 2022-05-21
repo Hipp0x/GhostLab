@@ -12,4 +12,3 @@ bool listeJoueursIG(int socketTCP);
 bool envoiMessATous(int socketTCP, char *mess);
 bool envoiMessAJoueur(int socketTCP, char *mess, char *id);
 bool tricheLaby(int socketTCP, int w, int h);
-bool tricheFant(int socketTCP);
