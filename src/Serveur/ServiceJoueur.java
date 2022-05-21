@@ -271,9 +271,11 @@ public class ServiceJoueur implements Runnable {
                     infos = getInfos(2, is);
                     gameId = Integer.parseInt(infos[0]);
                     p = findGame(gameId);
-                    byte[] h = intToLittleEndian(game.getLabyrinthe().getH());
-                    byte[] w = intToLittleEndian(game.getLabyrinthe().getW());
+                    byte[] h ;
+                    byte[] w ;
                     if (p != null) {
+                        h = intToLittleEndian(game.getLabyrinthe().getH());
+                        w = intToLittleEndian(game.getLabyrinthe().getW());
 
                         s = "SIZE! m hh ww***";
                         request = s.getBytes();
