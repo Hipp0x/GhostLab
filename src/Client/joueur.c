@@ -324,10 +324,6 @@ void actionEnPartie(int socketTCP, char *ch)
         {
             tricheLaby(socketTCP, largeur, hauteur);
         }
-        else if (strcmp(ch, "xtrichexfantx\n") == 0)
-        {
-            tricheFant(socketTCP);
-        }
         else
         {
             fprintf(stdout, "Your action has the wrong format.\n");

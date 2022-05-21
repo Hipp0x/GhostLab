@@ -1,5 +1,5 @@
 # GhostLab
-GhostLab game : serveur + client
+Groupe 31
 
 --------------------------
 
@@ -14,7 +14,7 @@ pour lancer un serveur : java Serveur.Serveur (adresse serveur) (port serveur)
 pour lancer un client : ./joueur (adresse serveur) (port tcp en numerique) (port upd en numerique)  
     ex :  ./joueur 123.45.67.890 1234 4242   
 
-Pour nettoyer
+Pour nettoyer :  (en étant dans le dossier src)
 make clean  
 
 --------------------------
@@ -46,8 +46,6 @@ En Java : serveur (+ services), partie, labyrinthe (+ case), fantome, joueur (ob
 Extensions :
 
 Commandes de triches afin de voir le labyrinthe dans son entierté
--> coté client, écrire : "xtrichexlabyx"
-Commandes de triches afin de voir une position d'un fantome
 -> coté client, écrire : "xtrichexlabyx"
 
 --------------------------

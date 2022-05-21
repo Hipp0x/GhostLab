@@ -393,19 +393,6 @@ public class ServicePartie implements Runnable {
         }
     }
 
-    // envoi d'un fantome
-    public void sendFant(SocketChannel s) throws IOException {
-        ByteBuffer buf = ByteBuffer.wrap(("TRCHF***").getBytes(), 0, (8));
-        s.write(buf);
-        ArrayList<Fantome> l = partie.getFantomes();
-        Random rand = new Random();
-        int i = rand.nextInt(l.size());
-        Fantome f = l.get(i);
-        buf = ByteBuffer.wrap((f.getPosX() + " " + f.getPosY() + "***").getBytes(), 0, (8));
-        s.write(buf);
-
-    }
-
     // lecture de l'action d'un joueur
     public boolean readAction(SocketChannel s, int pos) throws IOException, InterruptedException {
         Joueur joueur = joueurs.get(pos);
@@ -556,11 +543,6 @@ public class ServicePartie implements Runnable {
                 buf = ByteBuffer.allocate(3);
                 s.read(buf);
                 sendLaby(s);
-                return false;
-            case "XTFX?": // triche pour fantome
-                buf = ByteBuffer.allocate(3);
-                s.read(buf);
-                sendFant(s);
                 return false;
             default:
                 clearIS(s);

@@ -287,11 +287,11 @@ bool recupLaby(int socketTCP, int w, int h)
 
             if (strcmp(p, "TRUE!") == 0)
             {
-                fprintf(stdout, "X");
+                fprintf(stdout, "XX");
             }
             else if (strcmp(p, "FALSE") == 0)
             {
-                fprintf(stdout, "E");
+                fprintf(stdout, "  ");
             }
             else
             {
@@ -326,51 +326,6 @@ bool tricheLaby(int socketTCP, int w, int h)
         char buf3[3];
         recvError(recv(socketTCP, buf3, 3, 0));
         return recupLaby(socketTCP, w, h);
-    }
-    else
-    {
-        fprintf(stderr, "Fail : reception %s.\n", buf5);
-        close(socketTCP);
-        exit(EXIT_FAILURE);
-    }
-}
-
-// triche pour voir la position des fantomes
-bool tricheFant(int socketTCP)
-{
-    char *mess = "XTFX?***";
-    sendError(send(socketTCP, mess, 8, 0));
-
-    char buf5[6];
-    recvError(recv(socketTCP, buf5, 5, 0));
-    buf5[5] = '\0';
-
-    if (strcmp(buf5, "DUNNO") == 0)
-    {
-        char buf3[3];
-        recvError(recv(socketTCP, buf3, 3, 0));
-        fprintf(stdout, "The s.\n");
-    }
-    else if (strcmp(buf5, "TRCHF") == 0)
-    {
-        char buf3[4];
-        recvError(recv(socketTCP, buf3, 3, 0));
-        buf3[3] = '\0';
-
-        recvError(recv(socketTCP, buf3, 3, 0));
-        buf5[3] = '\0';
-        int x = atoi(buf3);
-
-        char c;
-        recvError(recv(socketTCP, &c, 1, 0));
-
-        recvError(recv(socketTCP, buf3, 3, 0));
-        buf5[3] = '\0';
-        int y = atoi(buf3);
-
-        recvError(recv(socketTCP, buf3, 3, 0));
-
-        fprintf(stdout, "**A ghost is on (%d, %d)**\n", x, y);
     }
     else
     {
