@@ -159,7 +159,7 @@ bool listeJoueursIG(int socketTCP)
         size_t t = 3 + 1 + 1;
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
-        uint8_t j = atoi(&buf[1]);
+        uint8_t j = (uint8_t) buf[1];
         fprintf(stdout, "**There is %d players in the game.**\n", j);
 
         // Reception  des données de chaque joueur

@@ -47,8 +47,8 @@ public class ServicePartie implements Runnable {
                 int y;
                 Case cas;
                 do {
-                    x = (new Random()).nextInt(w);
-                    y = (new Random()).nextInt(h);
+                    x = (new Random()).nextInt(h);
+                    y = (new Random()).nextInt(w);
                     cas = laby[x][y];
 
                 } while (cas.isMur());
@@ -84,8 +84,8 @@ public class ServicePartie implements Runnable {
                     int y;
                     Case cas;
                     do {
-                        x = (new Random()).nextInt(w);
-                        y = (new Random()).nextInt(h);
+                        x = (new Random()).nextInt(h);
+                        y = (new Random()).nextInt(w);
                         cas = laby[x][y];
 
                     } while (cas.isMur());
@@ -218,8 +218,12 @@ public class ServicePartie implements Runnable {
     public void sendListJoueur(SocketChannel s, ArrayList<Joueur> liste) throws IOException {
         int l = liste.size();
         System.out.println("taille du joueur : " + l);
-        ByteBuffer buf = ByteBuffer.wrap(("GLIS! " + l + "***").getBytes(), 0, 10);
+        String str = "GLIS! s***";
+        byte[] request = str.getBytes();
+        request[6] = (byte) l;
+        ByteBuffer buf = ByteBuffer.wrap(request);
         s.write(buf);
+        System.out.println("Après write ------------------");
 
         for (int i = 0; i < l; i++) {
             Joueur j = liste.get(i);

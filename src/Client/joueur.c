@@ -441,14 +441,14 @@ void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣i
 
     uint16_t height;
     recvError(recv(socketTCP, &height, 2, 0));
-    hauteur = ntohs(height);
+    hauteur = height;
 
     char buf11[1];
     recvError(recv(socketTCP, buf11, 1, 0));
 
     uint16_t width;
     recvError(recv(socketTCP, &width, 2, 0));
-    largeur = ntohs(width);
+    largeur = width;
 
     char buf111[1];
     recvError(recv(socketTCP, buf111, 1, 0));
@@ -469,7 +469,7 @@ void receptWelcPos(int socketTCP) // Reception format [WELCO␣m␣h␣w␣f␣i
     char buf3[3];
     recvError(recv(socketTCP, buf3, 3, 0));
 
-    fprintf(stdout, "Welcome in the game n.%u!\nThe labyrinth has a height of %d and a width of %d.\nThere is %u ghosts to catch.\nGood Luck!\n", gameID, hauteur, largeur, fant);
+    fprintf(stdout, "Welcome in the game n°%u!\nThe labyrinth has a height of %d and a width of %d.\nThere is %u ghosts to catch.\nGood Luck!\n", gameID, hauteur, largeur, fant);
 
     char buf15[15];
     recvError(recv(socketTCP, buf15, 15, 0));
@@ -595,7 +595,7 @@ int main(int argc, char *argv[])
     char buf[t];
     recvError(recv(socketTCP, buf, t, 0));
     uint8_t n = (uint8_t)buf[6];
-    fprintf(stdout, "There is %u games available    \n", n);
+    fprintf(stdout, "There is %u games available\n", n);
 
     // reception de n message [OGAME␣m␣s***]
     recupereGames(n, socketTCP);

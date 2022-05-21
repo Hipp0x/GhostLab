@@ -223,7 +223,7 @@ void listeJoueurs(int socketTCP, uint8_t num)
         recvError(recv(socketTCP, buf, 7, 0));
         uint8_t m = (uint8_t)buf[1];
         uint8_t s = (uint8_t)buf[3];
-        fprintf(stdout, "**There's %d players in the game n°%d :**\n", s, m);
+        fprintf(stdout, "**There's %d players in the game n°%d**\n", s, m);
         recupereJoueur(s, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
@@ -274,7 +274,7 @@ void listeParties(int socketTCP)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t n = (uint8_t)buf[1];
-        fprintf(stdout, "GAMES %d\n", n);
+        fprintf(stdout, "There is %u games available\n", n);
         recupereGames(n, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)
