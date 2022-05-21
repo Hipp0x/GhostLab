@@ -11,15 +11,12 @@ import java.util.ArrayList;
 
 public class ServiceJoueur implements Runnable {
 
-    private final SocketChannel socketCh;
     private final Socket socket;
-
     private Partie game;
     private Joueur player;
     private static ArrayList<Partie> parties;
 
     public ServiceJoueur(SocketChannel s, ArrayList<Partie> parties) {
-        this.socketCh = s;
         this.socket = s.socket();
         ServiceJoueur.parties = parties;
     }
@@ -28,7 +25,7 @@ public class ServiceJoueur implements Runnable {
         try {
             InputStream is = socket.getInputStream();
             OutputStream os = socket.getOutputStream();
-            boolean exit = false;
+            boolean exit;
 
             printAvailableGames(os);
 
@@ -53,7 +50,7 @@ public class ServiceJoueur implements Runnable {
                         Thread t2 = new Thread(partie);
                         t2.start();
 
-                        System.out.println("The game n°" + p.getId() + " started.");
+                        System.out.println("The game n°" + p.getId() + " has started.");
                     }
                 }
 
@@ -76,8 +73,7 @@ public class ServiceJoueur implements Runnable {
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) taille);
 
-        byte[] val = bb.array();
-        return val;
+        return bb.array();
     }
 
     public boolean optionsInGame(OutputStream os, InputStream is) throws IOException {
@@ -193,7 +189,7 @@ public class ServiceJoueur implements Runnable {
         byte[] request;
         do {
             String action = getAction(is, os);
-            Partie p = null;
+            Partie p;
             switch (action) {
                 case "NEWPL":
                     System.out.print("//recv NEWPL ");
@@ -433,21 +429,6 @@ public class ServiceJoueur implements Runnable {
         return new String[] { "" };
     }
 
-    //
-    public String getGameId(BufferedReader br) throws IOException {
-        char[] curr;
-        StringBuilder gameID = new StringBuilder();
-        for (int i = 0; i < 3; i++) {
-            curr = new char[1];
-            readError(br.read(curr, 0, 1), socket);
-            if (new String(curr).matches("[0-9]")) {
-                gameID.append(new String(curr));
-            } else {
-                break;
-            }
-        }
-        return new String(gameID);
-    }
 
     // clear la lecture jusqu'aux ***
     public void clearIS(InputStream iso) throws IOException {
@@ -496,7 +477,7 @@ public class ServiceJoueur implements Runnable {
         for (Partie p : parties) {
             if (p.getId() == game.getId()) {
                 for (Joueur j : p.getJoueurs()) {
-                    if (j.getId() == player.getId()) {
+                    if (j.getId().equals(player.getId())) {
                         j.switchReady();
                     }
                 }

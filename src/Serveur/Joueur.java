@@ -90,15 +90,15 @@ public class Joueur {
         StringBuilder s = new StringBuilder();
         if (v < 10) {
             s.append("000");
-            s.append(Integer.toString(v));
+            s.append(v);
         } else if (v < 100) {
             s.append("00");
-            s.append(Integer.toString(v));
+            s.append(v);
         } else if (v < 1000) {
             s.append("0");
-            s.append(Integer.toString(v));
+            s.append(v);
         } else {
-            s.append(Integer.toString(v));
+            s.append(v);
         }
         pPoint = s.toString();
     }

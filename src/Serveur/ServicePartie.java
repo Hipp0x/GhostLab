@@ -14,7 +14,6 @@ public class ServicePartie implements Runnable {
     static Partie partie;
     ArrayList<Joueur> joueurs;
     ArrayList<SocketChannel> ssc;
-    DatagramSocket dso;
 
     public ServicePartie(Partie p) {
         partie = p;
@@ -73,7 +72,7 @@ public class ServicePartie implements Runnable {
                 @Override
                 public void run() {
                     Random random = new Random();
-                    System.out.println("nb de fantome : " + partie.getNbFantome());
+                    System.out.println(partie.getNbFantome() + " ghosts in the game.");
                     int indice = random.nextInt(partie.getNbFantome());
                     Fantome f = partie.getFantomes().get(indice);
 
@@ -105,7 +104,7 @@ public class ServicePartie implements Runnable {
             executor.scheduleAtFixedRate(task, 40, 30, TimeUnit.SECONDS);
 
             ArrayList<SocketChannel> deleted;
-            boolean delete = false;
+            boolean delete;
             while (!partie.isFinish()) {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
@@ -117,7 +116,7 @@ public class ServicePartie implements Runnable {
                         if (key.isReadable() && key.channel() == s.socket().getChannel()) {
                             Joueur j = getJoueur(s);
                             if (j != null) {
-                                System.out.println("Nom du joueur : " + j.getId());
+                                System.out.println("Player's ID: " + j.getId());
                             }
                             delete = readAction(s, ssc.indexOf(s));
                             if (delete) {
@@ -153,6 +152,7 @@ public class ServicePartie implements Runnable {
                 }
 
             }
+            System.out.println("The game has ended.");
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -165,8 +165,7 @@ public class ServicePartie implements Runnable {
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort((short) taille);
 
-        byte[] val = bb.array();
-        return val;
+        return bb.array();
     }
 
     // envoi du welcome [WELCO␣m␣h␣w␣f␣ip␣port***]
@@ -208,34 +207,36 @@ public class ServicePartie implements Runnable {
     }
 
     // envoi du move avec point
-    public void sendMoveFant(SocketChannel s, String x, String y, String p, String id) throws IOException {
+    public void sendMoveFant(SocketChannel s, String x, String y, String p) throws IOException {
         // [SCORE␣id␣p␣x␣y+++]
         ByteBuffer buf = ByteBuffer.wrap(("MOVEF " + x + " " + y + " " + p + "***").getBytes(), 0, (11 + 3 + 3 + 4));
+        System.out.println(new String(buf.array()));
         s.write(buf);
     }
 
     // envoi de la liste des joueurs
     public void sendListJoueur(SocketChannel s, ArrayList<Joueur> liste) throws IOException {
         int l = liste.size();
-        System.out.println("taille du joueur : " + l);
+        System.out.println("Number of players in the game: " + l);
         String str = "GLIS! s***";
         byte[] request = str.getBytes();
         request[6] = (byte) l;
         ByteBuffer buf = ByteBuffer.wrap(request);
+        System.out.println(new String(buf.array()));
         s.write(buf);
-        System.out.println("Après write ------------------");
 
         for (int i = 0; i < l; i++) {
             Joueur j = liste.get(i);
             buf = ByteBuffer
                     .wrap(("GPLYR " + j.getId() + " " + j.getPosX() + " " + j.getPosY() + " " + j.getPPoint() + "***")
                             .getBytes(), 0, (12 + 8 + 3 + 3 + 4));
+            System.out.println(new String(buf.array()));
             s.write(buf);
         }
     }
 
     // recupere le message (au + 200 char)
-    public String getMess(SocketChannel s) throws IOException, InterruptedException {
+    public String getMess(SocketChannel s) throws IOException{
         StringBuilder mess = new StringBuilder();
         ByteBuffer buf = ByteBuffer.allocate(1);
         do {
@@ -249,7 +250,7 @@ public class ServicePartie implements Runnable {
         buf = ByteBuffer.allocate(1);
         s.read(buf);
 
-        System.out.println("Message :" + mess.toString());
+        System.out.println("Message :" + mess);
         return mess.toString();
     }
 
@@ -267,6 +268,7 @@ public class ServicePartie implements Runnable {
     // envoi de Mall
     public void sendMall(SocketChannel s) throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(("MALL!***").getBytes(), 0, (8));
+        System.out.println(new String(buf.array()));
         s.write(buf);
     }
 
@@ -283,6 +285,7 @@ public class ServicePartie implements Runnable {
     public void sendBye(SocketChannel s) throws IOException {
         clearIS(s);
         ByteBuffer buf = ByteBuffer.wrap(("GOBYE***").getBytes(), 0, (8));
+        System.out.println(new String(buf.array()));
         s.write(buf);
 
         Joueur j = getJoueur(s);
@@ -356,8 +359,8 @@ public class ServicePartie implements Runnable {
         String en = "MESSA " + joueur.getId() + " " + mess + "+++";
         ByteBuffer buffMC = ByteBuffer.wrap(en.getBytes());
 
-        System.out.println("ip de partie : " + partie.getIp());
-        System.out.println("port multi : " + partie.getPortMulti());
+        System.out.println("Game IP: " + partie.getIp());
+        System.out.println("Multicast Port: " + partie.getPortMulti());
         InetSocketAddress ia = new InetSocketAddress(partie.getIp(), partie.getPortMulti());
         DatagramChannel channel = DatagramChannel.open();
         channel.bind(null);
@@ -373,18 +376,18 @@ public class ServicePartie implements Runnable {
         int w = l.getW();
         int h = l.getH();
         Case[][] laby = l.getLaby();
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h; j++) {
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
                 if (laby[i][j].isMur()) {
 
                     buf = ByteBuffer.wrap(("TRUE!***").getBytes(), 0, (8));
                     s.write(buf);
-                    System.out.println("envoie true");
+                    System.out.println("i: "+ i + " j: " + j +" envoie true");
                 } else {
 
                     buf = ByteBuffer.wrap(("FALSE***").getBytes(), 0, (8));
                     s.write(buf);
-                    System.out.println("envoie false");
+                    System.out.println("i: "+ i + " j: " + j +" envoie false");
                 }
             }
         }
@@ -414,8 +417,6 @@ public class ServicePartie implements Runnable {
         int d, fant;
         String mess;
         String env;
-        byte[] data;
-        DatagramPacket paquet;
 
         System.out.println("Recu :" + action + ".");
         switch (action) {
@@ -432,7 +433,7 @@ public class ServicePartie implements Runnable {
                 if (fant > 0) {
                     joueur.setPoint(joueur.getPoint() + fant);
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint(), joueur.getId());
+                            joueur.getPPoint());
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -450,7 +451,7 @@ public class ServicePartie implements Runnable {
 
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint(), joueur.getId());
+                            joueur.getPPoint());
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -468,7 +469,7 @@ public class ServicePartie implements Runnable {
 
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint(), joueur.getId());
+                            joueur.getPPoint());
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }
@@ -485,7 +486,7 @@ public class ServicePartie implements Runnable {
                 s.read(buf);
                 if (fant > 0) {
                     sendMoveFant(s, joueur.getPosX(), joueur.getPosY(),
-                            joueur.getPPoint(), joueur.getId());
+                            joueur.getPPoint());
                 } else {
                     sendMove(s, joueur.getPosX(), joueur.getPosY());
                 }

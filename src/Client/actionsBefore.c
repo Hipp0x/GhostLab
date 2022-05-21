@@ -274,7 +274,7 @@ void listeParties(int socketTCP)
         char buf[t];
         recvError(recv(socketTCP, buf, t, 0));
         uint8_t n = (uint8_t)buf[1];
-        fprintf(stdout, "There is %u games available\n", n);
+        fprintf(stdout, "**There is %u games available**\n", n);
         recupereGames(n, socketTCP);
     }
     else if (strcmp(buf5, "DUNNO") == 0)

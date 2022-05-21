@@ -56,11 +56,7 @@ public class Partie {
                 return false;
             }
         }
-        if (joueurs.size() == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return joueurs.size() != 0;
     }
 
     public void placerFantome() {
@@ -71,14 +67,13 @@ public class Partie {
         Case cas;
         int normaux;
         int moyen;
-        int rare;
         if (nbFant <= 2) {
             for (int i = 0; i < nbFant; i++) {
                 int x;
                 int y;
                 do {
-                    x = (new Random()).nextInt(w);
-                    y = (new Random()).nextInt(h);
+                    x = (new Random()).nextInt(h);
+                    y = (new Random()).nextInt(w);
                     cas = laby[x][y];
 
                 } while (cas.isMur());
@@ -88,13 +83,12 @@ public class Partie {
         } else {
             normaux = (int) (0.7 * 5);
             moyen = (int) (0.7 * (nbFant - normaux));
-            rare = nbFant - normaux;
             for (int i = 0; i < nbFant; i++) {
                 int x;
                 int y;
                 do {
-                    x = (new Random()).nextInt(w);
-                    y = (new Random()).nextInt(h);
+                    x = (new Random()).nextInt(h);
+                    y = (new Random()).nextInt(w);
                     cas = laby[x][y];
 
                 } while (cas.isMur());
@@ -119,7 +113,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList<Fantome>();
+        ArrayList<Fantome> l = new ArrayList<>();
         for (int i = 1; i <= d; i++) {
             if (x - i >= 0) {
                 if (!laby[x - i][y].isMur()) {
@@ -162,7 +156,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList<Fantome>();
+        ArrayList<Fantome> l = new ArrayList<>();
         for (int i = 1; i <= d; i++) {
             if (x + i < h) {
                 if (!laby[x + i][y].isMur()) {
@@ -205,7 +199,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList<Fantome>();
+        ArrayList<Fantome> l = new ArrayList<>();
         for (int i = 1; i <= d; i++) {
             if (y + i < w) {
                 if (!laby[x][y + i].isMur()) {
@@ -247,7 +241,7 @@ public class Partie {
         int y = j.getY();
         int compt = 0;
         int fant = 0;
-        ArrayList<Fantome> l = new ArrayList<Fantome>();
+        ArrayList<Fantome> l = new ArrayList<>();
         for (int i = 1; i <= d; i++) {
             if (y - i >= 0) {
                 if (!laby[x][y - i].isMur()) {
@@ -351,10 +345,6 @@ public class Partie {
 
     public void setFantome(int x) {
         nbFant = x;
-    }
-
-    public void removeFantome(Fantome f) {
-        fantomes.remove(f);
     }
 
     public String getPortMultiString() {
