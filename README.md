@@ -45,30 +45,7 @@ Le TCP ne change pas.
 
 --------------------------
 
-Code :
-
-En C : joueur (client)  
-En Java : serveur (+ services), partie, labyrinthe (+ case), fantome, joueur (objet)  
-
---------------------------
-
 Extensions :
 
 Commandes de triches afin de voir le labyrinthe dans son entierté
 -> coté client, écrire : "xtrichexlabyx"
-
---------------------------
-
-Répartition du travail :  
-  
-Avant de commencer une partie :  
-Pauline : joueur  
-Ugo : serveur (+ tout ce qui est lié)
-
-Début d'une partie :  
-Pauline : serveur + partie + creation labyrinthes   
-Ugo : client + création des parties (positionnement joueur + fantome ...)  
-
-Déroulement d'une partie :  
-Pauline : serveur + partie   
-Ugo : client + correction pb non bloquant coté serveur
